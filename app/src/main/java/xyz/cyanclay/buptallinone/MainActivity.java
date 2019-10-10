@@ -1,5 +1,6 @@
 package xyz.cyanclay.buptallinone;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -20,10 +21,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.view.Menu;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import xyz.cyanclay.buptallinone.login.LoginManager;
 
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
+    private LoginManager loginManager = new LoginManager();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +57,14 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
+
+        new Thread(new Runnable(){
+            @Override
+            public void run() {
+                loginManager.init();
+                getcap();
+            }
+        }).start();
     }
 
     @Override
@@ -65,5 +79,51 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
+    }
+
+    public void getcap(){
+        final ImageView iv = findViewById(R.id.imgCap2);
+        new Thread(new Runnable(){
+            @Override
+            public void run() {
+                final Drawable dw = loginManager.getCapImage();
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        iv.setImageDrawable(dw);
+                    }
+                });
+            }
+        }).start();
+    }
+
+    public void onLogin(View v){
+        getcap();
+        final TextView editUser = findViewById(R.id.inpUser2);
+        final TextView editPass = findViewById(R.id.inpPass2);
+        final TextView editCap = findViewById(R.id.inpCap2);
+        final TextView status = findViewById(R.id.status2);
+        loginManager.setLoginDetails(editUser.getText().toString(),
+                editPass.getText().toString(),
+                editCap.getText().toString());
+        new Thread(new Runnable(){
+            @Override
+            public void run() {
+                final boolean result = loginManager.login();
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (result){
+                            status.setText("success");
+                        } else {
+                            status.setText(loginManager.getSessionID());
+                        }
+                    }
+                });
+            }
+        }).start();
+
     }
 }

@@ -55,11 +55,16 @@ public class LoginManager {
 
     public Drawable getCapImage(){
         Drawable capImageDrawable;
-        if (sessionID.equals("")){
+        if (sessionID == null || sessionID.length() == 0){
             init();
         }
         try {
-            Connection.Response cap = Jsoup.connect(jwcapURL).method(Connection.Method.GET) .ignoreContentType(true).execute();
+            Connection.Response cap = Jsoup.connect(jwcapURL)
+                    .header("Cookie", sessionName + "=" + sessionID)
+                    .method(Connection.Method.GET)
+                    .ignoreContentType(true)
+                    .cookie(sessionName, sessionID)
+                    .execute();
             capImageDrawable = Drawable.createFromStream(new ByteArrayInputStream(cap.bodyAsBytes()), "");
             capImageDrawable.setVisible(true, true);
         } catch (Exception e){
@@ -71,18 +76,21 @@ public class LoginManager {
 
     public boolean login(){
         try {
+            System.out.print("Successfully get sessionId : " + sessionID);
             Connection.Response login = Jsoup.connect(loginURL)
                     .header("Cookie", sessionName + "=" + sessionID)  //携带刚才的 Cookie 信息
                     .data("type", "sso", "zjh", user, "mm", pass, "v_yzm", cap)
-                    //这里的 zjh 和 mm 就是登录页面 form 表单的 name
+                    .cookie(sessionName, sessionID)
                     .method(Connection.Method.POST)
                     .execute();
-            if(login.body().contains("学分制综合教务")){
-                return true;
-            } else return false;
+            return (login.body().contains("综合教务"));
         } catch (Exception e) {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public String getSessionID(){
+        return sessionID;
     }
 }
