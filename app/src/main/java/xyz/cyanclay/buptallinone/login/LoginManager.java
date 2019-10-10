@@ -74,7 +74,7 @@ public class LoginManager {
         return capImageDrawable;
     }
 
-    public boolean login(){
+    public String login(){
         try {
             System.out.print("Successfully get sessionId : " + sessionID);
             Connection.Response login = Jsoup.connect(loginURL)
@@ -83,11 +83,11 @@ public class LoginManager {
                     .cookie(sessionName, sessionID)
                     .method(Connection.Method.POST)
                     .execute();
-            return (login.body().contains("综合教务"));
+            return login.body();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return false;
+        return null;
     }
 
     public String getSessionID(){

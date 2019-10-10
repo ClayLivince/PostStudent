@@ -110,16 +110,12 @@ public class MainActivity extends AppCompatActivity {
         new Thread(new Runnable(){
             @Override
             public void run() {
-                final boolean result = loginManager.login();
+                final String result = loginManager.login();
 
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (result){
-                            status.setText("success");
-                        } else {
-                            status.setText(loginManager.getSessionID());
-                        }
+                        status.setText(result);
                     }
                 });
             }
