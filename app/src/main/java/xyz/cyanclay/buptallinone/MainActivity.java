@@ -1,6 +1,9 @@
 package xyz.cyanclay.buptallinone;
 
+import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -24,17 +27,19 @@ import android.view.Menu;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import xyz.cyanclay.buptallinone.login.LoginManager;
+import xyz.cyanclay.buptallinone.login.JwxtManager;
+import xyz.cyanclay.buptallinone.login.VPNManager;
 
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
-    private LoginManager loginManager = new LoginManager();
+    private VPNManager vpnManager = new VPNManager();
+    private JwxtManager jwxtManager = new JwxtManager(vpnManager);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);;
+        setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         FloatingActionButton fab = findViewById(R.id.fab);
@@ -61,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         new Thread(new Runnable(){
             @Override
             public void run() {
-                loginManager.init();
+                jwxtManager.init();
                 getcap();
             }
         }).start();
@@ -86,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
         new Thread(new Runnable(){
             @Override
             public void run() {
-                final Drawable dw = loginManager.getCapImage();
+                final Drawable dw = jwxtManager.getCapImage();
 
                 runOnUiThread(new Runnable() {
                     @Override
@@ -98,19 +103,40 @@ public class MainActivity extends AppCompatActivity {
         }).start();
     }
 
-    public void onLogin(View v){
+    public void onVPNLogin(View v){
+
+        final TextView editUser = findViewById(R.id.inpUser2);
+        final TextView editPass = findViewById(R.id.inpPass2);
+        final TextView editCap = findViewById(R.id.inpCap2);
+        final TextView editVPN = findViewById(R.id.inpVPNPass);
+        jwxtManager.setJwDetails(editUser.getText().toString(),
+                editPass.getText().toString(),
+                editCap.getText().toString());
+        vpnManager.setVpnDetails(editUser.getText().toString(), editVPN.getText().toString());
+        new Thread(new Runnable(){
+            @Override
+            public void run() {
+                vpnManager.refreshVPNCookie();
+            }
+        }).start();
+        getcap();
+    }
+
+    public void onJwLogin(View v){
         getcap();
         final TextView editUser = findViewById(R.id.inpUser2);
         final TextView editPass = findViewById(R.id.inpPass2);
         final TextView editCap = findViewById(R.id.inpCap2);
+        final TextView editVPN = findViewById(R.id.inpVPNPass);
         final TextView status = findViewById(R.id.status2);
-        loginManager.setLoginDetails(editUser.getText().toString(),
+        jwxtManager.setJwDetails(editUser.getText().toString(),
                 editPass.getText().toString(),
                 editCap.getText().toString());
+        vpnManager.setVpnDetails(editUser.getText().toString(), editVPN.getText().toString());
         new Thread(new Runnable(){
             @Override
             public void run() {
-                final String result = loginManager.login();
+                final String result = jwxtManager.jwLogin();
 
                 runOnUiThread(new Runnable() {
                     @Override
@@ -121,5 +147,14 @@ public class MainActivity extends AppCompatActivity {
             }
         }).start();
 
+    }
+
+    public boolean checkNetwork(){
+        WifiManager wifiMgr = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        int wifiState = wifiMgr.getWifiState();
+        WifiInfo info = wifiMgr.getConnectionInfo();
+        String wifiId = info != null ? info.getSSID() : null;
+
+        return (wifiState == 3 && wifiId != null && wifiId.contains("BUPT-"));
     }
 }

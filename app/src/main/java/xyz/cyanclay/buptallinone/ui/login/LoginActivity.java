@@ -5,7 +5,6 @@ import android.app.Activity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -25,14 +24,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import xyz.cyanclay.buptallinone.R;
-import xyz.cyanclay.buptallinone.login.LoginManager;
-import xyz.cyanclay.buptallinone.ui.login.LoginViewModel;
-import xyz.cyanclay.buptallinone.ui.login.LoginViewModelFactory;
 
 public class LoginActivity extends AppCompatActivity {
 
     private LoginViewModel loginViewModel;
-    private LoginManager loginManager = new LoginManager();
+    //private JwxtManager loginManager = new JwxtManager();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -80,7 +76,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 setResult(Activity.RESULT_OK);
 
-                //Complete and destroy login activity once successful
+                //Complete and destroy jwLogin activity once successful
                 finish();
             }
         });
@@ -139,7 +135,9 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void getCaptchaImage(ImageView iv){
-        Drawable dw = loginManager.getCapImage();
-        iv.setImageDrawable(dw);
+       // Drawable dw = loginManager.getCapImage();
+       // iv.setImageDrawable(dw);
     }
+
+    public void onVPNLogin(View v){}
 }

@@ -11,7 +11,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 /**
- * Class that handles authentication w/ login credentials and retrieves user information.
+ * Class that handles authentication w/ jwLogin credentials and retrieves user information.
  */
 public class RemoteLoginManager {
 

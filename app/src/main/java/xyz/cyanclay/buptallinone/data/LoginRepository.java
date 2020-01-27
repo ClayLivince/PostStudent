@@ -4,7 +4,7 @@ import xyz.cyanclay.buptallinone.data.model.LoggedInUser;
 
 /**
  * Class that requests authentication and user information from the remote data source and
- * maintains an in-memory cache of login status and user credentials information.
+ * maintains an in-memory cache of jwLogin status and user credentials information.
  */
 public class LoginRepository {
 
@@ -44,7 +44,7 @@ public class LoginRepository {
     }
 
     public Result<LoggedInUser> login(String username, String password, String captcha) {
-        // handle login
+        // handle jwLogin
         Result<LoggedInUser> result = loginManager.login(username, password, captcha);
         if (result instanceof Result.Success) {
             setLoggedInUser(((Result.Success<LoggedInUser>) result).getData());

@@ -3,7 +3,7 @@ package xyz.cyanclay.buptallinone.ui.login;
 import androidx.annotation.Nullable;
 
 /**
- * Data validation state of the login form.
+ * Data validation state of the jwLogin form.
  */
 class LoginFormState {
     @Nullable

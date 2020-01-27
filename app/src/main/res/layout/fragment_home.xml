@@ -12,8 +12,8 @@
         android:layout_marginTop="68dp"
         android:layout_marginBottom="160dp"
         android:ems="10"
+        android:hint="Captcha"
         android:inputType="textPersonName"
-        android:text="verification"
         app:layout_constraintBottom_toTopOf="@+id/btnLogin2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -26,12 +26,12 @@
         android:layout_marginStart="165dp"
         android:layout_marginTop="235dp"
         android:layout_marginEnd="159dp"
-        android:layout_marginBottom="116dp"
-        android:onClick="onLogin"
-        android:text="login"
+        android:layout_marginBottom="136dp"
+        android:onClick="onVPNLogin"
+        android:text="VPNLogin"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/inpUser"
         app:layout_constraintVertical_bias="0.805" />
@@ -56,6 +56,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:ems="10"
+        android:hint="JWPass"
         android:inputType="textPassword"
         app:layout_constraintBottom_toTopOf="@+id/inpCap2"
         app:layout_constraintEnd_toEndOf="parent"
@@ -68,13 +69,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
+        android:hint="User"
         android:inputType="textPersonName"
-        android:text="Name"
         app:layout_constraintBottom_toTopOf="@+id/inpPass2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintVertical_bias="0.805" />
 
     <TextView
         android:id="@+id/name2"
@@ -116,5 +117,41 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/inpVPNPass"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="VPNPass"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toTopOf="@+id/inpPass2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/inpUser2" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:onClick="onJwLogin"
+        android:text="JWLogin"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.46"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnLogin2"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <WebView
+        android:id="@+id/webView"
+        android:layout_width="409dp"
+        android:layout_height="29dp"
+        app:layout_constraintBottom_toTopOf="@+id/name2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/text_home"
+        app:layout_constraintVertical_bias="0.06999999" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

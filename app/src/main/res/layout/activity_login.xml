@@ -19,7 +19,7 @@
         android:layout_marginTop="235dp"
         android:layout_marginEnd="159dp"
         android:layout_marginBottom="116dp"
-        android:onClick="onLogin"
+        android:onClick="onVPNLogin"
         android:text="login"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
