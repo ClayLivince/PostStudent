@@ -163,7 +163,7 @@ public class JwxtManager {
                 Log.w("Login Webpage Info：\n", login.outerHtml());
                 Log.w("Login URL: ", login.baseUri());
                 if (login.title().equals("学分制综合教务")){
-                    return "Login Successfully.";
+                    return "已成功登录";
                 } else {
                     if (login.getElementsByTag("strong").hasText()){
                         if (login.getElementsByTag("strong").first().children().first().text().contains("你输入的校验码有误，请重新输入")){

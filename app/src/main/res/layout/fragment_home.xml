@@ -43,7 +43,7 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/inpUser2"
         app:layout_constraintTop_toBottomOf="@+id/inpCap2"
-        app:layout_constraintVertical_bias="0.09" />
+        app:layout_constraintVertical_bias="0.102" />
 
     <EditText
         android:id="@+id/inpPass2"
@@ -65,12 +65,12 @@
         android:ems="10"
         android:hint="User"
         android:inputType="textPersonName"
-        app:layout_constraintBottom_toTopOf="@+id/imgCap2"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.242"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.434" />
+        app:layout_constraintVertical_bias="0.233" />
 
     <TextView
         android:id="@+id/name2"
@@ -78,24 +78,23 @@
         android:layout_height="wrap_content"
         android:text="@string/app_name"
         android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/inpUser2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.148"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.158" />
+        app:layout_constraintVertical_bias="0.751" />
 
     <ImageView
         android:id="@+id/imgCap2"
         android:layout_width="137dp"
         android:layout_height="58dp"
-        android:layout_marginTop="144dp"
-        android:layout_marginBottom="256dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.175"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/inpUser"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/inpUser2"
+        app:layout_constraintTop_toBottomOf="@+id/status2"
+        app:layout_constraintVertical_bias="0.108"
         tools:srcCompat="@tools:sample/avatars" />
 
     <TextView
