@@ -1,4 +1,4 @@
-package xyz.cyanclay.buptallinone.login;
+package xyz.cyanclay.buptallinone.network;
 
 import android.util.Log;
 

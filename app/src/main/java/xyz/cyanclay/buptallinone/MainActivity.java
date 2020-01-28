@@ -27,8 +27,8 @@ import android.view.Menu;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import xyz.cyanclay.buptallinone.login.JwxtManager;
-import xyz.cyanclay.buptallinone.login.VPNManager;
+import xyz.cyanclay.buptallinone.network.JwxtManager;
+import xyz.cyanclay.buptallinone.network.VPNManager;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -105,6 +105,13 @@ public class MainActivity extends AppCompatActivity {
 
     public void onVPNLogin(View v){
 
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                jwxtManager.checkScore();
+            }
+        }).start();
+        /*
         final TextView editUser = findViewById(R.id.inpUser2);
         final TextView editPass = findViewById(R.id.inpPass2);
         final TextView editCap = findViewById(R.id.inpCap2);
@@ -120,6 +127,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }).start();
         getcap();
+
+         */
     }
 
     public void onJwLogin(View v){

@@ -1,9 +1,7 @@
-package xyz.cyanclay.buptallinone.login;
+package xyz.cyanclay.buptallinone.network;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
-
-import java.net.HttpURLConnection;
 
 public class InfoManager {
 
