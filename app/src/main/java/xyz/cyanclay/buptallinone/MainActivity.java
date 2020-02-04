@@ -42,6 +42,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        toolbar.setSubtitle("厚德博学 敬业乐群");
+        toolbar.setSubtitleTextColor(0xffffffff);
+
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -63,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
+        /*
         new Thread(new Runnable(){
             @Override
             public void run() {
@@ -70,6 +74,8 @@ public class MainActivity extends AppCompatActivity {
                 getcap();
             }
         }).start();
+
+         */
     }
 
     @Override
@@ -86,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
                 || super.onSupportNavigateUp();
     }
 
-    public void getcap(){
+    /*public void getcap(){
         final ImageView iv = findViewById(R.id.imgCap2);
         new Thread(new Runnable(){
             @Override
@@ -101,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         }).start();
-    }
+    }*/
 
     public void onVPNLogin(View v){
 
@@ -131,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
          */
     }
 
+    /*
     public void onJwLogin(View v){
         getcap();
         final TextView editUser = findViewById(R.id.inpUser2);
@@ -166,4 +173,6 @@ public class MainActivity extends AppCompatActivity {
 
         return (wifiState == 3 && wifiId != null && wifiId.contains("BUPT-"));
     }
+
+     */
 }
