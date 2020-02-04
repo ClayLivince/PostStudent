@@ -109,6 +109,7 @@ public class MainActivity extends AppCompatActivity {
         }).start();
     }*/
 
+    /*
     public void onVPNLogin(View v){
 
         new Thread(new Runnable() {
@@ -117,6 +118,8 @@ public class MainActivity extends AppCompatActivity {
                 jwxtManager.checkScore();
             }
         }).start();
+
+     */
         /*
         final TextView editUser = findViewById(R.id.inpUser2);
         final TextView editPass = findViewById(R.id.inpPass2);
@@ -133,9 +136,9 @@ public class MainActivity extends AppCompatActivity {
             }
         }).start();
         getcap();
+    }
 
          */
-    }
 
     /*
     public void onJwLogin(View v){
