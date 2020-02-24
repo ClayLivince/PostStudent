@@ -17,7 +17,6 @@ public class VPNManager {
 
     static final String vpnURL = "https://vpn.bupt.edu.cn/",
             vpnLoginURL = "https://vpn.bupt.edu.cn/global-protect/login.esp",
-            userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36",
             host = "vpn.bupt.edu.cn";
     public String vpnPhpID = "";
     private String GP_SESSION_CK = "";
@@ -35,7 +34,7 @@ public class VPNManager {
         try {
             Connection.Response init = Jsoup.connect(vpnLoginURL)
                     .method(Connection.Method.GET)
-                    .userAgent(userAgent)
+                    .userAgent(NetworkManager.userAgent)
                     .header("Host", host)
                     .referrer(vpnURL)
                     .postDataCharset("utf8")
@@ -53,7 +52,7 @@ public class VPNManager {
             }};
             Connection.Response vpnLogin = Jsoup.connect(vpnLoginURL)
                     .method(Connection.Method.POST)
-                    .userAgent(userAgent)
+                    .userAgent(NetworkManager.userAgent)
                     .referrer(vpnLoginURL)
                     .header("Host", host)
                     .header("Origin", vpnURL)
@@ -76,11 +75,11 @@ public class VPNManager {
         return (vpnPhpID == null || GP_SESSION_CK == null);
     }
 
-    private String transformURL(String URL){
+    private static String transformURL(String URL){
         return URL.replaceFirst(":/", "");
     }
 
-    public String proxyURL(String URL){
+    public static String proxyURL(String URL){
         Log.w("Proxied URL:", vpnURL + transformURL(URL));
         return vpnURL + transformURL(URL);
     }

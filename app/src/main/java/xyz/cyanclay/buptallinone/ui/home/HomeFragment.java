@@ -4,44 +4,20 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.View.OnClickListener;
-import android.widget.TextView;
 
-import androidx.annotation.Nullable;
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelStore;
-
-import xyz.cyanclay.buptallinone.chengji_Activity;
+import xyz.cyanclay.buptallinone.CheckScoreActivity;
 import xyz.cyanclay.buptallinone.constant.ImageList;
 import xyz.cyanclay.buptallinone.util.Utils;
 import xyz.cyanclay.buptallinone.widget.BannerPager;
-import android.view.View.OnClickListener;
 
-import android.annotation.SuppressLint;
-import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
-import android.widget.TextView;
 import android.widget.LinearLayout.LayoutParams;
 
-import xyz.cyanclay.buptallinone.MainActivity;
 import xyz.cyanclay.buptallinone.R;
 
 public class HomeFragment extends Fragment {
@@ -89,7 +65,7 @@ public class HomeFragment extends Fragment {
     View.OnClickListener listener_course = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            Intent intent = new Intent(getContext(), chengji_Activity.class);
+            Intent intent = new Intent(getContext(), CheckScoreActivity.class);
             startActivity(intent);
         }
     };

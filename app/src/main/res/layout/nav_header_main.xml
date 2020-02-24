@@ -4,6 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/nav_header_height"
     android:background="@drawable/side_nav_bar"
+    android:clickable="true"
+    android:focusable="true"
+    android:onClick="onUserDetailsClick"
     android:gravity="bottom"
     android:orientation="vertical"
     android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -18,7 +21,7 @@
         android:layout_height="93dp"
         android:contentDescription="@string/nav_header_desc"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
-        android:src="@drawable/xiaohui"/>
+        android:src="@drawable/xiaohui" />
 
     <TextView
         android:layout_width="match_parent"

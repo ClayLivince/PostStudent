@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff"
+    tools:context=".ui.userdetails.UserDetailsFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="15dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textViewTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/text_user_details"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textSize="30sp"
+            android:typeface="sans" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/textViewID"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.5"
+                    android:text="@string/hint_id" />
+
+                <TextView
+                    android:id="@+id/textViewIDVerify"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.5"
+                    android:text="@string/verifying"
+                    android:textAlignment="textEnd"
+                    android:visibility="invisible" />
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/inpID"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/hint_id"
+                android:importantForAutofill="no"
+                android:inputType="number" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/textViewInfoPassword"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.5"
+                    android:text="@string/hint_info_password" />
+
+                <TextView
+                    android:id="@+id/textViewInfoVerify"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.5"
+                    android:text="@string/verifying"
+                    android:textAlignment="textEnd"
+                    android:visibility="invisible" />
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/inpInfoPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/hint_info_password"
+                android:importantForAutofill="no"
+                android:inputType="textPassword" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/textViewJwglPassword"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.5"
+                    android:text="@string/hint_jwgl_password" />
+
+                <TextView
+                    android:id="@+id/textViewJwglVerify"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.5"
+                    android:text="@string/verifying"
+                    android:textAlignment="textEnd"
+                    android:visibility="invisible" />
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/inpJwglPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/hint_jwgl_password"
+                android:importantForAutofill="no"
+                android:inputType="textPassword" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/textViewJwxtPassword"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.5"
+                    android:text="@string/hint_jwxt_password" />
+
+                <TextView
+                    android:id="@+id/textViewJwxtVerify"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.5"
+                    android:text="@string/verifying"
+                    android:textAlignment="textEnd"
+                    android:visibility="invisible" />
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/inpJwxtPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/hint_jwxt_password"
+                android:importantForAutofill="no"
+                android:inputType="textPassword" />
+
+            <ImageView
+                android:id="@+id/imageViewJwCaptcha"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:src="@tools:sample/avatars" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/textViewJwCaptcha"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.5"
+                    android:text="@string/captcha"
+                    android:textAlignment="textStart" />
+
+                <TextView
+                    android:id="@+id/textViewCaptchaVerify"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/verifying"
+                    android:textAlignment="textEnd"
+                    android:visibility="invisible" />
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/inpJwCaptcha"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/captcha"
+                android:inputType="textPersonName" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/buttonVerifyPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/verify_password" />
+
+        <Button
+            android:id="@+id/buttonSaveUserDetail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/save" />
+
+    </LinearLayout>
+
+</FrameLayout>

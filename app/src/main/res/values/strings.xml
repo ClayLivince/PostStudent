@@ -13,6 +13,7 @@
     <string name="menu_tools">工具</string>
     <string name="menu_share">Share</string>
     <string name="menu_send">Send</string>
+    <string name="menu_user_details">密码管理</string>
     <string name="title_activity_login">Sign in</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
@@ -24,4 +25,25 @@
     <string name="login_failed">"Login failed"</string>
     <string name="jwlogin">教务系统登录</string>
     <string name="vpnlogin">查成绩</string>
+    <string name="text_user_details">密码信息管理</string>
+    <string name="hint_id">学号</string>
+    <string name="hint_info_password">信息门户密码</string>
+    <string name="hint_jwxt_password">旧教务系统密码</string>
+    <string name="hint_jwgl_password">新教务系统密码</string>
+    <string name="title_activity_user_detail">用户信息</string>
+    <string name="verify_password">验证密码</string>
+    <string name="verifying">验证中</string>
+    <string name="verify_success">√ 验证成功</string>
+    <string name="verify_fail">× 验证失败</string>
+    <string name="incorrect_id">学号位数不正确，请检查。</string>
+    <string name="incorrect_info_password">学号或信息门户密码不正确，请检查。</string>
+    <string name="please_input_info">请输入信息门户密码。</string>
+    <string name="incorrect_jwxt_password">旧教务系统密码不正确，请检查。</string>
+    <string name="incorrect_jwgl_password">新教务系统密码不正确，请检查。</string>
+    <string name="confirm">确定</string>
+    <string name="captcha">验证码</string>
+    <string name="save">保存</string>
+    <string name="input_captcha">请输入验证码</string>
+    <string name="incorrect_captcha">验证码不正确，请检查。</string>
+    <string name="loading">加载中……</string>
 </resources>

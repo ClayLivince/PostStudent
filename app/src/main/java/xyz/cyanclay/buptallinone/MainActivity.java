@@ -1,16 +1,20 @@
 package xyz.cyanclay.buptallinone;
 
-import android.content.Context;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import android.os.StrictMode;
+import android.view.LayoutInflater;
 import android.view.View;
 
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -24,20 +28,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.view.Menu;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import xyz.cyanclay.buptallinone.network.JwxtManager;
-import xyz.cyanclay.buptallinone.network.VPNManager;
+import xyz.cyanclay.buptallinone.network.NetworkManager;
+import xyz.cyanclay.buptallinone.ui.userdetails.UserDetailsFragment;
 
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
-    private VPNManager vpnManager = new VPNManager();
-    private JwxtManager jwxtManager = new JwxtManager(vpnManager);
+    private NetworkManager networkManager;
+    private UserDetailsFragment userDetailsFragment = new UserDetailsFragment();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -59,12 +62,15 @@ public class MainActivity extends AppCompatActivity {
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow,
-                R.id.nav_tools, R.id.nav_share, R.id.nav_send)
+                R.id.nav_tools, R.id.nav_share, R.id.nav_send, R.id.nav_user_details)
                 .setDrawerLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
+
+        networkManager = new NetworkManager(getApplicationContext());
+
 
         /*
         new Thread(new Runnable(){
@@ -91,6 +97,38 @@ public class MainActivity extends AppCompatActivity {
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
     }
+
+    public void replaceFragment(Fragment to, int fgmId) {
+        FragmentManager manager = this.getSupportFragmentManager();
+        FragmentTransaction transaction = manager.beginTransaction();
+
+        for (Fragment fragment : manager.getFragments()) {
+            transaction.hide(fragment);
+        }
+        if (!to.isAdded()) {
+            transaction.add(fgmId, to).commit();
+        } else {
+            transaction.show(to).commit();
+        }
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        drawer.closeDrawers();
+    }
+
+    public void onUserDetailsClick(View v){
+        //replaceFragment();
+        FragmentManager fragmentManager = this.getSupportFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.nav_host_fragment, new UserDetailsFragment()).commit();
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setCheckedItem(R.id.nav_send);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        drawer.closeDrawers();
+    }
+
+    public NetworkManager getNetworkManager(){
+        return networkManager;
+    }
+
+
 
     /*public void getcap(){
         final ImageView iv = findViewById(R.id.imgCap2);
@@ -166,15 +204,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }).start();
 
-    }
-
-    public boolean checkNetwork(){
-        WifiManager wifiMgr = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        int wifiState = wifiMgr.getWifiState();
-        WifiInfo info = wifiMgr.getConnectionInfo();
-        String wifiId = info != null ? info.getSSID() : null;
-
-        return (wifiState == 3 && wifiId != null && wifiId.contains("BUPT-"));
     }
 
      */

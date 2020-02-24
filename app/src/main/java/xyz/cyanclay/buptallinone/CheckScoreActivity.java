@@ -5,7 +5,7 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class chengji_Activity extends AppCompatActivity {
+public class CheckScoreActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

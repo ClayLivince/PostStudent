@@ -159,7 +159,7 @@
                 android:orientation="vertical">
 
                 <!-- 自定义的横幅轮播条，需要使用全路径 -->
-                <com.example.mytest1.widget.BannerPager
+                <xyz.cyanclay.buptallinone.widget.BannerPager
                     android:id="@+id/banner_pager"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />

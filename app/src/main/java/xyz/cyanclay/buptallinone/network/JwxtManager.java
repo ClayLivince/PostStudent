@@ -13,31 +13,24 @@ import java.io.ByteArrayInputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import static xyz.cyanclay.buptallinone.network.NetworkManager.parseTask;
+
 
 public class JwxtManager {
 
-    private VPNManager vpn;
+    private NetworkManager networkManager;
     private String jwUser;
     private String jwPass;
     private String jwCap;
 
-    private static final String myURL = "https://my.bupt.edu.cn/",
-                                jwMainURL = "https://jwxt.bupt.edu.cn/",
+    private static final String jwMainURL = "https://jwxt.bupt.edu.cn",
                                 jwCapURL = jwMainURL + "validateCodeAction.do?gp-1&random=",
-                                jwLoginURL = jwMainURL + "jwLoginAction.do",
-                                userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36",
-                                host = "vpn.bupt.edu.cn";
+                                jwLoginURL = jwMainURL + "jwLoginAction.do";
     private static String sessionName = "JSESSIONID";
     private String sessionID = "";
-    private String GP_SESSION_CK = "";
-    private String PAN_GP_CK_VER = "";
-    private String PAN_GP_CACHE_LOCAL_VER_ON_SERVER = "";
-    private String GP_CLIENT_CK_UPDATES = "";
-    private String PAN_GP_CK_VER_ON_CLIENT= "";
 
-
-    public JwxtManager(VPNManager vpn){
-        this.vpn = vpn;
+    public JwxtManager(NetworkManager nm){
+        this.networkManager = nm;
     }
 
     public JwxtManager(String jwUser, String pass, String jwCap){
@@ -46,98 +39,53 @@ public class JwxtManager {
         this.jwCap = jwCap;
     }
 
-    public void setJwDetails(String user, String pass, String cap){
+    public void setJwDetails(String user, String pass){
         this.jwUser = user;
         this.jwPass = pass;
+    }
+
+    public void setJwCap(String cap){
         this.jwCap = cap;
     }
 
     public void init(){
         try {
-            Connection.Response res = Jsoup.connect(jwMainURL)
+            Connection init = Jsoup.connect(jwMainURL)
                         .method(Connection.Method.GET)
-                        .userAgent(userAgent)
-                        .execute();
-                sessionID = res.cookie(sessionName);
-            Log.println(Log.DEBUG, "Success get session:" , sessionID.trim());
-            Connection.Response res2 = Jsoup.connect(jwMainURL)
-                    .cookie(sessionName, sessionID)
-                    .method(Connection.Method.GET)
-                    .followRedirects(true)
-                    .userAgent("Chrome/73.0.3683.103")
-                    .execute();
-            Log.println(Log.DEBUG,"Response: \n", res2.body());
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    public void refreshVPNJwCookie(){
-        if (!vpn.hasVPNCookie()) vpn.refreshVPNCookie();
-        try {
-            Connection.Response response = Jsoup.connect(vpn.proxyURL(jwMainURL))
-                    .method(Connection.Method.GET)
-                    .userAgent(userAgent)
-                    .header("Host", host)
-                    .cookie("PHPSESSID", vpn.vpnPhpID)
-                    .cookie("GP_SESSION_CK", GP_SESSION_CK)
-                    .execute();
-            Log.w("", response.body());
-            PAN_GP_CK_VER = response.header("Set-Cookie").split(",")[0].split(";")[0].trim();
-            PAN_GP_CACHE_LOCAL_VER_ON_SERVER = response.header("Set-Cookie").split(",")[1].split(";")[0].trim();
+                        .userAgent(NetworkManager.userAgent);
+            Connection.Response res = NetworkManager.networkTask(init);
+            sessionID = res.cookie(sessionName);
+            Log.println(Log.DEBUG, "JwxtSession: " , sessionID.trim());
         } catch (Exception e){
             e.printStackTrace();
         }
     }
 
     public Drawable getCapImage(){
-        Drawable capImageDrawable;
-        if (vpn.isSchoolNet){
+        Drawable capImageDrawable = null;
+        if (networkManager.isSchoolNet){
             if (sessionID == null || sessionID.length() == 0){
                 init();
             }
             try {
-                Connection.Response cap = Jsoup.connect(jwCapURL)
+                Connection cap = Jsoup.connect(jwCapURL)
                         .method(Connection.Method.GET)
                         .ignoreContentType(true)
-                        .cookie(sessionName, sessionID)
-                        .referrer("https://jwxt.bupt.edu.cn/")
-                        .execute();
+                        .cookie(sessionName, sessionID);
+                Connection.Response capRes = NetworkManager.networkTask(cap);
                 Log.println(Log.DEBUG, "Success get session:" , sessionID.trim());
-                capImageDrawable = Drawable.createFromStream(new ByteArrayInputStream(cap.bodyAsBytes()), "");
+                capImageDrawable = Drawable.createFromStream(new ByteArrayInputStream(capRes.bodyAsBytes()), "");
                 capImageDrawable.setVisible(true, true);
             } catch (Exception e){
                 e.printStackTrace();
                 capImageDrawable = null;
             }
-        } else {
-            if (GP_SESSION_CK == null || PAN_GP_CK_VER == null || PAN_GP_CK_VER.length() == 0){
-                refreshVPNJwCookie();
-            }
-            try {
-                Connection.Response cap = Jsoup.connect(vpn.proxyURL(jwCapURL))
-                        .method(Connection.Method.GET)
-                        .cookie("PHPSESSID", vpn.vpnPhpID)
-                        .cookie("GP_SESSION_CK", GP_SESSION_CK)
-                        .cookie("PAN_GP_CK_VER", PAN_GP_CK_VER)
-                        .cookie("PAN_GP_CACHE_LOCAL_VER_ON_SERVER", PAN_GP_CACHE_LOCAL_VER_ON_SERVER)
-                        .referrer(vpn.proxyURL(jwMainURL))
-                        .header("host", "vpn.bupt.edu.cn")
-                        .execute();
-                capImageDrawable = Drawable.createFromStream(new ByteArrayInputStream(cap.bodyAsBytes()), "");
-                capImageDrawable.setVisible(true, true);
-                Log.w("", cap.body());
-            } catch (Exception e){
-                e.printStackTrace();
-                capImageDrawable = null;
-            }
-
         }
 
         return capImageDrawable;
     }
 
-    public String jwLogin(){
+    public LoginStatus jwLogin(){
         Map<String, String> loginData = new HashMap<String, String>(){{
             put("type", "sso");
             put("zjh", jwUser.trim());
@@ -146,10 +94,10 @@ public class JwxtManager {
             put("Input2", "");
         }};
         Log.w("Information: ", loginData.toString());
-        if (vpn.isSchoolNet){
+        if (networkManager.vpnManager.isSchoolNet){
             try {
                 Log.w("session:" , sessionID.trim());
-                Document login = Jsoup.connect(jwLoginURL)
+                Connection conn = Jsoup.connect(jwLoginURL)
                         .method(Connection.Method.POST)
                         .referrer("https://jwxt.bupt.edu.cn/")
                         .header("Origin", "https://jwxt.bupt.edu.cn")
@@ -158,64 +106,34 @@ public class JwxtManager {
                         .ignoreContentType(true)
                         .cookie(sessionName, sessionID)
                         .data(loginData)
-                        .followRedirects(true)
-                        .post();
-                Log.w("Login Webpage Info：\n", login.outerHtml());
-                Log.w("Login URL: ", login.baseUri());
-                if (login.title().equals("学分制综合教务")){
-                    return "已成功登录";
-                } else {
-                    if (login.getElementsByTag("strong").hasText()){
-                        if (login.getElementsByTag("strong").first().children().first().text().contains("你输入的校验码有误，请重新输入")){
-                            return "校验码错误";
-                        } else if (login.getElementsByTag("strong").first().children().first().text().contains("密码")){
-                            return "密码错误";
-                        } else if (login.getElementsByTag("strong").first().children().first().text().contains("证件号")){
-                            return "学号错误";
+                        .followRedirects(true);
+                Connection.Response res = NetworkManager.networkTask(conn);
+                if (res != null) {
+                    Document login = parseTask(res);
+                    Log.w("Login Webpage Info：\n", login.outerHtml());
+                    Log.w("Login URL: ", login.baseUri());
+                    if (login.title().equals("学分制综合教务")){
+                        return LoginStatus.LOGIN_SUCCESS;
+                    } else {
+                        if (login.getElementsByTag("strong").hasText()){
+                            if (login.getElementsByTag("strong").first().children().first().text().contains("你输入的校验码有误，请重新输入")){
+                                return LoginStatus.INCORRECT_CAPTCHA;
+                            } else if (login.getElementsByTag("strong").first().children().first().text().contains("密码")){
+                                return LoginStatus.INCORRECT_DETAIL;
+                            } else if (login.getElementsByTag("strong").first().children().first().text().contains("证件号")){
+                                return LoginStatus.INCORRECT_DETAIL;
+                            }
                         }
                     }
                 }
-
-
-                Connection.Response res = Jsoup.connect(jwMainURL)
-                        .cookie(sessionName, sessionID)
-                        .method(Connection.Method.GET)
-                        .followRedirects(true)
-                        .userAgent("Chrome/73.0.3683.103")
-                        .execute();
-                //Log.w("Response: \n", res.body());
-                return login.outerHtml();
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            return null;
-        } else {
-            try {
-                Log.w("VPN_PHPSESSID", vpn.vpnPhpID);
-                Log.w("GP_SESSION_CK", GP_SESSION_CK);
-                Connection.Response login = Jsoup.connect(vpn.proxyURL(jwLoginURL))
-                        .method(Connection.Method.POST)
-                        .userAgent(userAgent)
-                        .referrer(vpn.proxyURL(jwMainURL))
-                        .header("Host", host)
-                        .header("Origin", vpn.vpnURL)
-                        .header("Content-Type", "application/x-www-form-urlencoded")
-                        .cookie("PHPSESSID", vpn.vpnPhpID)
-                        .cookie("GP_SESSION_CK", GP_SESSION_CK)
-                        .cookie("PAN_GP_CK_VER", PAN_GP_CK_VER)
-                        .cookie("PAN_GP_CACHE_LOCAL_VER_ON_SERVER", PAN_GP_CACHE_LOCAL_VER_ON_SERVER)
-                        .data(loginData)
-                        .execute();
-                return login.body();
-            } catch (Exception e){
-                e.printStackTrace();
-            }
-            return null;
-        }
+        } return LoginStatus.UNKNOWN_ERROR;
     }
 
     public Document checkScore(){
-        if (vpn.isSchoolNet) {
+        if (networkManager.isSchoolNet) {
             try {
                 Log.w("session:", sessionID.trim());
                 Document score = Jsoup.connect("https://jwxt.bupt.edu.cn/gradeLnAllAction.do?type=ln&oper=qbinfo&lnxndm=")
