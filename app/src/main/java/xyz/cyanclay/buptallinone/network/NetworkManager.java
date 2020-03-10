@@ -3,10 +3,6 @@ package xyz.cyanclay.buptallinone.network;
 import android.content.Context;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import android.os.AsyncTask;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.util.Log;
 
 import org.jsoup.Connection;
@@ -23,39 +19,51 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 public class NetworkManager {
     public Context context;
     public JwxtManager jwxtManager;
     public JwglManager jwglManager;
-    public VPNManager vpnManager;
+    //public VPNManager vpnManager;
     public InfoManager infoManager;
 
 
     private static File cacheDir;
     private static File networkCacheDir;
 
-    public NetworkManager(Context appContext) {
+    public NetworkManager(Context appContext) throws IOException {
+
         context = appContext;
-        cacheDir = context.getApplicationContext().getCacheDir();
-        networkCacheDir = new File(cacheDir, "network");
         jwxtManager = new JwxtManager(this);
         infoManager = new InfoManager();
 
-        //jwglManager = new JwglManager();
+        init();
 
+        //jwglManager = new JwglManager();
     }
 
-    public boolean isSchoolNet = true;
+    boolean isSchoolNet = true;
     static final String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36";
 
-    public String user = "";
-    public String name = "";
+    public static String user = "";
+    public static String name = "";
 
-    public void setUser(String user, String name) {
-        this.user = user;
-        this.name = name;
+    private void init() throws IOException {
+        cacheDir = context.getApplicationContext().getCacheDir();
+        networkCacheDir = new File(cacheDir, "network");
+
+        dispatchPassword(PasswordHelper.loadDecrypt(context.getFilesDir()));
+    }
+
+    static void setUser(String user, String name) {
+        NetworkManager.user = user;
+        NetworkManager.name = name;
+    }
+
+    private void dispatchPassword(String[] details) {
+        infoManager.setLoginDetails(details[0], details[1]);
+        if (details[2] != null) jwxtManager.setJwDetails(details[0], details[2]);
+        if (details[3] != null) ;
     }
 
     public boolean checkNetwork(){
@@ -67,7 +75,7 @@ public class NetworkManager {
         return (wifiState == 3 && wifiId != null && wifiId.contains("BUPT-"));
     }
 
-    static void handleException(IOException e){
+    static void handleException(Exception e) {
         //TODO: handle the exception;
         if (e instanceof HttpStatusException){
             ((HttpStatusException) e).getStatusCode();
@@ -123,52 +131,6 @@ public class NetworkManager {
         } return refreshContent(url, cookies);
     }
 
-    static Connection.Response networkTask(Connection connection){
-        AsyncTask<Connection, Integer, Connection.Response> tsk = new AsyncTask<Connection, Integer, Connection.Response>() {
-            @Override
-            protected Connection.Response doInBackground(Connection... conn) {
-                try {
-                    return conn[0].execute();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return null;
-            }
-        };
-        tsk.execute(connection);
-        try {
-            return tsk.get();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    static Document parseTask(Connection.Response response){
-        AsyncTask<Connection.Response, Integer, Document> tsk = new AsyncTask<Connection.Response, Integer, Document>() {
-            @Override
-            protected Document doInBackground(Connection.Response... res) {
-                try {
-                    return res[0].parse();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return null;
-            }
-        };
-        tsk.execute(response);
-        try {
-            return tsk.get();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     static private Document refreshContent(String url, Map<String, String> cookies){
         FileOutputStream outStream = null;
         try {
@@ -177,10 +139,10 @@ public class NetworkManager {
                     .cookies(cookies)
                     .userAgent(userAgent);
 
-            Connection.Response response = networkTask(connection);
+            Connection.Response response = connection.execute();
 
             if (response != null){
-                Document document = parseTask(response);
+                Document document = response.parse();
 
                 File docFile = new File(networkCacheDir, String.valueOf(url.hashCode()));
                 if (docFile.exists()){
@@ -193,7 +155,7 @@ public class NetworkManager {
                 return document;
             }
 
-        } catch (IOException e){
+        } catch (Exception e) {
             e.printStackTrace();
             handleException(e);
         } finally {
@@ -217,21 +179,5 @@ public class NetworkManager {
         File network = new File(cacheDir, "network");
         if (network.mkdir()) networkCacheDir = network;
         return false;
-    }
-
-    public static final int CONNECTION_MSG = 0;
-    public static final int CONNECTION_RESPONSE_MSG = 1;
-    public static final int DOCUMENT_MSG = 2;
-    public static final int EXCEPTION_MSG = -1;
-
-    public static class NetworkMessageHandler extends Handler {
-
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            if(msg.what == CONNECTION_RESPONSE_MSG){
-
-            }
-        }
     }
 }

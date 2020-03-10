@@ -8,7 +8,7 @@
     <string name="action_settings">Settings</string>
 
     <string name="menu_home">主页</string>
-    <string name="menu_gallery">个人中心</string>
+    <string name="menu_gallery">信息门户</string>
     <string name="menu_slideshow">设置</string>
     <string name="menu_tools">工具</string>
     <string name="menu_share">Share</string>
@@ -40,10 +40,26 @@
     <string name="please_input_info">请输入信息门户密码。</string>
     <string name="incorrect_jwxt_password">旧教务系统密码不正确，请检查。</string>
     <string name="incorrect_jwgl_password">新教务系统密码不正确，请检查。</string>
+    <string name="load_failed">加载失败，请检查网络，或尝试下拉刷新。</string>
+    <string name="unknown_error">发生未知错误，请联系我们。</string>
+    <string name="input_captcha">请输入验证码</string>
+    <string name="incorrect_captcha">验证码不正确，请检查。</string>
     <string name="confirm">确定</string>
     <string name="captcha">验证码</string>
     <string name="save">保存</string>
-    <string name="input_captcha">请输入验证码</string>
-    <string name="incorrect_captcha">验证码不正确，请检查。</string>
     <string name="loading">加载中……</string>
+    <string name="refreshed">刷新成功</string>
+    <string name="id">学号</string>
+    <string name="name">姓名</string>
+    <string name="school_notice">校内通知</string>
+    <string name="school_news">校内新闻</string>
+    <string name="school_overtness">校务公开</string>
+    <string name="party_overtness">党务公开</string>
+    <string name="inner_control_overtness">内控信息公开</string>
+    <string name="notice_overtness">公开公示</string>
+    <string name="academic_lecture">学术讲座</string>
+
+    <string name="time">时间</string>
+    <string name="announcer">发布</string>
+    <string name="category">类别</string>
 </resources>

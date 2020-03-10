@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -41,16 +40,23 @@
                     android:id="@+id/textViewID"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.5"
+                    android:layout_weight="1"
                     android:text="@string/hint_id" />
 
                 <TextView
                     android:id="@+id/textViewIDVerify"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.5"
+                    android:layout_weight="1"
                     android:text="@string/verifying"
                     android:textAlignment="textEnd"
+                    android:visibility="invisible" />
+
+                <ProgressBar
+                    android:id="@+id/progressBarID"
+                    style="?android:attr/progressBarStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
                     android:visibility="invisible" />
             </LinearLayout>
 
@@ -72,16 +78,23 @@
                     android:id="@+id/textViewInfoPassword"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.5"
+                    android:layout_weight="1"
                     android:text="@string/hint_info_password" />
 
                 <TextView
                     android:id="@+id/textViewInfoVerify"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.5"
+                    android:layout_weight="1"
                     android:text="@string/verifying"
                     android:textAlignment="textEnd"
+                    android:visibility="invisible" />
+
+                <ProgressBar
+                    android:id="@+id/progressBarInfoPass"
+                    style="?android:attr/progressBarStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
                     android:visibility="invisible" />
             </LinearLayout>
 
@@ -103,16 +116,23 @@
                     android:id="@+id/textViewJwglPassword"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.5"
+                    android:layout_weight="1"
                     android:text="@string/hint_jwgl_password" />
 
                 <TextView
                     android:id="@+id/textViewJwglVerify"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.5"
+                    android:layout_weight="1"
                     android:text="@string/verifying"
                     android:textAlignment="textEnd"
+                    android:visibility="invisible" />
+
+                <ProgressBar
+                    android:id="@+id/progressBarJwglPass"
+                    style="?android:attr/progressBarStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
                     android:visibility="invisible" />
             </LinearLayout>
 
@@ -134,16 +154,23 @@
                     android:id="@+id/textViewJwxtPassword"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.5"
+                    android:layout_weight="1"
                     android:text="@string/hint_jwxt_password" />
 
                 <TextView
                     android:id="@+id/textViewJwxtVerify"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.5"
+                    android:layout_weight="1"
                     android:text="@string/verifying"
                     android:textAlignment="textEnd"
+                    android:visibility="invisible" />
+
+                <ProgressBar
+                    android:id="@+id/progressBarJwxtPass"
+                    style="?android:attr/progressBarStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
                     android:visibility="invisible" />
             </LinearLayout>
 
@@ -158,8 +185,8 @@
 
             <ImageView
                 android:id="@+id/imageViewJwCaptcha"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="240dp"
+                android:layout_height="80dp"
                 tools:src="@tools:sample/avatars" />
 
             <LinearLayout
@@ -171,7 +198,7 @@
                     android:id="@+id/textViewJwCaptcha"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.5"
+                    android:layout_weight="1"
                     android:text="@string/captcha"
                     android:textAlignment="textStart" />
 
@@ -179,8 +206,16 @@
                     android:id="@+id/textViewCaptchaVerify"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:text="@string/verifying"
                     android:textAlignment="textEnd"
+                    android:visibility="invisible" />
+
+                <ProgressBar
+                    android:id="@+id/progressBarJwCaptcha"
+                    style="?android:attr/progressBarStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
                     android:visibility="invisible" />
             </LinearLayout>
 
@@ -195,6 +230,7 @@
 
         <Button
             android:id="@+id/buttonVerifyPassword"
+            style="@style/Widget.AppCompat.Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/verify_password" />
@@ -203,7 +239,8 @@
             android:id="@+id/buttonSaveUserDetail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/save" />
+            android:text="@string/save"
+            android:visibility="invisible" />
 
     </LinearLayout>
 

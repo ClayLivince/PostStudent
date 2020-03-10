@@ -13,7 +13,7 @@
 
     <fragment
         android:id="@+id/nav_gallery"
-        android:name="xyz.cyanclay.buptallinone.ui.gallery.GalleryFragment"
+        android:name="xyz.cyanclay.buptallinone.ui.info.ItemListFragment"
         android:label="@string/menu_gallery"
         tools:layout="@layout/fragment_gallery" />
 

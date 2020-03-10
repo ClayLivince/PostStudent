@@ -1,18 +1,19 @@
 package xyz.cyanclay.buptallinone.network;
 
+import android.text.Html;
+import android.text.SpannableStringBuilder;
+
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import static xyz.cyanclay.buptallinone.network.NetworkManager.networkTask;
-import static xyz.cyanclay.buptallinone.network.NetworkManager.parseTask;
 import static xyz.cyanclay.buptallinone.network.NetworkManager.userAgent;
 
 public class InfoManager {
@@ -34,7 +35,7 @@ public class InfoManager {
         put(NOTICE_OVERTNESS, detachURL(".pen=pe1921"));
 
     }};
-    private Map<String, String> infoCookies, authCookies;
+    static private Map<String, String> infoCookies;
     private String user, pass;
     private Document cachedDocument;
     private boolean isLoggedIn;
@@ -54,9 +55,9 @@ public class InfoManager {
      *              下列内容之一 {@link #SCHOOL_NOTICE 校内通知}, {@link #SCHOOL_NEWS 校内新闻},
      *              {@link #PARTY_OVERTNESS 党务公开}, {@link #SCHOOL_OVERTNESS 校务公开},
      *              {@link #INNER_CONTROL_OVERTNESS 内控信息公开}, {@link #NOTICE_OVERTNESS 公示公告},
-     * @return items 返回获取到的项目列表，包含 标题、日期、url;
+     * @return items 返回获取到的项目列表，包含 标题、日期、url以及正文简介;
      */
-    public InfoItems parseMainpage(Integer index) {
+    public InfoItems parseMainpage(Integer index) throws IOException {
         if (verifyIndex(index)) {
             if (checkLogin()) {
                 if (cachedDocument != null) {
@@ -64,11 +65,13 @@ public class InfoManager {
                     for (Element entry : cachedDocument.getElementsByClass("mainhome").first().getElementsByClass("listnotice").get(index).child(0).child(0).children()) {
                         if (entry.className().equals("more")) continue;
                         if (entry.tag().getName().equals("div")) continue;
+                        //Log.e("Entry: ", entry.toString());
                         InfoItem item = new InfoItem();
                         item.url = packageURL(entry.child(0).attr("href"));
                         item.title = entry.child(0).ownText().trim();
                         item.time = entry.child(0).child(0).ownText().trim();
-                        item.introduction = entry.child(1).child(1).child(1).child(0).ownText();
+                        if (index.equals(SCHOOL_NOTICE) || index.equals(SCHOOL_NEWS))
+                            item.introduction = entry.child(1).child(1).child(1).child(0).ownText();
                         items.add(item);
                     }
                     return items;
@@ -84,7 +87,7 @@ public class InfoManager {
         return index >= 0 && index <= 5;
     }
 
-    public List<InfoItem> parseNoticeFull(Integer index) {
+    public InfoItems parseNoticeFull(Integer index) throws IOException {
         if (verifyIndex(index)) {
             if (checkLogin()) {
                 Document document = getContent(URL_INDEX.get(index));
@@ -104,19 +107,18 @@ public class InfoManager {
         return null;
     }
 
-    private boolean refreshCachedDocument() {
+    private boolean refreshCachedDocument() throws IOException {
         if (checkLogin()) {
             cachedDocument = NetworkManager.getContent(infoURL, infoCookies, true);
-            if (cachedDocument.title().equals("欢迎访问信息服务门户")) return true;
+            return cachedDocument.title().equals("欢迎访问信息服务门户");
         }
         return false;
     }
 
-    private boolean checkLogin() {
+    private boolean checkLogin() throws IOException {
         if (isLoggedIn && infoCookies != null) {
             return true;
-        } else if (infoLogin() == LoginStatus.LOGIN_SUCCESS) return true;
-        else return false;
+        } else return infoLogin() == LoginStatus.LOGIN_SUCCESS;
     }
 
     public void setLoginDetails(String user, String pass) {
@@ -124,22 +126,24 @@ public class InfoManager {
         this.pass = pass;
     }
 
-    public LoginStatus infoLogin() {
+    public LoginStatus infoLogin() throws IOException {
 
-        Connection infoInit = Jsoup.connect(infoURL)
+        Connection.Response infoInit = Jsoup.connect(infoURL)
                 .method(Connection.Method.GET)
-                .userAgent(userAgent);
-        Connection authInit = Jsoup.connect(loginURL)
+                .userAgent(userAgent)
+                .execute();
+        Connection.Response authInit = Jsoup.connect(loginURL)
                 .method(Connection.Method.GET)
-                .userAgent(userAgent);
+                .userAgent(userAgent)
+                .execute();
 
-        Connection.Response infoInitRes = networkTask(infoInit);
-        Connection.Response authInitRes = networkTask(authInit);
+        //Connection.Response infoInitRes = networkTask(infoInit);
+        //Connection.Response authInitRes = networkTask(authInit);
 
-        if (infoInitRes != null && authInitRes != null) {
-            infoCookies = infoInitRes.cookies();
-            authCookies = authInitRes.cookies();
-            final Document auth = parseTask(authInitRes);
+        if (infoInit != null && authInit != null) {
+            infoCookies = infoInit.cookies();
+            Map<String, String> authCookies = authInit.cookies();
+            final Document auth = authInit.parse();
 
             Map<String, String> loginDetail = new HashMap<String, String>() {{
                 put("username", user);
@@ -150,14 +154,15 @@ public class InfoManager {
                 put("rmShown", auth.getElementsByAttributeValue("name", "rmShown").first().attr("value"));
             }};
 
-            Connection authLogin = Jsoup.connect(loginURL)
+            Connection.Response authLogin = Jsoup.connect(loginURL)
                     .method(Connection.Method.POST)
                     .userAgent(userAgent)
                     .cookies(authCookies)
-                    .data(loginDetail);
-            Connection.Response authLoginRes = NetworkManager.networkTask(authLogin);
-            infoCookies = authLoginRes.cookies();
-            Document login = parseTask(authLoginRes);
+                    .data(loginDetail)
+                    .execute();
+            // Connection.Response authLoginRes = NetworkManager.networkTask(authLogin);
+            infoCookies = authLogin.cookies();
+            Document login = Jsoup.parse(authLogin.body());
             if (login.getElementsByClass("errors").first() != null) {
                 String status = login.getElementsByClass("errors").first().ownText();
                 if (status != null) {
@@ -177,6 +182,7 @@ public class InfoManager {
                     }
                 }
             } else if (login.title().contains("欢迎")) {
+                NetworkManager.setUser(user, login.getElementsByClass("topinner").first().ownText().split(",")[0]);
                 isLoggedIn = true;
                 cachedDocument = login;
                 return LoginStatus.LOGIN_SUCCESS;
@@ -185,43 +191,47 @@ public class InfoManager {
         return LoginStatus.UNKNOWN_ERROR;
     }
 
-    public Document getContent(String url) {
+    private Document getContent(String url) throws IOException {
         if (checkLogin()) {
             return NetworkManager.getContent(url, infoCookies);
         } else return null;
     }
 
-    class InfoItem {
+    public class InfoItem {
         public String title;
         public String titleFull;
         public String introduction;
         public String time;
         public String url;
         public String category;
-        public String content;
+        public SpannableStringBuilder content;
+        //public ArrayList<Drawable> contentPictures;
 
         /**
          * 附件列表，Key为附件名称，Value为附件下载URL。
          */
         public HashMap<String, String> attachments;
 
-        public Document getContent() {
+        public Document getContent() throws IOException {
             return InfoManager.this.getContent(url);
         }
 
-        public void parseContent() {
+        public void parseContent() throws IOException {
             Document document = getContent();
             titleFull = document.getElementsByClass("singlemainbox").first().getElementsByTag("h1").first().ownText();
+            category = document.getElementsByClass("pdept").first().ownText();
             Elements paragraphs = document.getElementsByClass("singleinfo");
+            SpannableStringBuilder ssb = new SpannableStringBuilder();
             StringBuilder sb = new StringBuilder();
             for (Element entry : paragraphs) {
                 sb.append(entry.text());
+                ssb.append("\t").append(String.valueOf(Html.fromHtml(entry.html())));
             }
-            content = sb.toString();
+            content = ssb;
         }
     }
 
-    class InfoItems extends ArrayList<InfoItem> {
+    public class InfoItems extends ArrayList<InfoItem> {
 
     }
 }
