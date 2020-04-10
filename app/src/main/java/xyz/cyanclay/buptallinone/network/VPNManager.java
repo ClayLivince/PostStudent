@@ -1,86 +1,150 @@
 package xyz.cyanclay.buptallinone.network;
 
+import android.content.Context;
 import android.util.Log;
 
+import com.eclipsesource.v8.V8;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
-public class VPNManager {
+import xyz.cyanclay.buptallinone.R;
+import xyz.cyanclay.buptallinone.network.login.LoginStatus;
 
-    private String vpnUser;
-    private String vpnPass;
+public class VPNManager extends SiteManager {
 
-    public boolean isSchoolNet = true;
+    private Context context;
 
-    static final String vpnURL = "https://vpn.bupt.edu.cn/",
-            vpnLoginURL = "https://vpn.bupt.edu.cn/global-protect/login.esp",
-            host = "vpn.bupt.edu.cn";
-    public String vpnPhpID = "";
-    private String GP_SESSION_CK = "";
-    private String PAN_GP_CK_VER = "";
-    private String PAN_GP_CACHE_LOCAL_VER_ON_SERVER = "";
-    private String GP_CLIENT_CK_UPDATES = "";
-    private String PAN_GP_CK_VER_ON_CLIENT= "";
+    private static String vpnURL = "http://webvpn.bupt.edu.cn";
 
-    public void setVpnDetails(String user, String pass){
-        this.vpnUser = user;
-        this.vpnPass = pass;
+    VPNManager(NetworkManager nm, Context context) throws IOException {
+        super(nm);
+        this.context = context;
+
+        init();
     }
 
-    public void refreshVPNCookie(){
-        try {
-            Connection.Response init = Jsoup.connect(vpnLoginURL)
-                    .method(Connection.Method.GET)
-                    .userAgent(NetworkManager.userAgent)
-                    .header("Host", host)
-                    .referrer(vpnURL)
-                    .postDataCharset("utf8")
-                    .execute();
-            vpnPhpID = init.header("Set-Cookie").split(";")[0];
+    private void init() throws IOException {
+        Connection.Response init = Jsoup.connect(vpnURL)
+                .userAgent(NetworkManager.userAgent)
+                .method(Connection.Method.GET)
+                .execute();
+        cookies = init.cookies();
+    }
 
-            Map<String, String> vpnLoginData = new HashMap<String, String>(){{
-                put("prot", "https");
-                put("server", host);
-                put("inputstr", "");
-                put("action", "getsoftware");
-                put("user", vpnUser);
-                put("passwd", vpnPass);
-                put("ok", "Log In");
-            }};
-            Connection.Response vpnLogin = Jsoup.connect(vpnLoginURL)
-                    .method(Connection.Method.POST)
-                    .userAgent(NetworkManager.userAgent)
-                    .referrer(vpnLoginURL)
-                    .header("Host", host)
-                    .header("Origin", vpnURL)
-                    .header("Content-Type", "application/x-www-form-urlencoded")
-                    .ignoreContentType(true)
-                    .cookie("PHPSESSID", vpnPhpID)
-                    .data(vpnLoginData)
-                    .execute();
-            GP_SESSION_CK = vpnLogin.header("Set-Cookie").split(";")[0];
+    public LoginStatus doLogin() throws IOException {
+        if (user == null) return LoginStatus.EMPTY_USERNAME;
+        if (pass == null) return LoginStatus.EMPTY_PASSWORD;
+        Map<String, String> details = new HashMap<String, String>() {{
+            put("auth_type", "local");
+            put("username", user);
+            put("sms_code", "");
+            put("password", pass);
+        }};
 
-            Log.w("VPN_PHPSESSID", vpnPhpID);
-            Log.w("GP_CK", GP_SESSION_CK);
+        String loginURL = "http://webvpn.bupt.edu.cn/do-login?local_login=true";
+        Connection.Response login = Jsoup.connect(loginURL)
+                .cookies(cookies)
+                .data(details)
+                .userAgent(NetworkManager.userAgent)
+                .method(Connection.Method.POST)
+                .execute();
+        cookies.putAll(login.cookies());
+        Document loginDoc = login.parse();
 
-        } catch (Exception e){
-            e.printStackTrace();
+        if (loginDoc.getElementById("aHref") != null) {
+            isLoggedIn = true;
+            return LoginStatus.LOGIN_SUCCESS;
+        } else {
+            StringBuilder sb = new StringBuilder();
+            for (Element entry : loginDoc.getElementsByTag("script")) {
+                sb.append(entry.data());
+            }
+
+            String token = "";
+            String[] vars = sb.toString().split("var");
+            for (String var : vars) {
+                if (var.contains("=")) {
+                    if (var.contains("logoutOtherToken")) {
+                        String[] kvp = var.split("=");
+                        token = kvp[1].split("\n")[0].replace("'", "").trim();
+                        break;
+                    }
+                }
+            }
+
+            System.out.println(token);
+            if (!token.equals("")) {
+                Connection.Response confirm = Jsoup.connect(vpnURL + "/do-confirm-login")
+                        .data("username", user, "logoutOtherToken", token)
+                        .method(Connection.Method.POST)
+                        .userAgent(NetworkManager.userAgent)
+                        .cookies(cookies)
+                        .ignoreContentType(true)
+                        .execute();
+
+                try {
+                    JSONObject confirmJSON = new JSONObject(confirm.body());
+                    if (confirmJSON.getBoolean("success")) {
+                        isLoggedIn = true;
+                        return LoginStatus.LOGIN_SUCCESS;
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    throw new IOException("VPN JSON Exception!");
+                }
+            }
+            isLoggedIn = false;
+            return LoginStatus.UNKNOWN_ERROR;
         }
     }
 
-    public boolean hasVPNCookie(){
-        return (vpnPhpID == null || GP_SESSION_CK == null);
+    public Connection.Response get(Connection conn) throws IOException {
+        if (checkLogin()) {
+
+            conn.cookies(cookies);
+            String url = conn.request().url().toString();
+            if (!url.contains("webvpn.bupt.edu.cn")) conn.url(analyseURL(url));
+            Connection.Response res = conn.execute();
+            cookies.putAll(res.cookies());
+            Log.i("VPNConnection", "Trying to connect to " + res.url().toString());
+            return res;
+        }
+        throw new IOException("VPN Failed to login.");
     }
 
-    private static String transformURL(String URL){
-        return URL.replaceFirst(":/", "");
+    private String analyseURL(String url) {
+        String protocol = url.split("://", 2)[0];
+        String href = url.split("://", 2)[1];
+        InputStream is = context.getResources().openRawResource(R.raw.vpn);   //获取用户名与密码加密的js代码
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        try {
+            while ((line = reader.readLine()) != null) {
+                sb.append(line).append("\n");
+            }
+            V8 runtime = V8.createV8Runtime();
+            //使用J2V8运行js代码并将编码结果返回
+            final String result = runtime.executeStringScript(sb.toString()
+                    + ";encrypUrl('" + protocol + "','" + href + "');\n");
+
+            return vpnURL + result;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 
-    public static String proxyURL(String URL){
-        Log.w("Proxied URL:", vpnURL + transformURL(URL));
-        return vpnURL + transformURL(URL);
-    }
 }

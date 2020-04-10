@@ -12,161 +12,146 @@
         android:layout_height="match_parent">
 
         <LinearLayout
+            android:id="@+id/layoutItemLists"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8sp"
-            android:layout_marginTop="8sp"
-            android:layout_marginEnd="8sp"
-            android:layout_marginBottom="8sp"
+            android:layout_margin="8sp"
             android:background="#FFFFFF"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:visibility="gone">
 
-            <ProgressBar
-                android:id="@+id/progressBarInfo"
-                style="?android:attr/progressBarStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
 
             <LinearLayout
-                android:id="@+id/layoutItemLists"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:visibility="gone">
+                android:orientation="vertical">
 
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/textViewSchoolNotice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/school_notice" />
-
-                    <LinearLayout
-                        android:id="@+id/NoticeContainer"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical" />
-
-                </LinearLayout>
+                <TextView
+                    android:id="@+id/textViewSchoolNotice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/school_notice" />
 
                 <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/textViewSchoolNews"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/school_news" />
-
-                    <LinearLayout
-                        android:id="@+id/NewsContainer"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/textViewParty"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/party_overtness" />
-
-                    <LinearLayout
-                        android:id="@+id/PartyContainer"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/textViewSchoolOvertness"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/school_overtness" />
-
-                    <LinearLayout
-                        android:id="@+id/SchoolOvertContainer"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/textViewInnerControl"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/inner_control_overtness" />
-
-                    <LinearLayout
-                        android:id="@+id/InnerControlContainer"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/textViewOvertness"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/notice_overtness" />
-
-                    <LinearLayout
-                        android:id="@+id/OvertnessContainer"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical" />
-
-                </LinearLayout>
-
-                <LinearLayout
+                    android:id="@+id/NoticeContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:orientation="vertical" />
 
-                    <TextView
-                        android:id="@+id/textViewLecture"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/academic_lecture" />
+            </LinearLayout>
 
-                    <LinearLayout
-                        android:id="@+id/LectureContainer"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
-                </LinearLayout>
+                <TextView
+                    android:id="@+id/textViewSchoolNews"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/school_news" />
+
+                <LinearLayout
+                    android:id="@+id/NewsContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textViewParty"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/party_overtness" />
+
+                <LinearLayout
+                    android:id="@+id/PartyContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textViewSchoolOvertness"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/school_overtness" />
+
+                <LinearLayout
+                    android:id="@+id/SchoolOvertContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textViewInnerControl"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/inner_control_overtness" />
+
+                <LinearLayout
+                    android:id="@+id/InnerControlContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textViewOvertness"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/notice_overtness" />
+
+                <LinearLayout
+                    android:id="@+id/OvertnessContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textViewLecture"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/academic_lecture" />
+
+                <LinearLayout
+                    android:id="@+id/LectureContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical" />
+
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

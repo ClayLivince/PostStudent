@@ -8,10 +8,7 @@
         android:id="@+id/cardItem"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8sp"
-        android:layout_marginTop="5sp"
-        android:layout_marginEnd="8sp"
-        android:layout_marginBottom="5sp"
+        android:layout_margin="8sp"
         app:cardCornerRadius="10sp"
         app:elevation="20sp">
 
@@ -42,13 +39,30 @@
                 android:layout_marginEnd="5sp"
                 android:background="@color/colorPrimary" />
 
-            <TextView
-                android:id="@+id/textViewItemTime"
-                android:layout_width="80dp"
+            <LinearLayout
+                android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:gravity="end"
-                android:maxLines="1"
-                android:textAlignment="viewEnd" />
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textViewItemTime"
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="end"
+                    android:maxLines="1"
+                    android:textAlignment="viewEnd" />
+
+                <TextView
+                    android:id="@+id/textViewItemAnnouncer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="end"
+                    android:minLines="1"
+                    android:textAlignment="viewEnd"
+                    android:visibility="gone" />
+            </LinearLayout>
+
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 </FrameLayout>

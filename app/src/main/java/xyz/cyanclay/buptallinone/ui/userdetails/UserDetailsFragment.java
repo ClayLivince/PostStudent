@@ -19,21 +19,26 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.navigation.Navigation;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 
 import xyz.cyanclay.buptallinone.MainActivity;
 import xyz.cyanclay.buptallinone.R;
-import xyz.cyanclay.buptallinone.network.LoginStatus;
 import xyz.cyanclay.buptallinone.network.NetworkManager;
-import xyz.cyanclay.buptallinone.network.PasswordHelper;
+import xyz.cyanclay.buptallinone.network.login.LoginStatus;
+import xyz.cyanclay.buptallinone.network.login.PasswordHelper;
 
-public class UserDetailsFragment extends Fragment {
+public class UserDetailsFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
     private View root = null;
+    private NetworkManager nm;
+
     private UserDetailsViewModel mViewModel;
 
     private static String verifySuccess;
@@ -41,8 +46,7 @@ public class UserDetailsFragment extends Fragment {
     private static int colorCorrect;
     private static int colorError;
 
-    public static UserDetailsFragment newInstance() {
-        return new UserDetailsFragment();
+    public UserDetailsFragment() {
     }
 
     @Override
@@ -50,129 +54,202 @@ public class UserDetailsFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         root = inflater.inflate(R.layout.fragment_user_details, container, false);
 
-        final NetworkManager nm = ((MainActivity) getActivity()).getNetworkManager();
-        final ImageView captchaView = root.findViewById(R.id.imageViewJwCaptcha);
-
-        showCaptcha(nm, captchaView);
+        nm = ((MainActivity) getActivity()).getNetworkManager();
         verifySuccess = getString(R.string.verify_success);
         verifyFailed = getString(R.string.verify_fail);
         colorCorrect = getResources().getColor(R.color.colorCorrect);
         colorError = getResources().getColor(R.color.colorError);
 
         final File fileDir = getContext().getFilesDir();
-
+        loadDetails(root, fileDir);
+        //showCaptcha(nm, root);
         root.findViewById(R.id.buttonVerifyPassword).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                EditText inpID = root.findViewById(R.id.inpID);
-                String id = inpID.getText().toString();
-
-                TextView idStat = root.findViewById(R.id.textViewIDVerify);
-                TextView infoStat = root.findViewById(R.id.textViewInfoVerify);
-
-                idStat.setVisibility(View.VISIBLE);
-                infoStat.setVisibility(View.VISIBLE);
-
-                if (id.length() == 10) {
-                    EditText inpInfoPass = root.findViewById(R.id.inpInfoPassword);
-                    String infoPass = inpInfoPass.getText().toString();
-                    if (infoPass.length() != 0) {
-                        verifyInfo(root, getContext(), nm, infoStat, idStat, inpID, inpInfoPass, id, fileDir);
-                    } else {
-                        verifyFailed(infoStat, inpInfoPass);
-                        Snackbar.make(root, R.string.please_input_info, Snackbar.LENGTH_LONG).show();
-                    }
-                } else {
-                    verifyFailed(idStat, inpID);
-                    Snackbar.make(root, R.string.incorrect_id, Snackbar.LENGTH_LONG).show();
+                startVerify();
+            }
+        });
+        root.findViewById(R.id.buttonSaveUserDetail).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    PasswordHelper.saveEncrypt(fileDir, ((TextView) root.findViewById(R.id.inpID)).getText().toString()
+                            , ((TextView) root.findViewById(R.id.inpVPNPass)).getText().toString()
+                            , ((TextView) root.findViewById(R.id.inpInfoPass)).getText().toString()
+                            , ((TextView) root.findViewById(R.id.inpJwxtPass)).getText().toString()
+                            , ((TextView) root.findViewById(R.id.inpJwglPass)).getText().toString());
+                } catch (IOException e) {
+                    Snackbar.make(root, R.string.unknown_error, Snackbar.LENGTH_LONG).show();
+                    e.printStackTrace();
                 }
             }
         });
+        onRefresh();
+
+        ((SwipeRefreshLayout) root.findViewById(R.id.srlUserDetails)).setOnRefreshListener(this);
         return root;
     }
 
-    private static void showCaptcha(final NetworkManager nm, final ImageView view) {
+    private static void showCaptcha(final NetworkManager nm, final View root) {
+        final ImageView captchaView = root.findViewById(R.id.imageViewJwCaptcha);
+        final SwipeRefreshLayout srl = root.findViewById(R.id.srlUserDetails);
         AsyncTask<Void, Void, Drawable> captchaTask = new AsyncTask<Void, Void, Drawable>() {
             @Override
             protected Drawable doInBackground(Void... voids) {
-                return nm.jwxtManager.getCapImage();
+                try {
+                    return nm.jwxtManager.getCapImage();
+                } catch (IOException e) {
+                    cancel(true);
+                    e.printStackTrace();
+                    return null;
+                }
             }
 
             @Override
             protected void onPostExecute(Drawable drawable) {
                 super.onPostExecute(drawable);
-                view.setImageDrawable(drawable);
+                captchaView.setImageDrawable(drawable);
+                srl.setRefreshing(false);
+            }
+
+            @Override
+            protected void onCancelled() {
+                Snackbar.make(root, "验证码加载失败。请尝试下拉刷新。", Snackbar.LENGTH_LONG).show();
+                srl.setRefreshing(false);
             }
         };
         captchaTask.execute();
     }
 
-    private static synchronized void verifyFailed(TextView verify, EditText inp) {
-        verify.setText(verifyFailed);
-        verify.setTextColor(colorError);
-        verify.setVisibility(View.VISIBLE);
-        inp.setFocusableInTouchMode(true);
-        inp.requestFocus();
+    @Override
+    public void onRefresh() {
+        final File fileDir = getContext().getFilesDir();
+        loadDetails(root, fileDir);
+        //showCaptcha(nm, root);
+        deterVisibility();
     }
 
-    private static synchronized void verifySuccess(TextView verify) {
-        verify.setText(verifySuccess);
-        verify.setTextColor(colorCorrect);
-        verify.setVisibility(View.VISIBLE);
+    private void loadDetails(View root, File fileDir) {
+
+        EditText inpID = root.findViewById(R.id.inpID);
+        EditText inpVPN = root.findViewById(R.id.inpVPNPass);
+        EditText inpInfo = root.findViewById(R.id.inpInfoPass);
+        EditText inpJwgl = root.findViewById(R.id.inpJwglPass);
+        EditText inpJwxt = root.findViewById(R.id.inpJwxtPass);
+
+        try {
+            String[] details = PasswordHelper.loadDecrypt(fileDir);
+            if (details[0] != null) inpID.setText(details[0]);
+            if (details[1] != null) inpVPN.setText(details[1]);
+            if (details[2] != null) inpInfo.setText(details[2]);
+            if (details[3] != null) inpJwgl.setText(details[3]);
+            if (details[4] != null) inpJwxt.setText(details[4]);
+        } catch (IOException e) {
+            Snackbar.make(root, "在获取保存的密码时出现问题。" + e.toString(), Snackbar.LENGTH_LONG);
+            e.printStackTrace();
+        }
     }
 
-    private static void verifyInfo(final View root, final Context context, final NetworkManager nm, final TextView infoStat, final TextView idStat,
-                                   final EditText inpID, final EditText inpInfoPass, final String id, final File fileDir) {
-        nm.infoManager.setLoginDetails(id, inpInfoPass.getText().toString());
-        infoStat.setVisibility(View.VISIBLE);
+    void deterVisibility() {
+        EditText inpInfo = root.findViewById(R.id.inpInfoPass);
+        EditText inpJwgl = root.findViewById(R.id.inpJwglPass);
+        //EditText inpJwxt = root.findViewById(R.id.inpJwxtPass);
+        //EditText inpJwxtCap = root.findViewById(R.id.inpJwCaptcha);
+        Button save = root.findViewById(R.id.buttonSaveUserDetail);
+        EditText[] edits = new EditText[]{inpInfo, inpJwgl};
+        if (nm.isSchoolNet | nm.vpnManager.isLoggedIn | isVerified((TextView) root.findViewById(R.id.textViewVPNVerify))) {
+            for (EditText edit : edits)
+                edit.setVisibility(View.VISIBLE);
+            save.setVisibility(View.VISIBLE);
+        } else {
+            for (EditText edit : edits)
+                edit.setVisibility(View.GONE);
+            save.setVisibility(View.GONE);
+        }
+    }
 
-        final ProgressBar idProgress = root.findViewById(R.id.progressBarID);
-        final ProgressBar infoProgress = root.findViewById(R.id.progressBarInfoPass);
-        idProgress.setVisibility(View.VISIBLE);
-        infoProgress.setVisibility(View.VISIBLE);
+    private void startVerify() {
+        SwipeRefreshLayout srl = root.findViewById(R.id.srlUserDetails);
+        srl.setEnabled(false);
 
-        new AsyncTask<Void, Void, LoginStatus>() {
-            @Override
-            protected LoginStatus doInBackground(Void... voids) {
-                try {
-                    return nm.infoManager.infoLogin();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return LoginStatus.UNKNOWN_ERROR;
-            }
+        String id = ((TextView) root.findViewById(R.id.inpID)).getText().toString();
 
-            @Override
-            protected void onPostExecute(LoginStatus loginStatus) {
-                super.onPostExecute(loginStatus);
-                idProgress.setVisibility(View.INVISIBLE);
-                infoProgress.setVisibility(View.INVISIBLE);
-                switch (loginStatus) {
-                    case LOGIN_SUCCESS: {
-                        verifySuccess(idStat);
-                        verifySuccess(infoStat);
-                        activateButtonSave(root, context, fileDir);
-                        verifyJwxt(root, nm, id);
-                        break;
-                    }
-                    case INCORRECT_DETAIL: {
-                        verifyFailed(idStat, inpID);
-                        verifyFailed(infoStat, inpInfoPass);
-                        Snackbar.make(root, R.string.incorrect_info_password, Snackbar.LENGTH_LONG).show();
-                        break;
-                    }
-                    default: {
-                        verifyFailed(idStat, inpID);
-                        verifyFailed(infoStat, inpInfoPass);
-                        Snackbar.make(root, R.string.unknown_error, Snackbar.LENGTH_LONG).show();
-                    }
+        if (verifyID((TextView) root.findViewById(R.id.textViewVPNVerify), (EditText) root.findViewById(R.id.inpVPNPass))) {
+            if (nm.isSchoolNet) {
+                if (!isVerified((TextView) root.findViewById(R.id.textViewInfoVerify)))
+                    verifyInfo(id);
+                if (!isVerified((TextView) root.findViewById(R.id.textViewJwglVerify)))
+                    verifyJwgl(id);
+            } else {
+                if (!isVerified((TextView) root.findViewById(R.id.textViewVPNVerify))) {
+                    verifyVPN(id);
+                    Snackbar.make(root, "非校园网先验证VPN哦~待成功后再点击一次验证按钮~", Snackbar.LENGTH_LONG).show();
+                } else {
+                    if (!isVerified((TextView) root.findViewById(R.id.textViewInfoVerify)))
+                        verifyInfo(id);
+                    if (!isVerified((TextView) root.findViewById(R.id.textViewJwglVerify)))
+                        verifyJwgl(id);
+                    //if (!isVerified((TextView) root.findViewById(R.id.textViewJwxtVerify)))
+                    //verifyJwxt(root, nm, id);
                 }
             }
-        }.execute();
+        }
+        deterVisibility();
+
+        srl.setEnabled(true);
+    }
+
+    private boolean isVerified(TextView view) {
+        return view.getText().toString().equals(verifySuccess);
+    }
+
+    private boolean verifyID(TextView stat, EditText input) {
+        EditText inpID = root.findViewById(R.id.inpID);
+        String id = inpID.getText().toString();
+
+        TextView idStat = root.findViewById(R.id.textViewIDVerify);
+
+        idStat.setVisibility(View.VISIBLE);
+        stat.setVisibility(View.VISIBLE);
+
+        if (id.length() == 10) {
+            idStat.setVisibility(View.INVISIBLE);
+            String pass = input.getText().toString();
+            if (pass.length() != 0) return true;
+            else {
+                verifyFailed(stat, input);
+                Snackbar.make(root, R.string.please_input_info, Snackbar.LENGTH_LONG).show();
+            }
+        } else {
+            verifyFailed(idStat, inpID);
+            Snackbar.make(root, R.string.incorrect_id, Snackbar.LENGTH_LONG).show();
+        }
+        return false;
+    }
+
+    private void verifyVPN(String id) {
+        VerifyTask.verify(this, id, root, (TextView) root.findViewById(R.id.textViewVPNVerify)
+                , (EditText) root.findViewById(R.id.inpVPNPass)
+                , (ProgressBar) root.findViewById(R.id.progressBarVPN)
+                , nm.vpnManager);
+    }
+
+    private void verifyInfo(String id) {
+        VerifyTask.verify(this, id, root, (TextView) root.findViewById(R.id.textViewInfoVerify)
+                , (EditText) root.findViewById(R.id.inpInfoPass)
+                , (ProgressBar) root.findViewById(R.id.progressBarInfoPass)
+                , nm.infoManager);
+    }
+
+    private void verifyJwgl(String id) {
+        VerifyTask.verify(this, id, root, (TextView) root.findViewById(R.id.textViewJwglVerify)
+                , (EditText) root.findViewById(R.id.inpJwglPass)
+                , (ProgressBar) root.findViewById(R.id.progressBarJwglPass)
+                , nm.jwglManager);
     }
 
     private static void verifyJwxt(final View root, final NetworkManager nm, String id) {
-        final EditText inpJwxtPass = root.findViewById(R.id.inpJwxtPassword);
+        final EditText inpJwxtPass = root.findViewById(R.id.inpJwxtPass);
         final EditText inpJwCaptcha = root.findViewById(R.id.inpJwCaptcha);
         String jwxtPass = inpJwxtPass.getText().toString();
         String captcha = inpJwCaptcha.getText().toString();
@@ -181,10 +258,10 @@ public class UserDetailsFragment extends Fragment {
 
         final TextView jwxtStat = root.findViewById(R.id.textViewJwxtVerify);
         final TextView captchaStat = root.findViewById(R.id.textViewCaptchaVerify);
-        if (jwxtPass.length() != 0){
+        if (jwxtPass.length() != 0) {
             if (captcha.length() == 4) {
                 jwxtStat.setVisibility(View.VISIBLE);
-                nm.jwxtManager.setJwDetails(id, jwxtPass);
+                nm.jwxtManager.setDetails(id, jwxtPass);
                 captchaStat.setVisibility(View.VISIBLE);
                 nm.jwxtManager.setJwCap(captcha);
                 jwxtProgress.setVisibility(View.VISIBLE);
@@ -193,7 +270,14 @@ public class UserDetailsFragment extends Fragment {
                 new AsyncTask<Void, Void, LoginStatus>() {
                     @Override
                     protected LoginStatus doInBackground(Void... voids) {
-                        return nm.jwxtManager.jwLogin();
+                        try {
+                            return nm.jwxtManager.login();
+                        } catch (IOException e) {
+                            cancel(true);
+                            e.printStackTrace();
+                            if (e instanceof SocketTimeoutException) return LoginStatus.TIMED_OUT;
+                        }
+                        return LoginStatus.UNKNOWN_ERROR;
                     }
 
                     @Override
@@ -215,6 +299,11 @@ public class UserDetailsFragment extends Fragment {
                             case INCORRECT_CAPTCHA: {
                                 verifyFailed(captchaStat, inpJwCaptcha);
                                 Snackbar.make(root, R.string.incorrect_captcha, Snackbar.LENGTH_LONG).show();
+                                break;
+                            }
+                            case TIMED_OUT: {
+                                verifyFailed(jwxtStat, inpJwxtPass);
+                                Snackbar.make(root, R.string.load_failed, Snackbar.LENGTH_LONG).show();
                                 break;
                             }
                             default: {
@@ -252,32 +341,24 @@ public class UserDetailsFragment extends Fragment {
          */
     }
 
-    private void verifyJwgl(NetworkManager nm, String id){
-
+    private static synchronized void verifyFailed(TextView verify, EditText inp) {
+        verify.setText(verifyFailed);
+        verify.setTextColor(colorError);
+        verify.setVisibility(View.VISIBLE);
+        inp.setFocusableInTouchMode(true);
+        inp.requestFocus();
     }
 
-    private static void activateButtonSave(final View root, final Context context, final File fileDir) {
-        Button btnSave = root.findViewById(R.id.buttonSaveUserDetail);
-        btnSave.setVisibility(View.VISIBLE);
-        btnSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    PasswordHelper.saveEncrypt(fileDir, ((TextView) root.findViewById(R.id.inpID)).getText().toString()
-                            , ((TextView) root.findViewById(R.id.inpInfoPassword)).getText().toString()
-                            , ((TextView) root.findViewById(R.id.inpJwxtPassword)).getText().toString()
-                            , ((TextView) root.findViewById(R.id.inpJwglPassword)).getText().toString());
-                } catch (IOException e) {
-                    Snackbar.make(root, R.string.unknown_error, Snackbar.LENGTH_LONG).show();
-                    e.printStackTrace();
-                }
-            }
-        });
+    private static synchronized void verifySuccess(TextView verify) {
+        verify.setText(verifySuccess);
+        verify.setTextColor(colorCorrect);
+        verify.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        deterVisibility();
         getView().setFocusableInTouchMode(true);
         getView().requestFocus();
         getView().setOnKeyListener(new View.OnKeyListener() {
@@ -288,7 +369,7 @@ public class UserDetailsFragment extends Fragment {
                             && event.getAction() == KeyEvent.ACTION_UP) {
                         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                         imm.hideSoftInputFromWindow(UserDetailsFragment.this.root.getWindowToken(), 0);
-                        // ((MainActivity) getActivity()).setHomeFragment();
+                        Navigation.findNavController(getActivity(), R.id.nav_host_fragment).popBackStack();
                         return true;
                     }
                 } catch (Exception e) {
@@ -305,5 +386,6 @@ public class UserDetailsFragment extends Fragment {
         mViewModel = ViewModelProviders.of(this).get(UserDetailsViewModel.class);
         // TODO: Use the ViewModel
     }
+
 
 }

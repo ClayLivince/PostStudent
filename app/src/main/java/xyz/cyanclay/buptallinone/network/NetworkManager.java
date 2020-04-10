@@ -6,67 +6,77 @@ import android.net.wifi.WifiManager;
 import android.util.Log;
 
 import org.jsoup.Connection;
-import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.SocketTimeoutException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
+
+import xyz.cyanclay.buptallinone.network.info.InfoManager;
+import xyz.cyanclay.buptallinone.network.jwgl.JwglManager;
+import xyz.cyanclay.buptallinone.network.login.PasswordHelper;
 
 public class NetworkManager {
-    public Context context;
+
+    public boolean isSchoolNet = false;
+    private Context context;
     public JwxtManager jwxtManager;
     public JwglManager jwglManager;
-    //public VPNManager vpnManager;
+    public VPNManager vpnManager;
     public InfoManager infoManager;
-
 
     private static File cacheDir;
     private static File networkCacheDir;
+    private static File picDir;
 
     public NetworkManager(Context appContext) throws IOException {
 
         context = appContext;
+        vpnManager = new VPNManager(this, context);
         jwxtManager = new JwxtManager(this);
-        infoManager = new InfoManager();
+        infoManager = new InfoManager(this, context);
+        jwglManager = new JwglManager(this);
 
         init();
-
-        //jwglManager = new JwglManager();
     }
 
-    boolean isSchoolNet = true;
     static final String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36";
 
-    public static String user = "";
-    public static String name = "";
+    public String user = "";
+    public String name = "";
 
     private void init() throws IOException {
+        isSchoolNet = checkNetwork();
         cacheDir = context.getApplicationContext().getCacheDir();
         networkCacheDir = new File(cacheDir, "network");
+        picDir = new File(cacheDir, "pic");
 
         dispatchPassword(PasswordHelper.loadDecrypt(context.getFilesDir()));
     }
 
-    static void setUser(String user, String name) {
-        NetworkManager.user = user;
-        NetworkManager.name = name;
+    public void setUser(String user, String name) {
+        this.user = user;
+        this.name = name;
     }
 
     private void dispatchPassword(String[] details) {
-        infoManager.setLoginDetails(details[0], details[1]);
-        if (details[2] != null) jwxtManager.setJwDetails(details[0], details[2]);
-        if (details[3] != null) ;
+        vpnManager.setDetails(details[0], details[1]);
+        if (details[2] != null) infoManager.setDetails(details[0], details[2]);
+        if (details[3] != null) jwglManager.setDetails(details[0], details[3]);
+        if (details[4] != null) jwxtManager.setDetails(details[0], details[4]);
     }
 
-    public boolean checkNetwork(){
+    private boolean checkNetwork() {
         WifiManager wifiMgr = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         int wifiState = wifiMgr.getWifiState();
         WifiInfo info = wifiMgr.getConnectionInfo();
@@ -75,33 +85,85 @@ public class NetworkManager {
         return (wifiState == 3 && wifiId != null && wifiId.contains("BUPT-"));
     }
 
-    static void handleException(Exception e) {
-        //TODO: handle the exception;
-        if (e instanceof HttpStatusException){
-            ((HttpStatusException) e).getStatusCode();
-        } else if(e instanceof SocketTimeoutException){
+    public Connection.Response get(String url, Map<String, String> cookies, boolean ignoreContent) throws IOException {
+        return get(Jsoup.connect(url).ignoreContentType(ignoreContent), cookies);
+    }
 
+    public Connection.Response get(String url) throws IOException {
+        return get(Jsoup.connect(url), null);
+    }
+
+    public Connection.Response get(Connection conn, Map<String, String> cookies) throws IOException {
+        conn.userAgent(userAgent)
+                .method(Connection.Method.GET)
+                .timeout(10000);
+        String url = conn.request().url().toString();
+        if (url.contains("&amp;")) {
+            conn.url(url.replace("&amp;", "&"));
         }
+        Log.i("Connection", "Trying to connect to" + conn.request().url().toString());
+        if (cookies != null) conn.cookies(cookies);
+        if (isSchoolNet) {
+            return conn.execute();
+        } else {
+            return vpnManager.get(conn);
+        }
+    }
+
+    public Connection.Response post(Connection conn) throws IOException {
+        conn.userAgent(userAgent)
+                .method(Connection.Method.POST)
+                .timeout(10000);
+        if (isSchoolNet) {
+            return conn.execute();
+        } else {
+            return vpnManager.get(conn);
+        }
+    }
+
+    public Connection.Response get(String url, Map<String, String> cookies) throws IOException {
+        return get(Jsoup.connect(url), cookies);
     }
 
     /**
      * 获取目标url网页内容，如有缓存优先读取缓存
-     * @param url 目标url
+     *
+     * @param url     目标url
      * @param cookies 需要携带的cookies
      * @return {@link Document} parse过的html document对象
      */
-    static Document getContent(String url, Map<String, String> cookies){
+    public Document getContent(String url, Map<String, String> cookies) throws IOException {
         return getContent(url, cookies, false);
+    }
+
+    public byte[] getByteStream(String url, Map<String, String> cookies, boolean forceRefresh) throws IOException {
+        if (!forceRefresh && checkCache(url)) {
+            File resFile = new File(picDir, String.valueOf(url.hashCode()));
+            InputStream in = new FileInputStream(resFile);
+            byte[] data;
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024 * 4];
+            int n = 0;
+            while ((n = in.read(buffer)) != -1) {
+                out.write(buffer, 0, n);
+            }
+            data = out.toByteArray();
+            in.close();
+            return data;
+        }
+        return refreshResponse(url, cookies);
     }
 
     /**
      * 获取目标url网页内容
-     * @param url 目标url
-     * @param cookies 需要携带的cookies
+     *
+     * @param url          目标url
+     * @param cookies      需要携带的cookies
      * @param forceRefresh 是否强制刷新缓存
      * @return {@link Document} parse过的html document对象
      */
-    static Document getContent(String url, Map<String, String> cookies, boolean forceRefresh){
+    public Document getContent(String url, Map<String, String> cookies, boolean forceRefresh) throws IOException {
+
         if (!forceRefresh && checkCache(url)){
             File docFile = new File(networkCacheDir, String.valueOf(url.hashCode()));
             BufferedReader bufReader = null;
@@ -119,6 +181,7 @@ public class NetworkManager {
                     Log.e("FileNotFoundException: ", "File / " + docFile.getPath() + " / not found. The process should not goes here.");
                 }
                 e.printStackTrace();
+                return refreshContent(url, cookies);
             } finally {
                 try {
                     if (bufReader != null){
@@ -129,51 +192,81 @@ public class NetworkManager {
                 }
             }
         } return refreshContent(url, cookies);
+
+
     }
 
-    static private Document refreshContent(String url, Map<String, String> cookies){
+    private byte[] refreshResponse(String url, Map<String, String> cookies) throws IOException {
+
         FileOutputStream outStream = null;
-        try {
-            Connection connection = Jsoup.connect(url)
-                    .method(Connection.Method.GET)
-                    .cookies(cookies)
-                    .userAgent(userAgent);
+        Connection.Response response = get(url, cookies, true);
 
-            Connection.Response response = connection.execute();
-
-            if (response != null){
-                Document document = response.parse();
-
-                File docFile = new File(networkCacheDir, String.valueOf(url.hashCode()));
-                if (docFile.exists()){
-                    docFile.delete();
-                }
-                if (docFile.createNewFile()){
-                    outStream = new FileOutputStream(docFile);
-                    outStream.write(document.outerHtml().getBytes());
-                }
-                return document;
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            handleException(e);
-        } finally {
+        if (response != null) {
             try {
-                if (outStream != null){
-                    outStream.close();
+                File resFile = new File(picDir, String.valueOf(url.hashCode()));
+
+                if (resFile.exists()) {
+                    if (!resFile.delete()) throw new IOException("Failed to delete old cache.");
+                }
+                if (resFile.createNewFile()) {
+                    outStream = new FileOutputStream(resFile);
+                    outStream.write(response.bodyAsBytes());
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+            } finally {
+                if (outStream != null) {
+                    outStream.close();
+                }
             }
         }
-        return null;
+        if (response != null) return response.bodyAsBytes();
+        else throw new IOException("Failed to load " + url);
+
     }
 
-    static private boolean checkCache(String url){
-        if (cacheDir.list() != null){
-            if (networkCacheDir.exists() && networkCacheDir.isDirectory()){
-               if (Arrays.asList(networkCacheDir.list()).contains(String.valueOf(url.hashCode()))) return true;
+    private Document refreshContent(String url, Map<String, String> cookies) throws IOException {
+        FileOutputStream outStream = null;
+
+        Connection.Response response = get(url, cookies);
+        Document document = null;
+        if (response != null) {
+            document = response.parse();
+
+            try {
+                File docFile = new File(networkCacheDir, String.valueOf(url.hashCode()));
+                if (docFile.exists()) {
+                    if (!docFile.delete()) throw new IOException("Failed to delete old cache.");
+                }
+                if (docFile.createNewFile()) {
+                    outStream = new FileOutputStream(docFile);
+                    outStream.write(document.outerHtml().getBytes());
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (outStream != null) {
+                        outStream.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        if (document != null) return document;
+        else throw new IOException("Unable to load Page : " + url);
+    }
+
+    private static boolean checkCache(String url) throws IOException {
+        if (cacheDir.list() != null) {
+            if (!picDir.exists()) {
+                if (!picDir.mkdir()) throw new IOException("Failed to create PicCache Dir.");
+            }
+            if (networkCacheDir.exists() && networkCacheDir.isDirectory()) {
+                if (Arrays.asList(Objects.requireNonNull(networkCacheDir.list())).contains(String.valueOf(url.hashCode())))
+                    return true;
             }
         }
         File network = new File(cacheDir, "network");

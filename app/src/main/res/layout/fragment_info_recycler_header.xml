@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8sp"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/category" />
+
+    <Spinner
+        android:id="@+id/spinnerCategory"
+        style="@style/Platform.Widget.AppCompat.Spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:entries="@array/categories"
+        android:popupBackground="#FFFFFF"
+        android:focusable="true"
+        android:focusableInTouchMode="true" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/announcer" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Spinner
+            android:id="@+id/spinnerAnnouncerCate"
+            style="@style/Platform.Widget.AppCompat.Spinner"
+            android:layout_width="250dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:entries="@array/announcers"
+            android:spinnerMode="dropdown"
+            android:popupBackground="#FFFFFF"
+            android:focusable="true"
+            android:focusableInTouchMode="true" />
+
+        <Spinner
+            android:id="@+id/spinnerAnnouncer"
+            style="@style/Platform.Widget.AppCompat.Spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:spinnerMode="dialog"
+            android:focusable="true"
+            android:focusableInTouchMode="true" />
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/search" />
+
+    <SearchView
+        android:id="@+id/searchInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    </SearchView>
+
+
+</LinearLayout>

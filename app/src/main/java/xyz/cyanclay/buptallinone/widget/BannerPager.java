@@ -16,14 +16,14 @@ import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 import androidx.viewpager.widget.ViewPager.SimpleOnPageChangeListener;
 
-import xyz.cyanclay.buptallinone.R;
-import xyz.cyanclay.buptallinone.util.Utils;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import xyz.cyanclay.buptallinone.R;
+import xyz.cyanclay.buptallinone.util.Utils;
 
-public class BannerPager extends RelativeLayout implements View.OnClickListener{
+
+public class BannerPager extends RelativeLayout implements View.OnClickListener {
     private static final String TAG = "BannerPager";
     private Context mContext; // 声明一个上下文对象
     private ViewPager vp_banner; // 声明一个翻页视图对象
@@ -42,7 +42,7 @@ public class BannerPager extends RelativeLayout implements View.OnClickListener{
     }
 
     //开始广告轮播
-    public void start(){
+    public void start() {
         //延迟若干秒后启动滚动任务
         mHandler.postDelayed(mScroll, mInterval);
     }

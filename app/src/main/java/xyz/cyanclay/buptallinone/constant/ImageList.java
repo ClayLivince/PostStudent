@@ -1,14 +1,8 @@
 package xyz.cyanclay.buptallinone.constant;
 
-
-
 import java.util.ArrayList;
 
 import xyz.cyanclay.buptallinone.R;
-
-/**
- * Created by ouyangshen on 2018/1/4.
- */
 
 public class ImageList {
 

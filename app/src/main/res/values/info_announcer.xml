@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="announcers">
+        <item>全部</item>
+        <item>党团行政</item>
+        <item>教学科研</item>
+    </string-array>
+
+    <string-array name="categories">
+        <item>校内通知</item>
+        <item>校内新闻</item>
+        <item>党务公开</item>
+        <item>校务公开</item>
+        <item>内控信息公开</item>
+        <item>公开公示</item>
+    </string-array>
+
+    <string-array name="offices">
+        <item>党政办公室 </item>
+        <item>组织部（党校）</item>
+        <item>宣传部 </item>
+        <item>统战部 </item>
+        <item>学生处 </item>
+        <item>研究生工作部 </item>
+        <item>研究生院 </item>
+        <item>保密处 </item>
+        <item>保卫处 </item>
+        <item>纪委办公室 </item>
+        <item>巡察工作办公室 </item>
+        <item>校工会 </item>
+        <item>校团委 </item>
+        <item>机关党委 </item>
+        <item>教务党委 </item>
+        <item>教务处 </item>
+        <item>科学技术研究院 </item>
+        <item>审计处 </item>
+        <item>发展规划处 </item>
+        <item>国际合作与交流处 </item>
+        <item>人事处 </item>
+        <item>离退休工作处 </item>
+        <item>财务处 </item>
+        <item>基建处 </item>
+        <item>校区改造办公室 </item>
+        <item>资产管理处 </item>
+        <item>采购与招标办公室 </item>
+        <item>后勤处 </item>
+        <item>远程与继续教育处 </item>
+        <item>宏福校区综合办公室 </item>
+        <item>沙河校区综合办公室 </item>
+        <item>沙河校区建设指挥部 </item>
+        <item>图书馆 </item>
+        <item>信息化技术中心 </item>
+        <item>档案馆 </item>
+        <item>校友总会秘书处和教育基金会秘书处 </item>
+        <item>资产经营公司 </item>
+        <item>出版社 </item>
+        <item>校医院 </item>
+        <item>港澳台事务办公室 </item>
+    </string-array>
+
+    <string-array name="schools">
+        <item>信息与通信工程学院 </item>
+        <item>电子工程学院 </item>
+        <item>人文学院 </item>
+        <item>国际学院 </item>
+        <item>网络教育学院 </item>
+        <item>继续教育学院 </item>
+        <item>民族教育学院 </item>
+        <item>网络技术研究院 </item>
+        <item>光电信息学院（信息光子学与光通信研究院） </item>
+        <item>马克思主义学院 </item>
+        <item>体育部 </item>
+        <item>感知技术与产业研究院 </item>
+        <item>可信网络通信协同创新中心 </item>
+        <item>叶培大学院 </item>
+        <item>计算机学院 </item>
+        <item>自动化学院 </item>
+        <item>软件学院 </item>
+        <item>数字媒体与设计艺术学院 </item>
+        <item>理学院 </item>
+        <item>经济管理学院 </item>
+        <item>现代邮政学院 </item>
+        <item>世纪学院 </item>
+        <item>网络空间安全学院 </item>
+    </string-array>
+</resources>

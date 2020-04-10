@@ -4,11 +4,11 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import xyz.cyanclay.buptallinone.network.InfoManager;
+import xyz.cyanclay.buptallinone.network.info.InfoManager.InfoItems;
 
 public class ItemListViewModel extends ViewModel {
 
-    public InfoManager.InfoItems notices;
+    public InfoItems notices;
 
     private MutableLiveData<String> mText;
 

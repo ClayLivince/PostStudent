@@ -2,13 +2,13 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 29
-    buildToolsVersion "29.0.2"
+    buildToolsVersion "29.0.3"
     defaultConfig {
         applicationId "xyz.cyanclay.buptallinone"
         minSdkVersion 19
         targetSdkVersion 29
         versionCode 1
-        versionName '0.1.0a'
+        versionName '0.2.0a'
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -16,6 +16,9 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+    }
+    lintOptions {
+        abortOnError false
     }
 }
 
@@ -34,8 +37,12 @@ dependencies {
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-    implementation 'org.jsoup:jsoup:1.12.2'
-    implementation 'com.eclipsesource.j2v8:j2v8:4.5.0@aar'
+    implementation 'org.jsoup:jsoup:1.12.1'
+    implementation 'com.eclipsesource.j2v8:j2v8:6.0.0@aar'
     implementation 'androidx.gridlayout:gridlayout:1.0.0'
+    implementation 'com.github.NightWhistler:HtmlSpanner:0.4'
+    //implementation 'com.github.Hitomis:transferee:1.5.0'
 
+    def multidex_version = "2.0.1"
+    implementation "androidx.multidex:multidex:$multidex_version"
 }

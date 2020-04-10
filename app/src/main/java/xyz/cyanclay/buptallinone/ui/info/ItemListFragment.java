@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -24,15 +23,17 @@ import java.util.Objects;
 
 import xyz.cyanclay.buptallinone.MainActivity;
 import xyz.cyanclay.buptallinone.R;
-import xyz.cyanclay.buptallinone.network.InfoManager;
 import xyz.cyanclay.buptallinone.network.NetworkManager;
+import xyz.cyanclay.buptallinone.network.info.InfoCategory;
+import xyz.cyanclay.buptallinone.network.info.InfoManager.InfoItem;
+import xyz.cyanclay.buptallinone.network.info.InfoManager.InfoItems;
 
-import static xyz.cyanclay.buptallinone.network.InfoManager.INNER_CONTROL_OVERTNESS;
-import static xyz.cyanclay.buptallinone.network.InfoManager.NOTICE_OVERTNESS;
-import static xyz.cyanclay.buptallinone.network.InfoManager.PARTY_OVERTNESS;
-import static xyz.cyanclay.buptallinone.network.InfoManager.SCHOOL_NEWS;
-import static xyz.cyanclay.buptallinone.network.InfoManager.SCHOOL_NOTICE;
-import static xyz.cyanclay.buptallinone.network.InfoManager.SCHOOL_OVERTNESS;
+import static xyz.cyanclay.buptallinone.network.info.InfoCategory.INNER_CONTROL_OVERTNESS;
+import static xyz.cyanclay.buptallinone.network.info.InfoCategory.NOTICE_OVERTNESS;
+import static xyz.cyanclay.buptallinone.network.info.InfoCategory.PARTY_OVERTNESS;
+import static xyz.cyanclay.buptallinone.network.info.InfoCategory.SCHOOL_NEWS;
+import static xyz.cyanclay.buptallinone.network.info.InfoCategory.SCHOOL_NOTICE;
+import static xyz.cyanclay.buptallinone.network.info.InfoCategory.SCHOOL_OVERTNESS;
 
 public class ItemListFragment extends Fragment {
 
@@ -47,21 +48,25 @@ public class ItemListFragment extends Fragment {
 
         final NetworkManager nm = ((MainActivity) getActivity()).getNetworkManager();
 
-        loadInfo(root, nm, getContext(), (MainActivity) getActivity(), false);
-
-        ((SwipeRefreshLayout) root.findViewById(R.id.srlInfoList)).setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        SwipeRefreshLayout srl = root.findViewById(R.id.srlInfoList);
+        srl.setColorSchemeResources(R.color.colorPrimary, R.color.colorPrimaryDark);
+        srl.setRefreshing(true);
+        srl.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 loadInfo(root, nm, getContext(), (MainActivity) getActivity(), true);
             }
         });
+
+        loadInfo(root, nm, getContext(), (MainActivity) getActivity(), false);
+
+
         return root;
     }
 
     private static void loadInfo(final View root, final NetworkManager nm, final Context context, final MainActivity activity, final boolean isRefresh) {
-        final ProgressBar pb = root.findViewById(R.id.progressBarInfo);
-        pb.setVisibility(View.VISIBLE);
-        final Map<Integer, LinearLayout> ref = new HashMap<Integer, LinearLayout>() {{
+
+        final Map<InfoCategory, LinearLayout> ref = new HashMap<InfoCategory, LinearLayout>() {{
             put(SCHOOL_NOTICE, (LinearLayout) root.findViewById(R.id.NoticeContainer));
             put(SCHOOL_NEWS, (LinearLayout) root.findViewById(R.id.NewsContainer));
             put(PARTY_OVERTNESS, (LinearLayout) root.findViewById(R.id.PartyContainer));
@@ -70,57 +75,59 @@ public class ItemListFragment extends Fragment {
             put(NOTICE_OVERTNESS, (LinearLayout) root.findViewById(R.id.OvertnessContainer));
         }};
 
-        new AsyncTask<Void, Void, InfoManager.InfoItems[]>() {
+        new AsyncTask<Void, Void, InfoItems[]>() {
             @Override
-            protected InfoManager.InfoItems[] doInBackground(Void... voids) {
-                InfoManager.InfoItems[] items = new InfoManager.InfoItems[6];
-                for (int i = 0; i <= NOTICE_OVERTNESS; i++) {
+            protected InfoItems[] doInBackground(Void... voids) {
+                InfoItems[] items = new InfoItems[6];
+                for (InfoCategory cate : InfoCategory.values()) {
                     try {
-                        items[i] = nm.infoManager.parseMainpage(i);
+                        items[cate.ordinal()] = nm.infoManager.parseMainpage(cate);
                     } catch (IOException e) {
                         cancel(true);
                         e.printStackTrace();
                     }
                 }
+
                 return items;
             }
 
             @Override
-            protected void onPostExecute(final InfoManager.InfoItems[] infoItems) {
+            protected void onPostExecute(final InfoItems[] infoItems) {
                 super.onPostExecute(infoItems);
-                for (int cate = 0; cate <= NOTICE_OVERTNESS; cate++) {
-                    for (int i = 0; i <= 5; i++) {
-                        final View item = View.inflate(context, R.layout.fragment_info_item, null);
-                        item.setTag(infoItems[cate].get(i));
-                        ((TextView) item.findViewById(R.id.textViewItemTitle)).setText(infoItems[cate].get(i).title);
-                        ((TextView) item.findViewById(R.id.textViewItemTime)).setText(infoItems[cate].get(i).time);
-                        final ItemDetailFragment idf = ItemDetailFragment.newInstance();
-                        idf.setItem(infoItems[cate].get(i));
+                for (InfoCategory cate : InfoCategory.values()) {
 
-                        item.setOnClickListener(new View.OnClickListener() {
+                    Objects.requireNonNull(ref.get(cate)).removeAllViews();
+
+                    for (int i = 0; i <= 5; i++) {
+                        final View itemView = View.inflate(context, R.layout.fragment_info_item, null);
+                        final InfoItem item = infoItems[cate.ordinal()].get(i);
+                        itemView.setTag(item);
+                        ((TextView) itemView.findViewById(R.id.textViewItemTitle)).setText(item.title);
+                        ((TextView) itemView.findViewById(R.id.textViewItemTime)).setText(item.time);
+
+                        itemView.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                activity.replaceFragment(idf);
+                                ItemDetailFragment idf = ItemDetailFragment.newInstance();
+                                idf.setItem(item);
+                                activity.addFragment(idf);
                             }
                         });
 
-                        Objects.requireNonNull(ref.get(cate)).addView(item);
+                        Objects.requireNonNull(ref.get(cate)).addView(itemView);
                     }
                 }
-
+                ((SwipeRefreshLayout) root.findViewById(R.id.srlInfoList)).setRefreshing(false);
                 if (isRefresh) {
-                    ((SwipeRefreshLayout) root.findViewById(R.id.srlInfoList)).setRefreshing(false);
-                    Snackbar.make(root, R.string.refreshed, Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(root, R.string.refreshed, Snackbar.LENGTH_SHORT).show();
                 }
 
                 root.findViewById(R.id.layoutItemLists).setVisibility(View.VISIBLE);
-                pb.setVisibility(View.GONE);
 
             }
 
             @Override
             protected void onCancelled() {
-                pb.setVisibility(View.GONE);
                 root.findViewById(R.id.layoutItemLists).setVisibility(View.GONE);
                 ((SwipeRefreshLayout) root.findViewById(R.id.srlInfoList)).setRefreshing(false);
                 Snackbar.make(root, R.string.load_failed, Snackbar.LENGTH_LONG).show();

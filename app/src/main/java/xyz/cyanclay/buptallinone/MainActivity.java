@@ -10,6 +10,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -54,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow,
-                R.id.nav_tools, R.id.nav_share, R.id.nav_send, R.id.nav_user_details)
+                R.id.nav_tools, R.id.nav_share, R.id.nav_send)
                 .setDrawerLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
@@ -67,12 +68,13 @@ public class MainActivity extends AppCompatActivity {
                 super.run();
                 try {
                     networkManager = new NetworkManager(getApplicationContext());
-                } catch (IOException e) {
+                } catch (final IOException e) {
                     e.printStackTrace();
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Snackbar.make(navigationView, R.string.unknown_error, Snackbar.LENGTH_LONG).show();
+                            Snackbar.make(navigationView, R.string.unknown_error, Snackbar.LENGTH_LONG)
+                                    .setAction(e.getMessage(), null).show();
                         }
                     });
                 }
@@ -80,11 +82,13 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        setUser(NetworkManager.user, NetworkManager.name);
+                        setUser(networkManager.user, networkManager.name);
                     }
                 });
             }
         }.start();
+
+
     }
 
     public void setUser(String user, String name) {
@@ -107,6 +111,18 @@ public class MainActivity extends AppCompatActivity {
                 || super.onSupportNavigateUp();
     }
 
+    public void addFragment(Fragment to) {
+        FragmentManager manager = this.getSupportFragmentManager();
+
+        FragmentTransaction transaction = manager.beginTransaction();
+        transaction.add(R.id.nav_host_fragment, to);
+        transaction.addToBackStack(null);
+        transaction.commit();
+
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        drawer.closeDrawers();
+    }
+
     public void replaceFragment(Fragment to) {
         FragmentManager manager = this.getSupportFragmentManager();
         manager.beginTransaction().replace(R.id.nav_host_fragment, to).commit();
@@ -117,8 +133,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void onUserDetailsClick(View v) {
         //replaceFragment();
-        FragmentManager fragmentManager = this.getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.nav_host_fragment, new UserDetailsFragment()).commit();
+        Navigation.findNavController(this, R.id.nav_host_fragment).navigate(R.id.action_nav_home_to_nav_user_details);
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setCheckedItem(R.id.nav_send);
         DrawerLayout drawer = findViewById(R.id.drawer_layout);

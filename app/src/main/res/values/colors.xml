@@ -5,4 +5,9 @@
     <color name="colorAccent">#D81B60</color>
     <color name="colorError">#E03030</color>
     <color name="colorCorrect">#00C020</color>
+    <color name="textPrimary">#909090</color>
+    <color name="textPrimaryDark">#303030</color>
+
+    <color name="subWeekHead">#fff7f6f4</color>
+    <color name="textBorder">#a8abad</color>
 </resources>

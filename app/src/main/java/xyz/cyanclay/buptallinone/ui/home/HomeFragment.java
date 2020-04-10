@@ -1,24 +1,21 @@
 package xyz.cyanclay.buptallinone.ui.home;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout.LayoutParams;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
-import android.content.Intent;
-
 import xyz.cyanclay.buptallinone.CheckScoreActivity;
+import xyz.cyanclay.buptallinone.R;
 import xyz.cyanclay.buptallinone.constant.ImageList;
 import xyz.cyanclay.buptallinone.util.Utils;
 import xyz.cyanclay.buptallinone.widget.BannerPager;
-
-import android.widget.LinearLayout.LayoutParams;
-
-import xyz.cyanclay.buptallinone.R;
 
 public class HomeFragment extends Fragment {
 
@@ -27,7 +24,7 @@ public class HomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         //homeViewModel =
-                ViewModelProviders.of(this).get(HomeViewModel.class);
+        ViewModelProviders.of(this).get(HomeViewModel.class);
         View root = inflater.inflate(R.layout.fragment_home, container, false);
         //final TextView textView = root.findViewById(R.id.text_home);
         /*homeViewModel.getText().observe(this, new Observer<String>() {

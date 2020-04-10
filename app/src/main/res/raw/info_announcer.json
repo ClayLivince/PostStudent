@@ -1,0 +1,329 @@
+{
+  "category": [
+    {
+      "name": "党团行政",
+      "group": [
+        {
+          "var": "PARTY_OFFICE",
+          "name": "党政办公室",
+          "id": "183000001"
+        },
+        {
+          "var": "ORGANIZATION_DEPT_PARTY",
+          "name": "组织部(党校)",
+          "id": "183104000"
+        },
+        {
+          "var": "PUBLICITY_DEPT",
+          "name": "宣传部",
+          "id": "183105000"
+        },
+        {
+          "var": "UNITED_FRONT_DEPT",
+          "name": "统战部",
+          "id": "183110000"
+        },
+        {
+          "var": "STUDENT_AFFAIR_OFFICE",
+          "name": "学生处",
+          "id": "183212000"
+        },
+        {
+          "var": "GRADUATE_OFFICE",
+          "name": "研究生工作部",
+          "id": "183137000"
+        },
+        {
+          "var": "GRADUATE_SCHOOL",
+          "name": "研究生院",
+          "id": "183203000"
+        },
+        {
+          "var": "CONFIDENTIALITY_OFFICE",
+          "name": "保密处",
+          "id": "183216000"
+        },
+        {
+          "var": "SECURITY_OFFICE",
+          "name": "保卫处",
+          "id": "183215000"
+        },
+        {
+          "var": "DISCIPLINE_COMMISSION_OFFICE",
+          "name": "纪委办公室",
+          "id": "183000010"
+        },
+        {
+          "var": "INSPECTION_OFFICE",
+          "name": "巡察工作办公室",
+          "id": "183140000"
+        },
+        {
+          "var": "LABOR_UNION",
+          "name": "校工会",
+          "id": "183112000"
+        },
+        {
+          "var": "YOUTH_LEAGUE",
+          "name": "校团委",
+          "id": "183113000"
+        },
+        {
+          "var": "PARTY_COMMITTEE",
+          "name": "机关党委",
+          "id": "183114000"
+        },
+        {
+          "var": "ACADEMIC_PARTY_COMMITTEE",
+          "name": "教务党委",
+          "id": "183115000"
+        },
+        {
+          "var": "ACADEMIC_AFFAIR_OFFICE",
+          "name": "教务处",
+          "id": "183202000"
+        },
+        {
+          "var": "SCHOOL_OF_TECH_RESEARCH",
+          "name": "科学技术研究院",
+          "id": "183231000"
+        },
+        {
+          "var": "AUDIT_OFFICE",
+          "name": "审计处",
+          "id": "183221000"
+        },
+        {
+          "var": "DEVELOPMENT_OFFICE",
+          "name": "发展规划处",
+          "id": "183237000"
+        },
+        {
+          "var": "INTERNATIONAL_COOP_OFFICE",
+          "name": "国际合作与交流处",
+          "id": "183214000"
+        },
+        {
+          "var": "HUMAN_RESOURCE_OFFICE",
+          "name": "人事处",
+          "id": "183205000"
+        },
+        {
+          "var": "RETIRE_OFFICE",
+          "name": "离退休工作处",
+          "id": "183219000"
+        },
+        {
+          "var": "FINANCE_OFFICE",
+          "name": "财务处",
+          "id": "183206000"
+        },
+        {
+          "var": "INFRASTRUCTURE_OFFICE",
+          "name": "基建处",
+          "id": "183217000"
+        },
+        {
+          "var": "RENEWAL_OFFICE",
+          "name": "校区改造办公室",
+          "id": "183239000"
+        },
+        {
+          "var": "PROPERTY_MANAGEMENT_OFFICE",
+          "name": "资产管理处",
+          "id": "183207000"
+        },
+        {
+          "var": "BIDDING_OFFICE",
+          "name": "采购与招标办公室",
+          "id": "183235000"
+        },
+        {
+          "var": "LOGISTICS_OFFICE",
+          "name": "后勤处",
+          "id": "183218000"
+        },
+        {
+          "var": "REMOTE_EDU_OFFICE",
+          "name": "远程与继续教育处",
+          "id": "183204000"
+        },
+        {
+          "var": "HONGFU_OFFICE",
+          "name": "宏福校区综合办公室",
+          "id": "183224000"
+        },
+        {
+          "var": "SHAHE_GENERAL_OFFICE",
+          "name": "沙河校区综合办公室",
+          "id": "183000003"
+        },
+        {
+          "var": "SHAHE_CONSTRUCTION_OFFICE",
+          "name": "沙河校区建设指挥部",
+          "id": "183232000"
+        },
+        {
+          "var": "LIBRARY",
+          "name": "图书馆",
+          "id": "183226000"
+        },
+        {
+          "var": "INFO_TECH_CENTRE",
+          "name": "信息化技术中心",
+          "id": "183236000"
+        },
+        {
+          "var": "ARCHIVES_CENTRE",
+          "name": "档案馆",
+          "id": "183201200"
+        },
+        {
+          "var": "SCHOOLMATE_EDU_FUND_SECRETARY",
+          "name": "校友总会秘书处和教育基金会秘书处",
+          "id": "183238000"
+        },
+        {
+          "var": "ASSETS_COMPANY",
+          "name": "资产经营公司",
+          "id": "183000006"
+        },
+        {
+          "var": "PRESS",
+          "name": "出版社",
+          "id": "183229000"
+        },
+        {
+          "var": "HOSPITAL",
+          "name": "校医院",
+          "id": "183000011"
+        },
+        {
+          "var": "HK_MC_OFFICE",
+          "name": "港澳台事务办公室",
+          "id": "183214100"
+        }
+      ]
+    },
+    {
+      "name": "教学科研",
+      "group": [
+        {
+          "var": "INFO",
+          "name": "信息与通信工程学院",
+          "id": "183311000"
+        },
+        {
+          "var": "E_ENGINEERING",
+          "name": "电子工程学院",
+          "id": "183312000"
+        },
+        {
+          "var": "HUMANITY",
+          "name": "人文学院",
+          "id": "183331000"
+        },
+        {
+          "var": "INTERNATIONAL",
+          "name": "国际学院",
+          "id": "183351000"
+        },
+        {
+          "var": "NET_EDU",
+          "name": "网络教育学院",
+          "id": "183361000"
+        },
+        {
+          "var": "RESUME_EDU",
+          "name": "继续教育学院",
+          "id": "183000008"
+        },
+        {
+          "var": "ETHNIC_EDU",
+          "name": "民族教育学院",
+          "id": "183362000"
+        },
+        {
+          "var": "NET_TECH_INSTITUTE",
+          "name": "网络技术研究院",
+          "id": "183371000"
+        },
+        {
+          "var": "LIGHT_E_INFO",
+          "name": "光电信息学院(信息光子学与光通信研究院)",
+          "id": "183372000"
+        },
+        {
+          "var": "MARXISM",
+          "name": "马克思主义学院",
+          "id": "183332000"
+        },
+        {
+          "var": "SPORTS",
+          "name": "体育部",
+          "id": "183381000"
+        },
+        {
+          "var": "SENSE_INSTITUTE",
+          "name": "感知技术与产业研究院",
+          "id": "183373000"
+        },
+        {
+          "var": "TRUSTED_COMMUNI_INNO_CENTRE",
+          "name": "可信网络通信协同创新中心",
+          "id": "183374000"
+        },
+        {
+          "var": "YE_PEI_DA",
+          "name": "叶培大学院",
+          "id": "183000009"
+        },
+        {
+          "var": "COMPUTER",
+          "name": "计算机学院",
+          "id": "183313000"
+        },
+        {
+          "var": "AUTONOMY",
+          "name": "自动化学院",
+          "id": "183314000"
+        },
+        {
+          "var": "SOFTWARE",
+          "name": "软件学院",
+          "id": "183315000"
+        },
+        {
+          "var": "DIGITAL_ART",
+          "name": "数字媒体与设计艺术学院",
+          "id": "183316000"
+        },
+        {
+          "var": "MATH",
+          "name": "理学院",
+          "id": "183341000"
+        },
+        {
+          "var": "MANAGEMENT",
+          "name": "经济管理学院",
+          "id": "183321000"
+        },
+        {
+          "var": "MODERN_POST",
+          "name": "现代邮政学院",
+          "id": "183317000"
+        },
+        {
+          "var": "CENTURY",
+          "name": "世纪学院",
+          "id": "183601000"
+        },
+        {
+          "var": "NET_SPACE_SAFETY",
+          "name": "网络空间安全学院",
+          "id": "183318000"
+        }
+      ]
+    }
+  ]
+}

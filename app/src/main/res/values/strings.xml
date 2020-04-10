@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">BUPTAllinOne</string>
+    <string name="app_name">北邮一点通</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">姓名</string>
@@ -27,7 +27,8 @@
     <string name="vpnlogin">查成绩</string>
     <string name="text_user_details">密码信息管理</string>
     <string name="hint_id">学号</string>
-    <string name="hint_info_password">信息门户密码</string>
+    <string name="hint_vpn_pass">新版VPN密码，默认为后六位</string>
+    <string name="hint_info_password">信息门户密码，默认为后八位</string>
     <string name="hint_jwxt_password">旧教务系统密码</string>
     <string name="hint_jwgl_password">新教务系统密码</string>
     <string name="title_activity_user_detail">用户信息</string>
@@ -36,11 +37,12 @@
     <string name="verify_success">√ 验证成功</string>
     <string name="verify_fail">× 验证失败</string>
     <string name="incorrect_id">学号位数不正确，请检查。</string>
-    <string name="incorrect_info_password">学号或信息门户密码不正确，请检查。</string>
-    <string name="please_input_info">请输入信息门户密码。</string>
+    <string name="incorrect_password">学号或密码不正确，请检查。</string>
+    <string name="please_input_info">请输入密码。</string>
     <string name="incorrect_jwxt_password">旧教务系统密码不正确，请检查。</string>
     <string name="incorrect_jwgl_password">新教务系统密码不正确，请检查。</string>
     <string name="load_failed">加载失败，请检查网络，或尝试下拉刷新。</string>
+    <string name="timed_out">网络超时，请重试。</string>
     <string name="unknown_error">发生未知错误，请联系我们。</string>
     <string name="input_captcha">请输入验证码</string>
     <string name="incorrect_captcha">验证码不正确，请检查。</string>
@@ -59,7 +61,18 @@
     <string name="notice_overtness">公开公示</string>
     <string name="academic_lecture">学术讲座</string>
 
+
     <string name="time">时间</string>
     <string name="announcer">发布</string>
     <string name="category">类别</string>
+    <string name="search">搜索</string>
+
+    <string name="monday">一</string>
+    <string name="tuesday">二</string>
+    <string name="wednesday">三</string>
+    <string name="thursday">四</string>
+    <string name="friday">五</string>
+    <string name="saturday">六</string>
+    <string name="sunday">日</string>
+
 </resources>
