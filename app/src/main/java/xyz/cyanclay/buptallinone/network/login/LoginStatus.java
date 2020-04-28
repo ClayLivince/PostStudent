@@ -9,5 +9,7 @@ public enum LoginStatus {
     EMPTY_CAPTCHA,
     INCORRECT_CAPTCHA,
     UNKNOWN_ERROR,
-    TIMED_OUT
+    TIMED_OUT;
+
+    public String errorMsg = "";
 }

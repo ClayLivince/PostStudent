@@ -7,24 +7,22 @@
     android:background="#ffffff"
     tools:context=".ui.userdetails.UserDetailsFragment">
 
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="175dp"
+            android:src="@drawable/user_deatils_background" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="10sp"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/textViewTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/text_user_details"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                android:textSize="30sp"
-                android:typeface="sans" />
+            android:background="@android:color/background_light"
+            android:orientation="vertical"
+            android:padding="10sp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -278,19 +276,27 @@
 
             <Button
                 android:id="@+id/buttonVerifyPassword"
-                style="@style/Widget.AppCompat.Button"
+                style="@style/Widget.AppCompat.Button.Borderless.Colored"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/verify_password" />
+                android:background="#A9FFEB3B"
+                android:text="@string/verify_password"
+                android:textColor="@color/textPrimaryDark"
+                android:textSize="16sp" />
 
             <Button
                 android:id="@+id/buttonSaveUserDetail"
+                style="@style/Widget.AppCompat.Button.Borderless.Colored"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="5sp"
+                android:background="#A900BCD4"
                 android:text="@string/save"
+                android:textColor="@color/textPrimaryDark"
+                android:textSize="16sp"
                 android:visibility="invisible" />
 
         </LinearLayout>
-    </FrameLayout>
+    </LinearLayout>
 
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

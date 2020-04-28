@@ -1,6 +1,5 @@
 package xyz.cyanclay.buptallinone.ui.info;
 
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -103,9 +102,8 @@ public class CategoryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 public void onClick(View v) {
                     ItemDetailViewModel vm = ViewModelProviders.of(activity).get(ItemDetailViewModel.class);
                     vm.setItem(item);
-                    categoryListFragment.onSaveInstanceState(new Bundle());
                     Navigation.findNavController(activity.findViewById(R.id.nav_host_fragment))
-                            .navigate(R.id.action_nav_gallery_to_nav_info_item_detail);
+                            .navigate(R.id.action_to_nav_info_item_detail);
                 }
             });
         } else {
@@ -127,11 +125,12 @@ public class CategoryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         }
     }
 
-    private void initSearch(View root) {
+    private void initSearch(final View root) {
         SearchView searchView = root.findViewById(R.id.searchInfo);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+                if (sAnnouncerCate == 0) sAnnouncer = -1;
                 CategoryListFragment.fetchItems(categoryListFragment, sCategory,
                         sAnnouncerCate, sAnnouncer,
                         true, query, nm);
@@ -142,7 +141,12 @@ public class CategoryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                return false;
+                if (newText.equals(""))
+                    CategoryListFragment.fetchItems(categoryListFragment, sCategory,
+                            sAnnouncerCate, sAnnouncer,
+                            false, null, nm);
+                //clearSearch(root);
+                return true;
             }
         });
     }
@@ -174,16 +178,14 @@ public class CategoryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                             R.layout.fragment_dialog_dropdown,
                             R.id.textViewDropdown,
                             activity.getResources().getStringArray(R.array.offices)));
-                    spinnerAnnouncer.performClick();
-                    spinnerAnnouncer.requestFocus();
+
                 } else if (position == 2) {
                     spinnerAnnouncer.setVisibility(View.VISIBLE);
                     spinnerAnnouncer.setAdapter(new ArrayAdapter<>(activity,
                             R.layout.fragment_dialog_dropdown,
                             R.id.textViewDropdown,
                             activity.getResources().getStringArray(R.array.schools)));
-                    spinnerAnnouncer.performClick();
-                    spinnerAnnouncer.requestFocus();
+
                 }
             }
 
@@ -202,7 +204,7 @@ public class CategoryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                     spinnerAnnouncer.setVisibility(View.GONE);
                 }
                 CategoryListFragment.fetchItems(categoryListFragment,
-                        sCategory, sAnnouncerCate, -1,
+                        sCategory, sAnnouncerCate, sAnnouncer,
                         false, null, nm);
                 clearSearch(root);
             }

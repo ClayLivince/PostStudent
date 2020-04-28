@@ -27,12 +27,11 @@ public class InfoManager extends SiteManager {
     private static final String infoURL = "http://my.bupt.edu.cn/",
             loginURL = "https://auth.bupt.edu.cn/authserver/login?service=http%3A%2F%2Fmy.bupt.edu.cn%2Flogin.portal";
 
-
     private Document cachedDocument;
     private InfoAnnouncer announcer;
 
     public InfoManager(NetworkManager nm, Context context) {
-        super(nm);
+        super(nm, context);
         announcer = new InfoAnnouncer(context);
     }
 
@@ -96,9 +95,9 @@ public class InfoManager extends SiteManager {
         return LoginStatus.UNKNOWN_ERROR;
     }
 
-    private Document getContent(String url) throws IOException {
+    private Document getContent(String url, boolean refresh) throws IOException {
         if (checkLogin()) {
-            return nm.getContent(url, cookies);
+            return nm.getContent(url, cookies, refresh);
         } else throw new IOException("Info Login Failed.");
     }
 
@@ -130,15 +129,16 @@ public class InfoManager extends SiteManager {
         return null;
     }
 
-    public InfoItems parseNotice(InfoCategory category) throws IOException {
-        return parseNotice(buildURL(category, -1, -1, 1));
+    public InfoItems parseNotice(InfoCategory category, boolean refresh) throws IOException {
+        return parseNotice(buildURL(category, -1, -1, 1), refresh);
     }
 
-    public InfoItems parseNotice(InfoCategory category, int cate, int id, int page) throws IOException {
-        return parseNotice(buildURL(category, cate, id, page));
+    public InfoItems parseNotice(InfoCategory category, int cate, int id, int page, boolean refresh) throws IOException {
+        return parseNotice(buildURL(category, cate, id, page), refresh);
     }
 
-    public InfoItems parseNotice(InfoCategory category, int cate, int id, int page, String searchWord) throws IOException {
+    public InfoItems parseNotice(InfoCategory category, int cate, int id, int page,
+                                 String searchWord) throws IOException {
         return parseNotice(buildURL(category, cate, id, page), searchWord);
     }
 
@@ -151,15 +151,16 @@ public class InfoManager extends SiteManager {
         throw new LoginException(this, url);
     }
 
-    private InfoItems parseNotice(String url) throws IOException {
+    private InfoItems parseNotice(String url, boolean refresh) throws IOException {
         if (checkLogin()) {
-            Document document = getContent(url);
+            Document document = getContent(url, refresh);
             return parseNotice(document, url, false, null);
         }
         throw new LoginException(this, url);
     }
 
-    private InfoItems parseNotice(Document document, String url, boolean isSearch, String searchWord) {
+    private InfoItems parseNotice(Document document, String url,
+                                  boolean isSearch, String searchWord) {
         Elements notices = document.getElementsByClass("newslist").first().children();
         InfoItems items;
         if (isSearch) items = new InfoItems(searchWord);
@@ -173,6 +174,7 @@ public class InfoManager extends SiteManager {
             item.time = entry.child(2).ownText().trim();
             items.add(item);
         }
+        if (items.size() < 30) items.bottom = true;
         return items;
     }
 
@@ -223,12 +225,12 @@ public class InfoManager extends SiteManager {
          */
         public HashMap<String, String> attachments;
 
-        private Document getContentDocument() throws IOException {
-            return InfoManager.this.getContent(url);
+        private Document getContentDocument(boolean refresh) throws IOException {
+            return InfoManager.this.getContent(url, refresh);
         }
 
         public void parseContentSpanned(int maxWidth, boolean force) throws IOException {
-            Document document = getContentDocument();
+            Document document = getContentDocument(force);
             titleFull = document.getElementsByClass("singlemainbox").first().getElementsByTag("h1").first().ownText();
             category = document.getElementsByClass("pdept").first().ownText().split("：")[1];
 
@@ -268,11 +270,10 @@ public class InfoManager extends SiteManager {
                 if (isSearch) {
                     more = InfoManager.this.parseNotice(url.concat("&pageIndex=" + page), searchWord);
                 } else {
-                    more = InfoManager.this.parseNotice(url.concat("&pageIndex=" + page));
+                    more = InfoManager.this.parseNotice(url.concat("&pageIndex=" + page), false);
                 }
-                if (!more.isEmpty()) {
-                    this.addAll(more);
-                } else bottom = true;
+                this.addAll(more);
+                this.bottom = more.bottom;
             } else {
                 bottom = true;
             }

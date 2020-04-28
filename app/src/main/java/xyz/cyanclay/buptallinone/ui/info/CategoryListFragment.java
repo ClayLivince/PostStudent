@@ -154,7 +154,9 @@ public class CategoryListFragment extends Fragment {
 
     static void fetchItems(final CategoryListFragment fragment,
                            final InfoCategory cate, final int announcerCate, final int announcerID,
-                           final boolean isSearch, final String searchWord, final NetworkManager nm) {
+                           final boolean isSearch, final String searchWord,
+                           final NetworkManager nm) {
+        final boolean refresh = fragment.srl.isRefreshing();
         final String[] message = new String[2];
         new AsyncTask<Void, Void, InfoItems>() {
             @Override
@@ -166,7 +168,7 @@ public class CategoryListFragment extends Fragment {
                         if (isSearch) {
                             return nm.infoManager.parseNotice(cate, announcerCate, announcerID, 1, searchWord);
                         } else
-                            return nm.infoManager.parseNotice(cate, announcerCate - 1, announcerID, 1);
+                            return nm.infoManager.parseNotice(cate, announcerCate - 1, announcerID, 1, refresh);
                     }
                 } catch (IOException e) {
                     solveException(e);

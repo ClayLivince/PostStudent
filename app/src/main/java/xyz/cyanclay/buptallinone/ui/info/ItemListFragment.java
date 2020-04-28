@@ -12,7 +12,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.navigation.Navigation;
 
 import com.google.android.material.snackbar.Snackbar;
 
@@ -37,35 +37,20 @@ import static xyz.cyanclay.buptallinone.network.info.InfoCategory.SCHOOL_OVERTNE
 
 public class ItemListFragment extends Fragment {
 
-    private ItemListViewModel itemListViewModel;
-
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        itemListViewModel =
-                ViewModelProviders.of(this).get(ItemListViewModel.class);
+
         final View root = inflater.inflate(R.layout.fragment_gallery, container, false);
 
-
-        final NetworkManager nm = ((MainActivity) getActivity()).getNetworkManager();
-
-        SwipeRefreshLayout srl = root.findViewById(R.id.srlInfoList);
-        srl.setColorSchemeResources(R.color.colorPrimary, R.color.colorPrimaryDark);
-        srl.setRefreshing(true);
-        srl.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                loadInfo(root, nm, getContext(), (MainActivity) getActivity(), true);
-            }
-        });
-
-        loadInfo(root, nm, getContext(), (MainActivity) getActivity(), false);
-
+        loadInfo(root, this, false);
 
         return root;
     }
 
-    private static void loadInfo(final View root, final NetworkManager nm, final Context context, final MainActivity activity, final boolean isRefresh) {
+    private static void loadInfo(final View root, final ItemListFragment fragment, final boolean isRefresh) {
 
+        final Context context = fragment.getContext();
+        final MainActivity activity = (MainActivity) fragment.getActivity();
         final Map<InfoCategory, LinearLayout> ref = new HashMap<InfoCategory, LinearLayout>() {{
             put(SCHOOL_NOTICE, (LinearLayout) root.findViewById(R.id.NoticeContainer));
             put(SCHOOL_NEWS, (LinearLayout) root.findViewById(R.id.NewsContainer));
@@ -78,6 +63,9 @@ public class ItemListFragment extends Fragment {
         new AsyncTask<Void, Void, InfoItems[]>() {
             @Override
             protected InfoItems[] doInBackground(Void... voids) {
+                NetworkManager nm = null;
+                while (nm == null)
+                    nm = activity.getNetworkManager();
                 InfoItems[] items = new InfoItems[6];
                 for (InfoCategory cate : InfoCategory.values()) {
                     try {
@@ -108,16 +96,16 @@ public class ItemListFragment extends Fragment {
                         itemView.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                ItemDetailFragment idf = ItemDetailFragment.newInstance();
-                                idf.setItem(item);
-                                activity.addFragment(idf);
+                                ItemDetailViewModel vm = ViewModelProviders.of(activity).get(ItemDetailViewModel.class);
+                                vm.setItem(item);
+                                Navigation.findNavController(activity.findViewById(R.id.nav_host_fragment))
+                                        .navigate(R.id.action_to_nav_info_item_detail);
                             }
                         });
 
                         Objects.requireNonNull(ref.get(cate)).addView(itemView);
                     }
                 }
-                ((SwipeRefreshLayout) root.findViewById(R.id.srlInfoList)).setRefreshing(false);
                 if (isRefresh) {
                     Snackbar.make(root, R.string.refreshed, Snackbar.LENGTH_SHORT).show();
                 }
@@ -129,7 +117,6 @@ public class ItemListFragment extends Fragment {
             @Override
             protected void onCancelled() {
                 root.findViewById(R.id.layoutItemLists).setVisibility(View.GONE);
-                ((SwipeRefreshLayout) root.findViewById(R.id.srlInfoList)).setRefreshing(false);
                 Snackbar.make(root, R.string.load_failed, Snackbar.LENGTH_LONG).show();
             }
         }.execute();

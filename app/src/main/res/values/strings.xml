@@ -14,6 +14,7 @@
     <string name="menu_share">Share</string>
     <string name="menu_send">Send</string>
     <string name="menu_user_details">密码管理</string>
+    <string name="menu_class_schedule">课程表</string>
     <string name="title_activity_login">Sign in</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
@@ -67,12 +68,17 @@
     <string name="category">类别</string>
     <string name="search">搜索</string>
 
-    <string name="monday">一</string>
-    <string name="tuesday">二</string>
-    <string name="wednesday">三</string>
-    <string name="thursday">四</string>
-    <string name="friday">五</string>
-    <string name="saturday">六</string>
-    <string name="sunday">日</string>
+    <string-array name="weekdays">
+        <item>一</item>
+        <item>二</item>
+        <item>三</item>
+        <item>四</item>
+        <item>五</item>
+        <item>六</item>
+        <item>日</item>
+    </string-array>
+
+    <string name="course_today">今日课程</string>
+    <string name="school_info">校园简讯</string>
 
 </resources>

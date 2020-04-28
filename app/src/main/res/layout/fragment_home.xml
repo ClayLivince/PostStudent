@@ -1,164 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/srlHome"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    */<!--
-
-    <EditText
-        android:id="@+id/inpCap2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="Captcha"
-        android:inputType="textPersonName"
-        app:layout_constraintBottom_toBottomOf="@+id/inpUser2"
-        app:layout_constraintEnd_toEndOf="@+id/inpUser2"
-        app:layout_constraintHorizontal_bias="0.186"
-        app:layout_constraintStart_toStartOf="@+id/inpUser2"
-        app:layout_constraintTop_toBottomOf="@+id/inpPass2"
-        app:layout_constraintVertical_bias="0.0" />
-
-    <Button
-        android:id="@+id/btnLogin2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:onClick="onVPNLogin"
-        android:text="@string/vpnlogin"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.916"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button"
-        app:layout_constraintVertical_bias="0.0" />
-
-    <TextView
-        android:id="@+id/status2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Status"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/inpUser2"
-        app:layout_constraintTop_toBottomOf="@+id/inpCap2"
-        app:layout_constraintVertical_bias="0.102" />
-
-    <EditText
-        android:id="@+id/inpPass2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="JWPass"
-        android:inputType="textPassword"
-        app:layout_constraintBottom_toTopOf="@+id/inpCap2"
-        app:layout_constraintEnd_toEndOf="@+id/inpUser2"
-        app:layout_constraintHorizontal_bias="0.186"
-        app:layout_constraintStart_toStartOf="@+id/inpUser2"
-        app:layout_constraintTop_toBottomOf="@+id/inpVPNPass" />
-
-    <EditText
-        android:id="@+id/inpUser2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="User"
-        android:inputType="textPersonName"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.242"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.233" />
-
-    <TextView
-        android:id="@+id/name2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/app_name"
-        android:visibility="visible"
-        app:layout_constraintBottom_toTopOf="@+id/inpUser2"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.148"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.751" />
-
-    <ImageView
-        android:id="@+id/imgCap2"
-        android:layout_width="137dp"
-        android:layout_height="58dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/inpUser2"
-        app:layout_constraintTop_toBottomOf="@+id/status2"
-        app:layout_constraintVertical_bias="0.108"
-        tools:srcCompat="@tools:sample/avatars" />
-
-    <TextView
-        android:id="@+id/text_home"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <EditText
-        android:id="@+id/inpVPNPass"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="VPNPass"
-        android:inputType="textPersonName"
-        app:layout_constraintBottom_toTopOf="@+id/inpPass2"
-        app:layout_constraintEnd_toEndOf="@+id/inpUser2"
-        app:layout_constraintHorizontal_bias="0.186"
-        app:layout_constraintStart_toStartOf="@+id/inpUser2"
-        app:layout_constraintTop_toBottomOf="@+id/inpUser2"
-        app:layout_constraintVertical_bias="0.0" />
-
-    <Button
-        android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="onJwLogin"
-        android:text="@string/jwlogin"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.947"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.278" />
-
-        -->/*
-
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:background="#f0f0f0">
 
-
-        <androidx.core.widget.NestedScrollView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#f0f0f0">
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:orientation="vertical">
 
+            <!-- 自定义的横幅轮播条，需要使用全路径 -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
+                android:layout_height="match_parent"
                 android:orientation="vertical">
 
-                <!-- 自定义的横幅轮播条，需要使用全路径 -->
                 <xyz.cyanclay.buptallinone.widget.BannerPager
                     android:id="@+id/banner_pager"
                     android:layout_width="match_parent"
@@ -185,7 +48,7 @@
 
                             <!--单个的小功能块-->
                             <LinearLayout
-                                android:id="@+id/menu_course"
+                                android:id="@+id/menu_score"
                                 style="@style/menu.Lineralayout">
 
                                 <ImageView
@@ -200,7 +63,7 @@
 
                             <!--单个的小功能块-->
                             <LinearLayout
-                                android:id="@+id/menu_zfxt"
+                                android:id="@+id/menu_courseList"
                                 style="@style/menu.Lineralayout">
 
                                 <ImageView
@@ -209,7 +72,7 @@
 
                                 <TextView
                                     style="@style/menu.text"
-                                    android:text="爱课堂" />
+                                    android:text="课程表" />
 
                             </LinearLayout>
 
@@ -285,7 +148,7 @@
 
                             <!--单个的小功能块-->
                             <LinearLayout
-                                android:id="@+id/menu_yellow"
+                                android:id="@+id/menu_info"
                                 style="@style/menu.Lineralayout">
 
                                 <ImageView
@@ -315,12 +178,55 @@
                         </LinearLayout>
 
                     </LinearLayout>
-                </androidx.cardview.widget.CardView>>
+                </androidx.cardview.widget.CardView>
 
-            </LinearLayout>>
+            </LinearLayout>
 
-        </androidx.core.widget.NestedScrollView>>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
-    </LinearLayout>
+                <TextView
+                    android:id="@+id/textView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2sp"
+                    android:background="#FFFFFF"
+                    android:padding="8sp"
+                    android:text="@string/course_today" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+                <androidx.fragment.app.FragmentContainerView
+                    android:id="@+id/fragmentCourseToday"
+                    android:name="xyz.cyanclay.buptallinone.ui.jwgl.CourseTodayFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textView2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#FFFFFF"
+                    android:padding="8sp"
+                    android:text="@string/school_info" />
+
+                <androidx.fragment.app.FragmentContainerView
+                    android:id="@+id/fragmentSchoolInfo"
+                    android:name="xyz.cyanclay.buptallinone.ui.info.ItemListFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

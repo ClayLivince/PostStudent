@@ -1,5 +1,6 @@
 package xyz.cyanclay.buptallinone.network;
 
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 
@@ -24,9 +25,8 @@ public class JwxtManager extends SiteManager {
 
     private String jwCap;
 
-
-    JwxtManager(NetworkManager nm) {
-        super(nm);
+    JwxtManager(NetworkManager nm, Context context) {
+        super(nm, context);
     }
 
     public void setJwCap(String cap) {

@@ -1,5 +1,6 @@
 package xyz.cyanclay.buptallinone.network;
 
+import android.content.Context;
 import android.util.Log;
 
 import java.io.IOException;
@@ -11,12 +12,14 @@ public abstract class SiteManager {
 
     protected String user;
     protected String pass;
+    public Context context;
     protected Map<String, String> cookies;
     public boolean isLoggedIn;
     protected NetworkManager nm;
 
-    public SiteManager(NetworkManager nm) {
+    public SiteManager(NetworkManager nm, Context context) {
         this.nm = nm;
+        this.context = context;
     }
 
     public void setDetails(String user, String pass) {
@@ -31,7 +34,7 @@ public abstract class SiteManager {
 
     public abstract LoginStatus doLogin() throws IOException;
 
-    public boolean checkLogin() throws IOException {
+    protected boolean checkLogin() throws IOException {
         if (isLoggedIn & cookies != null) {
             return true;
         } else return login() == LoginStatus.LOGIN_SUCCESS;

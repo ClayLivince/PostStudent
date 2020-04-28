@@ -43,9 +43,9 @@ public class NetworkManager {
 
         context = appContext;
         vpnManager = new VPNManager(this, context);
-        jwxtManager = new JwxtManager(this);
+        jwxtManager = new JwxtManager(this, context);
         infoManager = new InfoManager(this, context);
-        jwglManager = new JwglManager(this);
+        jwglManager = new JwglManager(this, context);
 
         init();
     }
@@ -85,7 +85,8 @@ public class NetworkManager {
         return (wifiState == 3 && wifiId != null && wifiId.contains("BUPT-"));
     }
 
-    public Connection.Response get(String url, Map<String, String> cookies, boolean ignoreContent) throws IOException {
+    public Connection.Response get(String url, Map<String, String> cookies,
+                                   boolean ignoreContent) throws IOException {
         return get(Jsoup.connect(url).ignoreContentType(ignoreContent), cookies);
     }
 
@@ -101,7 +102,7 @@ public class NetworkManager {
         if (url.contains("&amp;")) {
             conn.url(url.replace("&amp;", "&"));
         }
-        Log.i("Connection", "Trying to connect to" + conn.request().url().toString());
+        Log.i("NetworkManager", "Trying to connect to " + conn.request().url().toString());
         if (cookies != null) conn.cookies(cookies);
         if (isSchoolNet) {
             return conn.execute();

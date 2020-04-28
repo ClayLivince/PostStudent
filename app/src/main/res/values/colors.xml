@@ -10,4 +10,11 @@
 
     <color name="subWeekHead">#fff7f6f4</color>
     <color name="textBorder">#a8abad</color>
+
+    <color name="courseTable1">#FF9800</color>
+    <color name="courseTable2">#9C27B0</color>
+    <color name="courseTable3">#03A9F4</color>
+    <color name="courseTable4">#F44336</color>
+    <color name="courseTable5">#8BC34A</color>
+
 </resources>

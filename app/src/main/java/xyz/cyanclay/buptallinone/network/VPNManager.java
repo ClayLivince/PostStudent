@@ -24,13 +24,10 @@ import xyz.cyanclay.buptallinone.network.login.LoginStatus;
 
 public class VPNManager extends SiteManager {
 
-    private Context context;
-
     private static String vpnURL = "http://webvpn.bupt.edu.cn";
 
     VPNManager(NetworkManager nm, Context context) throws IOException {
-        super(nm);
-        this.context = context;
+        super(nm, context);
 
         init();
     }

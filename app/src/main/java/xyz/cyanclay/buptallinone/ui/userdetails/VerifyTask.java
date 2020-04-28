@@ -16,7 +16,7 @@ import xyz.cyanclay.buptallinone.R;
 import xyz.cyanclay.buptallinone.network.SiteManager;
 import xyz.cyanclay.buptallinone.network.login.LoginStatus;
 
-public class VerifyTask {
+class VerifyTask {
 
     static void verify(final UserDetailsFragment udf, String user, final View root, final TextView verify, final EditText input, final ProgressBar progress,
                        final SiteManager site) {
@@ -54,6 +54,10 @@ public class VerifyTask {
                         verifyFailed(verify, input);
                         Snackbar.make(root, R.string.timed_out, Snackbar.LENGTH_LONG);
                         break;
+                    }
+                    case UNKNOWN_ERROR: {
+                        verifyFailed(verify, input);
+                        Snackbar.make(root, "发生错误： " + loginStatus.errorMsg, Snackbar.LENGTH_LONG).show();
                     }
                     default: {
                         verifyFailed(verify, input);

@@ -164,7 +164,7 @@ public class BannerPager extends RelativeLayout implements View.OnClickListener 
         // 获取翻页视图当前页面项的序号
         int position = vp_banner.getCurrentItem();
         // 触发点击监听器的onBannerClick方法
-        mListener.onBannerClick(position);
+        //mListener.onBannerClick(position);
     }
 
     // 设置广告图的点击监听器
