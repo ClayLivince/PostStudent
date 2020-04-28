@@ -1,5 +1,6 @@
 package xyz.cyanclay.buptallinone.ui.userdetails;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
@@ -46,6 +47,8 @@ public class UserDetailsFragment extends Fragment implements SwipeRefreshLayout.
     private static int colorCorrect;
     private static int colorError;
 
+    private ProgressDialog saveDialog;
+
     public UserDetailsFragment() {
     }
 
@@ -72,16 +75,17 @@ public class UserDetailsFragment extends Fragment implements SwipeRefreshLayout.
         root.findViewById(R.id.buttonSaveUserDetail).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    PasswordHelper.saveEncrypt(fileDir, ((TextView) root.findViewById(R.id.inpID)).getText().toString()
-                            , ((TextView) root.findViewById(R.id.inpVPNPass)).getText().toString()
-                            , ((TextView) root.findViewById(R.id.inpInfoPass)).getText().toString()
-                            , ((TextView) root.findViewById(R.id.inpJwxtPass)).getText().toString()
-                            , ((TextView) root.findViewById(R.id.inpJwglPass)).getText().toString());
-                } catch (IOException e) {
-                    Snackbar.make(root, R.string.unknown_error, Snackbar.LENGTH_LONG).show();
-                    e.printStackTrace();
-                }
+                saveDialog = new ProgressDialog(UserDetailsFragment.this.getContext());
+                saveDialog.setMessage("正在保存...");
+                saveDialog.setCancelable(false);//默认true
+                saveDialog.setCanceledOnTouchOutside(false);//默认true
+                saveDialog.show();
+                taskSavePassword(UserDetailsFragment.this, fileDir
+                        , ((TextView) root.findViewById(R.id.inpID)).getText().toString()
+                        , ((TextView) root.findViewById(R.id.inpVPNPass)).getText().toString()
+                        , ((TextView) root.findViewById(R.id.inpInfoPass)).getText().toString()
+                        , ((TextView) root.findViewById(R.id.inpJwxtPass)).getText().toString()
+                        , ((TextView) root.findViewById(R.id.inpJwglPass)).getText().toString());
             }
         });
         onRefresh();
@@ -379,6 +383,39 @@ public class UserDetailsFragment extends Fragment implements SwipeRefreshLayout.
             }
         });
     }
+
+    private static void taskSavePassword(final UserDetailsFragment udf,
+                                         final File fileDir, final String... details) {
+        new AsyncTask<Void, Void, Boolean>() {
+            @Override
+            protected Boolean doInBackground(Void... voids) {
+                try {
+                    return PasswordHelper.saveEncrypt(fileDir, details[0]
+                            , details[1], details[2], details[3], details[4]);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    cancel(true);
+                    return false;
+                }
+            }
+
+            @Override
+            protected void onPostExecute(Boolean aBoolean) {
+                super.onPostExecute(aBoolean);
+                udf.saveDialog.dismiss();
+                Snackbar.make(udf.root, "保存成功！", Snackbar.LENGTH_LONG).show();
+            }
+
+            @Override
+            protected void onCancelled() {
+                super.onCancelled();
+                udf.saveDialog.dismiss();
+                Snackbar.make(udf.root, "保存失败，请重试", Snackbar.LENGTH_LONG).show();
+            }
+        }.execute();
+    }
+
+
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {

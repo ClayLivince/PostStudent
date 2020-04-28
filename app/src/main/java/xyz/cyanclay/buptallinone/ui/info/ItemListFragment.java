@@ -75,6 +75,11 @@ public class ItemListFragment extends Fragment {
                         e.printStackTrace();
                     }
                 }
+                for (InfoItems itemList : items) {
+                    if (itemList == null) {
+                        cancel(true);
+                    }
+                }
 
                 return items;
             }

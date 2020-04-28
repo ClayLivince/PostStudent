@@ -21,7 +21,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class PasswordHelper {
 
-    public static void saveEncrypt(File resourceDir, String id, String vpnPass, String infoPass, @Nullable String jwxtPass, @Nullable String jwglPass) throws IOException {
+    public static boolean saveEncrypt(File resourceDir, String id, String vpnPass, String infoPass, @Nullable String jwxtPass, @Nullable String jwglPass) throws IOException {
         File tokenDir = verifyTokenDir(resourceDir);
         SecretKey key = getKey(tokenDir, true);
         FileOutputStream fos = null;
@@ -44,6 +44,7 @@ public class PasswordHelper {
                 }
                 if (jwglPass != null && jwglPass.length() != 0) fos.write(encrypt(key, jwglPass));
                 fos.flush();
+                return true;
             } else throw new IOException("Failed to create detail file.");
         } catch (Exception e) {
             e.printStackTrace();
@@ -56,6 +57,7 @@ public class PasswordHelper {
                 }
             }
         }
+        return false;
     }
 
     public static String[] loadDecrypt(File resourceDir) throws IOException {

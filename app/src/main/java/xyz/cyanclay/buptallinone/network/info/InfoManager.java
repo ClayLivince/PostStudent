@@ -48,9 +48,17 @@ public class InfoManager extends SiteManager {
         Connection.Response authInit = nm.get(loginURL);
 
         if (infoInit != null && authInit != null) {
+
             cookies = infoInit.cookies();
             Map<String, String> authCookies = authInit.cookies();
             final Document auth = authInit.parse();
+
+            if (auth.title().contains("欢迎")) {
+                nm.setUser(user, auth.getElementsByClass("topinner").first().ownText().split(",")[0]);
+                isLoggedIn = true;
+                cachedDocument = auth;
+                return LoginStatus.LOGIN_SUCCESS;
+            }
 
             Map<String, String> loginDetail = new HashMap<String, String>() {{
                 put("username", user);

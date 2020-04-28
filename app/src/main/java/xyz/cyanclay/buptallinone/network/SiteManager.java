@@ -29,6 +29,8 @@ public abstract class SiteManager {
 
     public LoginStatus login() throws IOException {
         Log.i("BUPTAllInOne", this.toString() + "is trying to login with " + user + pass);
+        if (user == null) return LoginStatus.EMPTY_USERNAME;
+        if (pass == null) return LoginStatus.EMPTY_PASSWORD;
         return doLogin();
     }
 

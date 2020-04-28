@@ -62,6 +62,14 @@ public class CourseTodayFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (adapter.courseList.isEmpty()) {
+            fetchCourse(this, false);
+        }
+    }
+
     private void displayCourse(List<Course> courses) {
         adapter.courseList = courses;
         adapter.notifyDataSetChanged();
