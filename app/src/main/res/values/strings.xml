@@ -42,7 +42,7 @@
     <string name="please_input_info">请输入密码。</string>
     <string name="incorrect_jwxt_password">旧教务系统密码不正确，请检查。</string>
     <string name="incorrect_jwgl_password">新教务系统密码不正确，请检查。</string>
-    <string name="load_failed">加载失败，请检查网络，或尝试下拉刷新。</string>
+    <string name="load_failed">加载失败，请检查登陆状态和网络。</string>
     <string name="timed_out">网络超时，请重试。</string>
     <string name="unknown_error">发生未知错误，请联系我们。</string>
     <string name="input_captcha">请输入验证码</string>

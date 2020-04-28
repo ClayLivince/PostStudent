@@ -10,7 +10,7 @@ import xyz.cyanclay.buptallinone.network.login.LoginStatus;
 
 public abstract class SiteManager {
 
-    protected String user;
+    public String user;
     protected String pass;
     public Context context;
     protected Map<String, String> cookies;

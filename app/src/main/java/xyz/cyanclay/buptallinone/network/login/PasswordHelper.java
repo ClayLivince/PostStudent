@@ -33,16 +33,19 @@ public class PasswordHelper {
             if (detail.createNewFile()) {
                 fos = new FileOutputStream(detail);
                 fos.write(encrypt(key, id));
-                fos.write("\n".getBytes());
+                fos.write("\n".getBytes("ISO8859-1"));
                 fos.write(encrypt(key, vpnPass));
-                fos.write("\n".getBytes());
+                fos.write("\n".getBytes("ISO8859-1"));
                 fos.write(encrypt(key, infoPass));
-                fos.write("\n".getBytes());
+                fos.write("\n".getBytes("ISO8859-1"));
                 if (jwxtPass != null && jwxtPass.length() != 0) {
                     fos.write(encrypt(key, jwxtPass));
                     fos.write("\n".getBytes("ISO8859-1"));
                 }
-                if (jwglPass != null && jwglPass.length() != 0) fos.write(encrypt(key, jwglPass));
+                if (jwglPass != null && jwglPass.length() != 0) {
+                    fos.write(encrypt(key, jwglPass));
+                    fos.write("\n".getBytes("ISO8859-1"));
+                }
                 fos.flush();
                 return true;
             } else throw new IOException("Failed to create detail file.");
