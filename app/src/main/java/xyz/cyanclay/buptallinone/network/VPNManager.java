@@ -64,47 +64,51 @@ public class VPNManager extends SiteManager {
             isLoggedIn = true;
             return LoginStatus.LOGIN_SUCCESS;
         } else {
-            StringBuilder sb = new StringBuilder();
-            for (Element entry : loginDoc.getElementsByTag("script")) {
-                sb.append(entry.data());
-            }
-
-            String token = "";
-            String[] vars = sb.toString().split("var");
-            for (String var : vars) {
-                if (var.contains("=")) {
-                    if (var.contains("logoutOtherToken")) {
-                        String[] kvp = var.split("=");
-                        token = kvp[1].split("\n")[0].replace("'", "").trim();
-                        break;
-                    }
-                }
-            }
-
-            System.out.println(token);
-            if (!token.equals("")) {
-                Connection.Response confirm = Jsoup.connect(vpnURL + "/do-confirm-login")
-                        .data("username", user, "logoutOtherToken", token)
-                        .method(Connection.Method.POST)
-                        .userAgent(NetworkManager.userAgent)
-                        .cookies(cookies)
-                        .ignoreContentType(true)
-                        .execute();
-
-                try {
-                    JSONObject confirmJSON = new JSONObject(confirm.body());
-                    if (confirmJSON.getBoolean("success")) {
-                        isLoggedIn = true;
-                        return LoginStatus.LOGIN_SUCCESS;
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    throw new IOException("VPN JSON Exception!");
-                }
-            }
-            isLoggedIn = false;
-            return LoginStatus.UNKNOWN_ERROR;
+            return logoutOthers(loginDoc);
         }
+    }
+
+    private LoginStatus logoutOthers(Document loginDoc) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        for (Element entry : loginDoc.getElementsByTag("script")) {
+            sb.append(entry.data());
+        }
+
+        String token = "";
+        String[] vars = sb.toString().split("var");
+        for (String var : vars) {
+            if (var.contains("=")) {
+                if (var.contains("logoutOtherToken")) {
+                    String[] kvp = var.split("=");
+                    token = kvp[1].split("\n")[0].replace("'", "").trim();
+                    break;
+                }
+            }
+        }
+
+        System.out.println(token);
+        if (!token.equals("")) {
+            Connection.Response confirm = Jsoup.connect(vpnURL + "/do-confirm-login")
+                    .data("username", user, "logoutOtherToken", token)
+                    .method(Connection.Method.POST)
+                    .userAgent(NetworkManager.userAgent)
+                    .cookies(cookies)
+                    .ignoreContentType(true)
+                    .execute();
+
+            try {
+                JSONObject confirmJSON = new JSONObject(confirm.body());
+                if (confirmJSON.getBoolean("success")) {
+                    isLoggedIn = true;
+                    return LoginStatus.LOGIN_SUCCESS;
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+                throw new IOException("VPN JSON Exception!");
+            }
+        }
+        isLoggedIn = false;
+        return LoginStatus.UNKNOWN_ERROR;
     }
 
     public Connection.Response get(Connection conn) throws IOException {

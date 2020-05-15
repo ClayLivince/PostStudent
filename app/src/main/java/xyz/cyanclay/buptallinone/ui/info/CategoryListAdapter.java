@@ -95,7 +95,7 @@ public class CategoryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
             ((TextView) holder.itemView.findViewById(R.id.textViewItemTitle)).setText(item.title);
             ((TextView) holder.itemView.findViewById(R.id.textViewItemTime)).setText(item.time);
-            ((TextView) holder.itemView.findViewById(R.id.textViewItemAnnouncer)).setText(item.category);
+            ((TextView) holder.itemView.findViewById(R.id.textViewItemAnnouncer)).setText(item.announcer);
             holder.itemView.findViewById(R.id.textViewItemAnnouncer).setVisibility(View.VISIBLE);
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

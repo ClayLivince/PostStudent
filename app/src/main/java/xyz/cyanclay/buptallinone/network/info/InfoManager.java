@@ -4,8 +4,6 @@ import android.content.Context;
 import android.text.SpannableStringBuilder;
 import android.util.Pair;
 
-import net.nightwhistler.htmlspanner.HtmlSpanner;
-
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -21,6 +19,7 @@ import xyz.cyanclay.buptallinone.network.NetworkManager;
 import xyz.cyanclay.buptallinone.network.SiteManager;
 import xyz.cyanclay.buptallinone.network.login.LoginException;
 import xyz.cyanclay.buptallinone.network.login.LoginStatus;
+import xyz.cyanclay.buptallinone.network.spanner.BuptSpanner;
 
 public class InfoManager extends SiteManager {
 
@@ -29,6 +28,7 @@ public class InfoManager extends SiteManager {
 
     private Document cachedDocument;
     private InfoAnnouncer announcer;
+    BuptSpanner buptSpanner = new BuptSpanner(this);
 
     public InfoManager(NetworkManager nm, Context context) {
         super(nm, context);
@@ -109,7 +109,7 @@ public class InfoManager extends SiteManager {
         } else throw new IOException("Info Login Failed.");
     }
 
-    byte[] getBytes(String url, boolean force) throws IOException {
+    public byte[] getBytes(String url, boolean force) throws IOException {
         if (checkLogin()) {
             return nm.getByteStream(url, cookies, force);
         } else throw new IOException("Info Login Failed.");
@@ -122,9 +122,8 @@ public class InfoManager extends SiteManager {
                 for (Element entry : cachedDocument.getElementsByClass("mainhome").first().getElementsByClass("listnotice").get(category.ordinal()).child(0).child(0).children()) {
                     if (entry.className().equals("more")) continue;
                     if (entry.tag().getName().equals("div")) continue;
-
-                    InfoItem item = new InfoItem();
-                    item.url = packageURL(entry.child(0).attr("href"));
+                    String url = packageURL(entry.child(0).attr("href"));
+                    InfoItem item = new InfoItem(url, category);
                     item.title = entry.child(0).ownText().trim();
                     item.time = entry.child(0).child(0).ownText().trim();
                     //            if (index.equals(SCHOOL_NOTICE) || index.equals(SCHOOL_NEWS))
@@ -138,36 +137,36 @@ public class InfoManager extends SiteManager {
     }
 
     public InfoItems parseNotice(InfoCategory category, boolean refresh) throws IOException {
-        return parseNotice(buildURL(category, -1, -1, 1), refresh);
+        return parseNotice(category, buildURL(category, -1, -1, 1), refresh);
     }
 
     public InfoItems parseNotice(InfoCategory category, int cate, int id, int page, boolean refresh) throws IOException {
-        return parseNotice(buildURL(category, cate, id, page), refresh);
+        return parseNotice(category, buildURL(category, cate, id, page), refresh);
     }
 
     public InfoItems parseNotice(InfoCategory category, int cate, int id, int page,
                                  String searchWord) throws IOException {
-        return parseNotice(buildURL(category, cate, id, page), searchWord);
+        return parseNotice(category, buildURL(category, cate, id, page), searchWord);
     }
 
-    private InfoItems parseNotice(String url, String searchWord) throws IOException {
+    private InfoItems parseNotice(InfoCategory category, String url, String searchWord) throws IOException {
         if (checkLogin()) {
             Document document = nm.post(Jsoup.connect(url)
                     .data("v_title", searchWord)).parse();
-            return parseNotice(document, url, true, searchWord);
+            return parseNotice(category, document, url, true, searchWord);
         }
         throw new LoginException(this, url);
     }
 
-    private InfoItems parseNotice(String url, boolean refresh) throws IOException {
+    private InfoItems parseNotice(InfoCategory category, String url, boolean refresh) throws IOException {
         if (checkLogin()) {
             Document document = getContent(url, refresh);
-            return parseNotice(document, url, false, null);
+            return parseNotice(category, document, url, false, null);
         }
         throw new LoginException(this, url);
     }
 
-    private InfoItems parseNotice(Document document, String url,
+    private InfoItems parseNotice(InfoCategory category, Document document, String url,
                                   boolean isSearch, String searchWord) {
         Elements notices = document.getElementsByClass("newslist").first().children();
         InfoItems items;
@@ -175,10 +174,10 @@ public class InfoManager extends SiteManager {
         else items = new InfoItems();
         items.url = url;
         for (Element entry : notices) {
-            InfoItem item = new InfoItem();
-            item.url = packageURL(entry.child(0).attr("href"));
+            String urlItem = packageURL(entry.child(0).attr("href"));
+            InfoItem item = new InfoItem(urlItem, category);
             item.title = entry.child(0).ownText().trim();
-            item.category = entry.child(1).ownText().trim();
+            item.announcer = entry.child(1).ownText().trim();
             item.time = entry.child(2).ownText().trim();
             items.add(item);
         }
@@ -225,8 +224,22 @@ public class InfoManager extends SiteManager {
         public String titleFull = "";
         public String time = "";
         String url;
-        public String category = "";
+        public String id;
+        public String announcer = "";
+        public InfoCategory category;
         public SpannableStringBuilder contentSpanned;
+
+        InfoItem(String url, InfoCategory category) {
+            this.category = category;
+            this.url = url;
+            String[] queries = url.split("&");
+            for (String query : queries) {
+                if (query.contains("bulletinId")) {
+                    this.id = query.split("=")[1];
+                    break;
+                }
+            }
+        }
 
         /**
          * 附件列表，Key为附件名称，Value为附件下载URL。
@@ -240,10 +253,10 @@ public class InfoManager extends SiteManager {
         public void parseContentSpanned(int maxWidth, boolean force) throws IOException {
             Document document = getContentDocument(force);
             titleFull = document.getElementsByClass("singlemainbox").first().getElementsByTag("h1").first().ownText();
-            category = document.getElementsByClass("pdept").first().ownText().split("：")[1];
+            announcer = document.getElementsByClass("pdept").first().ownText().split("：")[1];
 
-            HtmlSpanner htmlSpanner = new HtmlSpanner();
-            htmlSpanner.registerHandler("img", new InfoImageHandler(InfoManager.this, maxWidth, force));
+            BuptSpanner htmlSpanner = InfoManager.this.buptSpanner;
+            htmlSpanner.setImageScheme(maxWidth, force);
 
             Elements paragraphs = document.getElementsByClass("singleinfo").first().children();
             SpannableStringBuilder ssb = new SpannableStringBuilder();
@@ -276,9 +289,9 @@ public class InfoManager extends SiteManager {
                 page++;
                 InfoItems more;
                 if (isSearch) {
-                    more = InfoManager.this.parseNotice(url.concat("&pageIndex=" + page), searchWord);
+                    more = InfoManager.this.parseNotice(this.get(0).category, url.concat("&pageIndex=" + page), searchWord);
                 } else {
-                    more = InfoManager.this.parseNotice(url.concat("&pageIndex=" + page), false);
+                    more = InfoManager.this.parseNotice(this.get(0).category, url.concat("&pageIndex=" + page), false);
                 }
                 this.addAll(more);
                 this.bottom = more.bottom;

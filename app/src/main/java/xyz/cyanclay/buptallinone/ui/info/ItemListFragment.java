@@ -40,7 +40,7 @@ public class ItemListFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
-        final View root = inflater.inflate(R.layout.fragment_gallery, container, false);
+        final View root = inflater.inflate(R.layout.fragment_info_item_list, container, false);
 
         loadInfo(root, this, false);
 

@@ -1,16 +1,12 @@
 package xyz.cyanclay.buptallinone;
 
 import android.os.Bundle;
-import android.view.Menu;
 import android.view.View;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -93,15 +89,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void setUser(String user, String name) {
         NavigationView nv = findViewById(R.id.nav_view);
-        ((TextView) nv.getHeaderView(0).findViewById(R.id.textViewNavID)).setText(user);
-        ((TextView) nv.getHeaderView(0).findViewById(R.id.textViewNavName)).setText(name);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
+        ((TextView) nv.getHeaderView(0).findViewById(R.id.textViewNavName)).setText(user);
     }
 
     @Override
@@ -111,28 +99,7 @@ public class MainActivity extends AppCompatActivity {
                 || super.onSupportNavigateUp();
     }
 
-    public void addFragment(Fragment to) {
-        FragmentManager manager = this.getSupportFragmentManager();
-
-        FragmentTransaction transaction = manager.beginTransaction();
-        transaction.add(R.id.nav_host_fragment, to);
-        transaction.addToBackStack(null);
-        transaction.commit();
-
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        drawer.closeDrawers();
-    }
-
-    public void replaceFragment(Fragment to) {
-        FragmentManager manager = this.getSupportFragmentManager();
-        manager.beginTransaction().replace(R.id.nav_host_fragment, to).commit();
-
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        drawer.closeDrawers();
-    }
-
     public void onUserDetailsClick(View v) {
-        //replaceFragment();
         Navigation.findNavController(this, R.id.nav_host_fragment).navigate(R.id.action_to_nav_user_details);
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setCheckedItem(R.id.nav_send);

@@ -1,4 +1,4 @@
-package xyz.cyanclay.buptallinone.network.info;
+package xyz.cyanclay.buptallinone.network.spanner.handler;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -17,16 +17,27 @@ import org.htmlcleaner.TagNode;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
+import xyz.cyanclay.buptallinone.network.info.InfoManager;
+
 public class InfoImageHandler extends ImageHandler {
 
     private int maxWidth;
     private boolean forceRefresh;
     private InfoManager infoManager;
 
-    InfoImageHandler(InfoManager mgr, int maxWidth, boolean force) {
+    public InfoImageHandler(InfoManager mgr) {
+        this.infoManager = mgr;
+    }
+
+    public InfoImageHandler(InfoManager mgr, int maxWidth, boolean force) {
         this.infoManager = mgr;
         this.maxWidth = maxWidth;
         this.forceRefresh = force;
+    }
+
+    public void setProps(int maxWidth, boolean forceRefresh) {
+        this.maxWidth = maxWidth;
+        this.forceRefresh = forceRefresh;
     }
 
     @Override

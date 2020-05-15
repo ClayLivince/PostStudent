@@ -351,6 +351,15 @@ public class ClassScheduleFragment extends Fragment implements SwipeRefreshLayou
                     Snackbar.make(csf.root, R.string.refreshed, Snackbar.LENGTH_SHORT).show();
                 }
             }
+
+            @Override
+            protected void onCancelled() {
+                super.onCancelled();
+                if (csf.srl.isRefreshing()) {
+                    csf.srl.setRefreshing(false);
+                }
+                Snackbar.make(csf.root, R.string.load_failed, Snackbar.LENGTH_SHORT).show();
+            }
         }.execute();
     }
 

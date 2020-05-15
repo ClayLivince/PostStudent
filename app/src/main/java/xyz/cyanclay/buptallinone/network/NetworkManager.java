@@ -29,11 +29,13 @@ import xyz.cyanclay.buptallinone.network.login.PasswordHelper;
 public class NetworkManager {
 
     public boolean isSchoolNet = false;
-    private Context context;
+    Context context;
     public JwxtManager jwxtManager;
     public JwglManager jwglManager;
     public VPNManager vpnManager;
     public InfoManager infoManager;
+    public UpdateManager updateManager;
+    public ShareManager shareManager;
 
     private static File cacheDir;
     private static File networkCacheDir;
@@ -46,6 +48,8 @@ public class NetworkManager {
         jwxtManager = new JwxtManager(this, context);
         infoManager = new InfoManager(this, context);
         jwglManager = new JwglManager(this, context);
+        updateManager = new UpdateManager(this);
+        shareManager = new ShareManager(context);
 
         init();
     }
@@ -126,6 +130,10 @@ public class NetworkManager {
         return get(Jsoup.connect(url), cookies);
     }
 
+    public Connection.Response getNoVPN(Connection conn) throws IOException {
+        return conn.timeout(5000).userAgent(userAgent).method(Connection.Method.GET).execute();
+    }
+
     /**
      * 获取目标url网页内容，如有缓存优先读取缓存
      *
@@ -165,34 +173,35 @@ public class NetworkManager {
      */
     public Document getContent(String url, Map<String, String> cookies, boolean forceRefresh) throws IOException {
 
-        if (!forceRefresh && checkCache(url)){
+        if (!forceRefresh && checkCache(url)) {
             File docFile = new File(networkCacheDir, String.valueOf(url.hashCode()));
             BufferedReader bufReader = null;
             try {
                 bufReader = new BufferedReader(new FileReader(docFile));
                 StringBuilder sb = new StringBuilder();
                 String line = bufReader.readLine();
-                while (line != null){
+                while (line != null) {
                     sb.append(line);
                     line = bufReader.readLine();
                 }
                 return Jsoup.parse(sb.toString());
             } catch (IOException e) {
-                if (e instanceof FileNotFoundException){
+                if (e instanceof FileNotFoundException) {
                     Log.e("FileNotFoundException: ", "File / " + docFile.getPath() + " / not found. The process should not goes here.");
                 }
                 e.printStackTrace();
                 return refreshContent(url, cookies);
             } finally {
                 try {
-                    if (bufReader != null){
+                    if (bufReader != null) {
                         bufReader.close();
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-        } return refreshContent(url, cookies);
+        }
+        return refreshContent(url, cookies);
 
 
     }

@@ -47,7 +47,7 @@ public class Course implements Comparable<Course> {
         }
     }
 
-    void parseClass(JSONObject object) {
+    private void parseClass(JSONObject object) {
         try {
             courseName = object.getString("kcmc");
             classRoom = object.getString("jsmc");

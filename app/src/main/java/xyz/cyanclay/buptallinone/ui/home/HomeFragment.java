@@ -1,6 +1,5 @@
 package xyz.cyanclay.buptallinone.ui.home;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -19,13 +18,10 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.navigation.NavigationView;
 
-import org.apache.tools.ant.Main;
-
 import xyz.cyanclay.buptallinone.CheckScoreActivity;
 import xyz.cyanclay.buptallinone.MainActivity;
 import xyz.cyanclay.buptallinone.R;
 import xyz.cyanclay.buptallinone.constant.ImageList;
-import xyz.cyanclay.buptallinone.network.NetworkManager;
 import xyz.cyanclay.buptallinone.util.Utils;
 import xyz.cyanclay.buptallinone.widget.BannerPager;
 
@@ -116,7 +112,7 @@ public class HomeFragment extends Fragment {
     private View.OnClickListener listener_info = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (activity.getNetworkManager().infoManager.user != null){
+            if (activity.getNetworkManager().infoManager.user != null) {
                 Navigation.findNavController(activity, R.id.nav_host_fragment)
                         .navigate(R.id.action_to_nav_info);
                 NavigationView navigationView = activity.findViewById(R.id.nav_view);
@@ -129,14 +125,11 @@ public class HomeFragment extends Fragment {
         }
     };
 
-    private void showLoginPopup(){
+    private void showLoginPopup() {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle("提示");// 设置标题
-        // builder.setIcon(R.drawable.ic_launcher);//设置图标
-        builder.setMessage("请先登录！");// 为对话框设置内容
-        // 为对话框设置取消按钮
+        builder.setTitle("提示");
+        builder.setMessage("请先登录！");
         builder.setPositiveButton("去登录", new DialogInterface.OnClickListener() {
-
             @Override
             public void onClick(DialogInterface arg0, int arg1) {
                 Navigation.findNavController(activity, R.id.nav_host_fragment)

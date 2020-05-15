@@ -1,8 +1,6 @@
 <resources>
     <string name="app_name">北邮一点通</string>
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_title">姓名</string>
+    <string name="nav_header_title">请点击登录</string>
     <string name="nav_header_subtitle">学号</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
@@ -10,20 +8,12 @@
     <string name="menu_home">主页</string>
     <string name="menu_gallery">信息门户</string>
     <string name="menu_slideshow">设置</string>
+    <string name="menu_about">关于</string>
     <string name="menu_tools">工具</string>
     <string name="menu_share">Share</string>
     <string name="menu_send">Send</string>
     <string name="menu_user_details">密码管理</string>
     <string name="menu_class_schedule">课程表</string>
-    <string name="title_activity_login">Sign in</string>
-    <string name="prompt_email">Email</string>
-    <string name="prompt_password">Password</string>
-    <string name="action_sign_in">Sign in or register</string>
-    <string name="action_sign_in_short">Sign in</string>
-    <string name="welcome">"Welcome !"</string>
-    <string name="invalid_username">Not a valid username</string>
-    <string name="invalid_password">Password must be >5 characters</string>
-    <string name="login_failed">"Login failed"</string>
     <string name="jwlogin">教务系统登录</string>
     <string name="vpnlogin">查成绩</string>
     <string name="text_user_details">密码信息管理</string>
@@ -48,6 +38,7 @@
     <string name="input_captcha">请输入验证码</string>
     <string name="incorrect_captcha">验证码不正确，请检查。</string>
     <string name="confirm">确定</string>
+    <string name="cancel">取消</string>
     <string name="captcha">验证码</string>
     <string name="save">保存</string>
     <string name="loading">加载中……</string>
@@ -81,4 +72,17 @@
     <string name="course_today">今日课程</string>
     <string name="school_info">校园简讯</string>
 
+    <string name="thanks">鸣谢</string>
+    <string name="thanks_group">现代邮政学院学生会技术部\n现代邮政学院18级5班</string>
+    <string name="developed_by">Developed by</string>
+    <string name="assisted_by">Assisted by</string>
+    <string name="developer">Clay Livince</string>
+    <string name="team_member">ComeAnt\n张龙</string>
+    <string name="guided_by">指导教师</string>
+    <string name="guide_teacher">？？？</string>
+
+    <string name="is_latest">已经是最新版本！</string>
+    <string name="start_update">已开始下载更新</string>
+
+    <string name="share_to">分享到……</string>
 </resources>

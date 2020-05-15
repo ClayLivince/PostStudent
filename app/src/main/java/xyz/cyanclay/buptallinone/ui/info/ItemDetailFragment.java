@@ -5,6 +5,9 @@ import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -24,6 +27,7 @@ import java.io.IOException;
 import xyz.cyanclay.buptallinone.MainActivity;
 import xyz.cyanclay.buptallinone.R;
 import xyz.cyanclay.buptallinone.network.NetworkManager;
+import xyz.cyanclay.buptallinone.network.info.InfoCategory;
 import xyz.cyanclay.buptallinone.network.info.InfoManager.InfoItem;
 
 public class ItemDetailFragment extends Fragment {
@@ -64,7 +68,33 @@ public class ItemDetailFragment extends Fragment {
 
         srl.setRefreshing(true);
 
+        setHasOptionsMenu(true);
+
         return root;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        // Inflate the menu; this adds items to the action bar if it is present.
+        inflater.inflate(R.menu.share, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.action_share_to) {
+            shareItem();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void shareItem() {
+        if (item.category == InfoCategory.SCHOOL_NOTICE | item.category == InfoCategory.SCHOOL_NEWS) {
+            MainActivity activity = (MainActivity) getActivity();
+            activity.getNetworkManager().shareManager.share(item, activity);
+        } else {
+            Snackbar.make(root, "仅能分享校内通知和校内新闻哦~", Snackbar.LENGTH_LONG).show();
+        }
     }
 
     private static void parseItem(final View root, final InfoItem item, final boolean isRefresh) {
@@ -87,7 +117,7 @@ public class ItemDetailFragment extends Fragment {
             protected void onPostExecute(InfoItem item) {
 
                 ((TextView) root.findViewById(R.id.textViewItemTitle)).setText(item.titleFull);
-                ((TextView) root.findViewById(R.id.textViewItemAnnouncer)).setText(item.category);
+                ((TextView) root.findViewById(R.id.textViewItemAnnouncer)).setText(item.announcer);
                 ((TextView) root.findViewById(R.id.textViewItemTime)).setText(item.time);
                 ((TextView) root.findViewById(R.id.textViewItemContent)).setText(item.contentSpanned);
 

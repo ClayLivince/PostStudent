@@ -1,4 +1,4 @@
-package xyz.cyanclay.buptallinone.ui.slideshow;
+package xyz.cyanclay.buptallinone.ui.setting;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

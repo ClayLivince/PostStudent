@@ -19,7 +19,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.Navigation;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -39,8 +38,6 @@ public class UserDetailsFragment extends Fragment implements SwipeRefreshLayout.
 
     private View root = null;
     private NetworkManager nm;
-
-    private UserDetailsViewModel mViewModel;
 
     private static String verifySuccess;
     private static String verifyFailed;
@@ -390,9 +387,11 @@ public class UserDetailsFragment extends Fragment implements SwipeRefreshLayout.
             @Override
             protected Boolean doInBackground(Void... voids) {
                 try {
-                    return PasswordHelper.saveEncrypt(fileDir, details[0]
+                    boolean status = PasswordHelper.saveEncrypt(fileDir, details[0]
                             , details[1], details[2], details[3], details[4]);
-                } catch (IOException e) {
+                    Thread.sleep(2000);
+                    return status;
+                } catch (IOException | InterruptedException e) {
                     e.printStackTrace();
                     cancel(true);
                     return false;
@@ -414,15 +413,5 @@ public class UserDetailsFragment extends Fragment implements SwipeRefreshLayout.
             }
         }.execute();
     }
-
-
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        mViewModel = ViewModelProviders.of(this).get(UserDetailsViewModel.class);
-        // TODO: Use the ViewModel
-    }
-
 
 }
