@@ -1,39 +1,42 @@
 package xyz.cyanclay.buptallinone;
 
 import android.os.Bundle;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-
 import android.view.View;
+import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 
-import androidx.drawerlayout.widget.DrawerLayout;
+import java.io.IOException;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
-import android.view.Menu;
-import android.widget.EditText;
-
-import xyz.cyanclay.buptallinone.login.LoginManager;
+import xyz.cyanclay.buptallinone.network.NetworkManager;
+import xyz.cyanclay.buptallinone.ui.userdetails.UserDetailsFragment;
 
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
+    private NetworkManager networkManager;
+    private UserDetailsFragment userDetailsFragment = new UserDetailsFragment();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        toolbar.setSubtitle("厚德博学 敬业乐群");
+        toolbar.setSubtitleTextColor(0xffffffff);
+
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -43,24 +46,50 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        NavigationView navigationView = findViewById(R.id.nav_view);
+        final NavigationView navigationView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow,
+                R.id.nav_home, R.id.nav_info, R.id.nav_slideshow,
                 R.id.nav_tools, R.id.nav_share, R.id.nav_send)
                 .setDrawerLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
+
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
+                try {
+                    networkManager = new NetworkManager(getApplicationContext());
+                } catch (final IOException e) {
+                    e.printStackTrace();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Snackbar.make(navigationView, R.string.unknown_error, Snackbar.LENGTH_LONG)
+                                    .setAction(e.getMessage(), null).show();
+                        }
+                    });
+                }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        setUser(networkManager.user, networkManager.name);
+                    }
+                });
+            }
+        }.start();
+
+
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
+    public void setUser(String user, String name) {
+        NavigationView nv = findViewById(R.id.nav_view);
+        ((TextView) nv.getHeaderView(0).findViewById(R.id.textViewNavName)).setText(user);
     }
 
     @Override
@@ -70,11 +99,15 @@ public class MainActivity extends AppCompatActivity {
                 || super.onSupportNavigateUp();
     }
 
-    public void onLogin(){
-        EditText user = findViewById(R.id.inpUser);
-        EditText pass = findViewById(R.id.inpPass);
-        EditText cap = findViewById(R.id.inpCap);
-        LoginManager loginManager = new LoginManager(user.getText().toString(), pass.getText().toString(), cap.getText().toString());
-        loginManager.login();
+    public void onUserDetailsClick(View v) {
+        Navigation.findNavController(this, R.id.nav_host_fragment).navigate(R.id.action_to_nav_user_details);
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setCheckedItem(R.id.nav_send);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        drawer.closeDrawers();
+    }
+
+    public NetworkManager getNetworkManager() {
+        return networkManager;
     }
 }

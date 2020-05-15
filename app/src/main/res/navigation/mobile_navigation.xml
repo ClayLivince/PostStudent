@@ -10,18 +10,55 @@
         android:name="xyz.cyanclay.buptallinone.ui.home.HomeFragment"
         android:label="@string/menu_home"
         tools:layout="@layout/fragment_home" />
+    <action
+        android:id="@+id/action_to_nav_user_details"
+        app:destination="@id/nav_user_details"
+        app:enterAnim="@anim/slide_in_right"
+        app:exitAnim="@android:anim/slide_out_right"
+        app:popExitAnim="@android:anim/slide_out_right" />
 
     <fragment
-        android:id="@+id/nav_gallery"
-        android:name="xyz.cyanclay.buptallinone.ui.gallery.GalleryFragment"
+        android:id="@+id/nav_info"
+        android:name="xyz.cyanclay.buptallinone.ui.info.CategoryListFragment"
         android:label="@string/menu_gallery"
-        tools:layout="@layout/fragment_gallery" />
+        tools:layout="@layout/fragment_category_list" />
+    <action
+        android:id="@+id/action_to_nav_info"
+        app:destination="@id/nav_info"
+        app:enterAnim="@anim/slide_in_right"
+        app:popExitAnim="@android:anim/slide_out_right" />
+
+
+    <fragment
+        android:id="@+id/nav_info_item_detail"
+        android:name="xyz.cyanclay.buptallinone.ui.info.ItemDetailFragment"
+        android:label="@string/menu_gallery"
+        tools:layout="@layout/fragment_item_detail" />
+    <action
+        android:id="@+id/action_to_nav_info_item_detail"
+        app:destination="@id/nav_info_item_detail"
+        app:enterAnim="@anim/slide_in_right"
+        app:exitAnim="@android:anim/slide_out_right"
+        app:popExitAnim="@android:anim/slide_out_right" />
 
     <fragment
         android:id="@+id/nav_slideshow"
-        android:name="xyz.cyanclay.buptallinone.ui.slideshow.SlideshowFragment"
+        android:name="xyz.cyanclay.buptallinone.ui.setting.SettingFragment"
         android:label="@string/menu_slideshow"
-        tools:layout="@layout/fragment_slideshow" />
+        tools:layout="@layout/fragment_slideshow">
+        <action
+            android:id="@+id/action_nav_slideshow_to_aboutFragment"
+            app:destination="@id/nav_about"
+            app:enterAnim="@anim/slide_in_right"
+            app:popExitAnim="@android:anim/slide_out_right"
+            app:popUpTo="@id/nav_slideshow" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_about"
+        android:name="xyz.cyanclay.buptallinone.ui.setting.AboutFragment"
+        android:label="@string/menu_about"
+        tools:layout="@layout/fragment_about" />
 
     <fragment
         android:id="@+id/nav_tools"
@@ -40,4 +77,24 @@
         android:name="xyz.cyanclay.buptallinone.ui.send.SendFragment"
         android:label="@string/menu_send"
         tools:layout="@layout/fragment_send" />
+
+    <fragment
+        android:id="@+id/nav_user_details"
+        android:name="xyz.cyanclay.buptallinone.ui.userdetails.UserDetailsFragment"
+        android:label="@string/menu_user_details"
+        tools:layout="@layout/fragment_user_details" />
+
+    <fragment
+        android:id="@+id/nav_class_schedule"
+        android:name="xyz.cyanclay.buptallinone.ui.jwgl.ClassScheduleFragment"
+        android:label="@string/menu_class_schedule"
+        tools:layout="@layout/fragment_class_schedule" />
+    <action
+        android:id="@+id/action_to_nav_class_schedule"
+        app:destination="@id/nav_class_schedule"
+        app:enterAnim="@anim/slide_in_right"
+        app:exitAnim="@android:anim/slide_out_right"
+        app:popExitAnim="@android:anim/slide_out_right" />
+
+
 </navigation>

@@ -3,4 +3,18 @@
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
+    <color name="colorError">#E03030</color>
+    <color name="colorCorrect">#00C020</color>
+    <color name="textPrimary">#909090</color>
+    <color name="textPrimaryDark">#303030</color>
+
+    <color name="subWeekHead">#fff7f6f4</color>
+    <color name="textBorder">#a8abad</color>
+
+    <color name="courseTable1">#FF9800</color>
+    <color name="courseTable2">#9C27B0</color>
+    <color name="courseTable3">#03A9F4</color>
+    <color name="courseTable4">#F44336</color>
+    <color name="courseTable5">#8BC34A</color>
+
 </resources>

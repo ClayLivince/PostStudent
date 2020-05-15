@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/textViewSpinnerWeek"
+    style="@style/Widget.AppCompat.Light.DropDownItem.Spinner"
+    android:layout_width="match_parent"
+    android:layout_height="48dip"
+    android:paddingStart="8dp"
+    android:paddingTop="4dp"
+    android:paddingEnd="8dp"
+    android:text=""
+    android:textAlignment="center"
+    android:textColor="@color/textPrimary"
+    android:textSize="16sp" />

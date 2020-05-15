@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <category name="党团行政">
+        <group var="PARTY_OFFICE">
+            <name>党政办公室</name>
+            <id>183000001</id>
+        </group>
+        <group var="ORGANIZATION_DEPT_PARTY">
+            <name>组织部(党校)</name>
+            <id>183104000</id>
+        </group>
+        <group var="PUBLICITY_DEPT">
+            <name>宣传部</name>
+            <id>183105000</id>
+        </group>
+        <group var="UNITED_FRONT_DEPT">
+            <name>统战部</name>
+            <id>183110000</id>
+        </group>
+        <group var="STUDENT_AFFAIR_OFFICE">
+            <name>学生处</name>
+            <id>183212000</id>
+        </group>
+        <group var="GRADUATE_OFFICE">
+            <name>研究生工作部</name>
+            <id>183137000</id>
+        </group>
+        <group var="GRADUATE_SCHOOL">
+            <name>研究生院</name>
+            <id>183203000</id>
+        </group>
+        <group var="CONFIDENTIALITY_OFFICE">
+            <name>保密处</name>
+            <id>183216000</id>
+        </group>
+        <group var="SECURITY_OFFICE">
+            <name>保卫处</name>
+            <id>183215000</id>
+        </group>
+        <group var="DISCIPLINE_COMMISSION_OFFICE">
+            <name>纪委办公室</name>
+            <id>183000010</id>
+        </group>
+        <group var="INSPECTION_OFFICE">
+            <name>巡察工作办公室</name>
+            <id>183140000</id>
+        </group>
+        <group var="LABOR_UNION">
+            <name>校工会</name>
+            <id>183112000</id>
+        </group>
+        <group var="YOUTH_LEAGUE">
+            <name>校团委</name>
+            <id>183113000</id>
+        </group>
+        <group var="PARTY_COMMITTEE">
+            <name>机关党委</name>
+            <id>183114000</id>
+        </group>
+        <group var="ACADEMIC_PARTY_COMMITTEE">
+            <name>教务党委</name>
+            <id>183115000</id>
+        </group>
+        <group var="ACADEMIC_AFFAIR_OFFICE">
+            <name>教务处</name>
+            <id>183202000</id>
+        </group>
+        <group var="SCHOOL_OF_TECH_RESEARCH">
+            <name>科学技术研究院</name>
+            <id>183231000</id>
+        </group>
+        <group var="AUDIT_OFFICE">
+            <name>审计处</name>
+            <id>183221000</id>
+        </group>
+        <group var="DEVELOPMENT_OFFICE">
+            <name>发展规划处</name>
+            <id>183237000</id>
+        </group>
+        <group var="INTERNATIONAL_COOP_OFFICE">
+            <name>国际合作与交流处</name>
+            <id>183214000</id>
+        </group>
+        <group var="HUMAN_RESOURCE_OFFICE">
+            <name>人事处</name>
+            <id>183205000</id>
+        </group>
+        <group var="RETIRE_OFFICE">
+            <name>离退休工作处</name>
+            <id>183219000</id>
+        </group>
+        <group var="FINANCE_OFFICE">
+            <name>财务处</name>
+            <id>183206000</id>
+        </group>
+        <group var="INFRASTRUCTURE_OFFICE">
+            <name>基建处</name>
+            <id>183217000</id>
+        </group>
+        <group var="RENEWAL_OFFICE">
+            <name>校区改造办公室</name>
+            <id>183239000</id>
+        </group>
+        <group var="PROPERTY_MANAGEMENT_OFFICE">
+            <name>资产管理处</name>
+            <id>183207000</id>
+        </group>
+        <group var="BIDDING_OFFICE">
+            <name>采购与招标办公室</name>
+            <id>183235000</id>
+        </group>
+        <group var="LOGISTICS_OFFICE">
+            <name>后勤处</name>
+            <id>183218000</id>
+        </group>
+        <group var="REMOTE_EDU_OFFICE">
+            <name>远程与继续教育处</name>
+            <id>183204000</id>
+        </group>
+        <group var="HONGFU_OFFICE">
+            <name>宏福校区综合办公室</name>
+            <id>183224000</id>
+        </group>
+        <group var="SHAHE_GENERAL_OFFICE">
+            <name>沙河校区综合办公室</name>
+            <id>183000003</id>
+        </group>
+        <group var="SHAHE_CONSTRUCTION_OFFICE">
+            <name>沙河校区建设指挥部</name>
+            <id>183232000</id>
+        </group>
+        <group var="LIBRARY">
+            <name>图书馆</name>
+            <id>183226000</id>
+        </group>
+        <group var="INFO_TECH_CENTRE">
+            <name>信息化技术中心</name>
+            <id>183236000</id>
+        </group>
+        <group var="ARCHIVES_CENTRE">
+            <name>档案馆</name>
+            <id>183201200</id>
+        </group>
+        <group var="SCHOOLMATE_EDU_FUND_SECRETARY">
+            <name>校友总会秘书处和教育基金会秘书处</name>
+            <id>183238000</id>
+        </group>
+        <group var="ASSETS_COMPANY">
+            <name>资产经营公司</name>
+            <id>183000006</id>
+        </group>
+        <group var="PRESS">
+            <name>出版社</name>
+            <id>183229000</id>
+        </group>
+        <group var="HOSPITAL">
+            <name>校医院</name>
+            <id>183000011</id>
+        </group>
+        <group var="HK_MC_OFFICE">
+            <name>港澳台事务办公室</name>
+            <id>183214100</id>
+        </group>
+    </category>
+    <category name="教学科研">
+        <group var="INFO">
+            <name>信息与通信工程学院</name>
+            <id>183311000</id>
+        </group>
+        <group var="E_ENGINEERING">
+            <name>电子工程学院</name>
+            <id>183312000</id>
+        </group>
+        <group var="HUMANITY">
+            <name>人文学院</name>
+            <id>183331000</id>
+        </group>
+        <group var="INTERNATIONAL">
+            <name>国际学院</name>
+            <id>183351000</id>
+        </group>
+        <group var="NET_EDU">
+            <name>网络教育学院</name>
+            <id>183361000</id>
+        </group>
+        <group var="RESUME_EDU">
+            <name>继续教育学院</name>
+            <id>183000008</id>
+        </group>
+        <group var="ETHNIC_EDU">
+            <name>民族教育学院</name>
+            <id>183362000</id>
+        </group>
+        <group var="NET_TECH_INSTITUTE">
+            <name>网络技术研究院</name>
+            <id>183371000</id>
+        </group>
+        <group var="LIGHT_E_INFO">
+            <name>光电信息学院(信息光子学与光通信研究院)</name>
+            <id>183372000</id>
+        </group>
+        <group var="MARXISM">
+            <name>马克思主义学院</name>
+            <id>183332000</id>
+        </group>
+        <group var="SPORTS">
+            <name>体育部</name>
+            <id>183381000</id>
+        </group>
+        <group var="SENSE_INSTITUTE">
+            <name>感知技术与产业研究院</name>
+            <id>183373000</id>
+        </group>
+        <group var="TRUSTED_COMMUNI_INNO_CENTRE">
+            <name>可信网络通信协同创新中心</name>
+            <id>183374000</id>
+        </group>
+        <group var="YE_PEI_DA">
+            <name>叶培大学院</name>
+            <id>183000009</id>
+        </group>
+        <group var="COMPUTER">
+            <name>计算机学院</name>
+            <id>183313000</id>
+        </group>
+        <group var="AUTONOMY">
+            <name>自动化学院</name>
+            <id>183314000</id>
+        </group>
+        <group var="SOFTWARE">
+            <name>软件学院</name>
+            <id>183315000</id>
+        </group>
+        <group var="DIGITAL_ART">
+            <name>数字媒体与设计艺术学院</name>
+            <id>183316000</id>
+        </group>
+        <group var="MATH">
+            <name>理学院</name>
+            <id>183341000</id>
+        </group>
+        <group var="MANAGEMENT">
+            <name>经济管理学院</name>
+            <id>183321000</id>
+        </group>
+        <group var="MODERN_POST">
+            <name>现代邮政学院</name>
+            <id>183317000</id>
+        </group>
+        <group var="CENTURY">
+            <name>世纪学院</name>
+            <id>183601000</id>
+        </group>
+        <group var="NET_SPACE_SAFETY">
+            <name>网络空间安全学院</name>
+            <id>183318000</id>
+        </group>
+    </category>
+</resources>

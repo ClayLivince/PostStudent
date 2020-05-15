@@ -1,89 +1,232 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/srlHome"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="179dp"
-        android:layout_marginEnd="173dp"
-        android:layout_marginBottom="84dp"
-        android:text="@string/app_name"
-        android:visibility="visible"
-        app:layout_constraintBottom_toTopOf="@+id/inpUser"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.558"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#f0f0f0">
 
-    <Button
-        android:id="@+id/btnLogin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="165dp"
-        android:layout_marginLeft="165dp"
-        android:layout_marginTop="235dp"
-        android:layout_marginEnd="159dp"
-        android:layout_marginRight="159dp"
-        android:layout_marginBottom="116dp"
-        android:text="login"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/inpUser"
-        app:layout_constraintVertical_bias="0.805" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:orientation="vertical">
 
-    <EditText
-        android:id="@+id/inpPass"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:ems="10"
-        android:inputType="textPassword"
-        app:layout_constraintBottom_toTopOf="@+id/inpCap"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/inpUser"
-        app:layout_constraintVertical_bias="0.0" />
+            <!-- 自定义的横幅轮播条，需要使用全路径 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
-    <EditText
-        android:id="@+id/inpUser"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="textPersonName"
-        android:text="Name"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.403" />
+                <xyz.cyanclay.buptallinone.widget.BannerPager
+                    android:id="@+id/banner_pager"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
 
-    <ImageView
-        android:id="@+id/imgCap"
-        android:layout_width="137dp"
-        android:layout_height="58dp"
-        android:layout_marginTop="144dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/inpUser"
-        tools:srcCompat="@tools:sample/avatars" />
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="5dp"
+                    app:cardElevation="3dp">
 
-    <EditText
-        android:id="@+id/inpCap"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="68dp"
-        android:ems="10"
-        android:inputType="textPersonName"
-        android:text="verification"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/inpUser" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <!--功能第一行-->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="60dp"
+                            android:background="#ffffff"
+                            android:orientation="horizontal">
+
+
+                            <!--单个的小功能块-->
+                            <LinearLayout
+                                android:id="@+id/menu_score"
+                                style="@style/menu.Lineralayout">
+
+                                <ImageView
+                                    style="@style/menu.Image"
+                                    android:src="@drawable/menu_course" />
+
+                                <TextView
+                                    style="@style/menu.text"
+                                    android:text="成绩" />
+
+                            </LinearLayout>
+
+                            <!--单个的小功能块-->
+                            <LinearLayout
+                                android:id="@+id/menu_courseList"
+                                style="@style/menu.Lineralayout">
+
+                                <ImageView
+                                    style="@style/menu.Image"
+                                    android:src="@drawable/menu_zfxt" />
+
+                                <TextView
+                                    style="@style/menu.text"
+                                    android:text="课程表" />
+
+                            </LinearLayout>
+
+                            <!--单个的小功能块-->
+                            <LinearLayout
+                                android:id="@+id/menu_library"
+                                style="@style/menu.Lineralayout">
+
+                                <ImageView
+                                    style="@style/menu.Image"
+                                    android:src="@drawable/menu_library" />
+
+                                <TextView
+                                    style="@style/menu.text"
+                                    android:text="图书借阅" />
+
+                            </LinearLayout>
+                            <!--单个的小功能块-->
+                            <LinearLayout
+                                android:id="@+id/menu_money"
+                                style="@style/menu.Lineralayout">
+
+                                <ImageView
+                                    style="@style/menu.Image"
+                                    android:src="@drawable/menu_card" />
+
+                                <TextView
+                                    style="@style/menu.text"
+                                    android:text="一卡通" />
+
+                            </LinearLayout>
+                        </LinearLayout>
+
+
+                        <View style="@style/menu.view" />
+
+                        <!--功能第二行-->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="60dp"
+                            android:background="#ffffff"
+                            android:orientation="horizontal">
+
+                            <!--单个的小功能块-->
+                            <LinearLayout
+                                android:id="@+id/menu_love"
+                                style="@style/menu.Lineralayout">
+
+                                <ImageView
+                                    style="@style/menu.Image"
+                                    android:src="@drawable/menu_love" />
+
+                                <TextView
+                                    style="@style/menu.text"
+                                    android:text="表白墙" />
+
+                            </LinearLayout>
+
+                            <!--单个的小功能块-->
+                            <LinearLayout
+                                android:id="@+id/menu_calan"
+                                style="@style/menu.Lineralayout">
+
+                                <ImageView
+                                    style="@style/menu.Image"
+                                    android:src="@drawable/menu_calen" />
+
+                                <TextView
+                                    style="@style/menu.text"
+                                    android:text="校历" />
+
+                            </LinearLayout>
+
+                            <!--单个的小功能块-->
+                            <LinearLayout
+                                android:id="@+id/menu_info"
+                                style="@style/menu.Lineralayout">
+
+                                <ImageView
+                                    style="@style/menu.Image"
+                                    android:src="@drawable/menu_yellow" />
+
+                                <TextView
+                                    style="@style/menu.text"
+                                    android:text="校园资讯" />
+
+                            </LinearLayout>
+
+                            <!--单个的小功能块-->
+                            <LinearLayout
+                                android:id="@+id/menu_more"
+                                style="@style/menu.Lineralayout">
+
+                                <ImageView
+                                    style="@style/menu.Image"
+                                    android:src="@drawable/menu_more" />
+
+                                <TextView
+                                    style="@style/menu.text"
+                                    android:text="更多" />
+
+                            </LinearLayout>
+                        </LinearLayout>
+
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2sp"
+                    android:background="#FFFFFF"
+                    android:padding="8sp"
+                    android:text="@string/course_today" />
+
+                <androidx.fragment.app.FragmentContainerView
+                    android:id="@+id/fragmentCourseToday"
+                    android:name="xyz.cyanclay.buptallinone.ui.jwgl.CourseTodayFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textView2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#FFFFFF"
+                    android:padding="8sp"
+                    android:text="@string/school_info" />
+
+                <androidx.fragment.app.FragmentContainerView
+                    android:id="@+id/fragmentSchoolInfo"
+                    android:name="xyz.cyanclay.buptallinone.ui.info.ItemListFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:padding="8sp"
+    android:divider="@drawable/linear_layout_empty_divider"
+    android:showDividers="middle"
+    tools:context=".ui.setting.AboutFragment">
+
+    <ImageView
+        android:layout_width="160dp"
+        android:layout_height="160dp"
+        android:src="@drawable/banner_5" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:text="@string/app_name"
+        android:textAlignment="center"
+        android:textColor="@color/textPrimaryDark"
+        android:textSize="24sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:text="@string/thanks"
+        android:textAlignment="center"
+        android:textSize="18sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/thanks_group"
+        android:textAlignment="center" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="bottom"
+        android:orientation="vertical">
+
+        <androidx.gridlayout.widget.GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginTop="30dp"
+            app:columnCount="2"
+            app:orientation="horizontal"
+            app:useDefaultMargins="true">
+
+            <TextView
+                android:text="@string/developed_by"
+                android:textAlignment="textEnd"
+                app:layout_columnWeight="1"
+                app:layout_gravity="fill_horizontal" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:text="@string/developer"
+                app:layout_columnWeight="1"
+                app:layout_gravity="fill_horizontal" />
+
+            <TextView
+                android:text="@string/assisted_by"
+                android:textAlignment="textEnd"
+                app:layout_columnWeight="1"
+                app:layout_gravity="fill_horizontal" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:text="@string/team_member"
+                app:layout_columnWeight="1"
+                app:layout_gravity="fill_horizontal" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:text="@string/guided_by"
+                android:textAlignment="textEnd"
+                app:layout_columnWeight="1"
+                app:layout_gravity="fill_horizontal" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:text="@string/guide_teacher"
+                app:layout_columnWeight="1"
+                app:layout_gravity="fill_horizontal" />
+
+            <TextView
+                android:id="@+id/textViewVersion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                app:layout_gravity="fill_horizontal"
+                app:layout_columnSpan="2" />
+
+        </androidx.gridlayout.widget.GridLayout>
+    </LinearLayout>
+
+</LinearLayout>
