@@ -29,6 +29,9 @@ import xyz.cyanclay.buptallinone.R;
 import xyz.cyanclay.buptallinone.network.NetworkManager;
 import xyz.cyanclay.buptallinone.network.info.InfoCategory;
 import xyz.cyanclay.buptallinone.network.info.InfoManager.InfoItem;
+import xyz.cyanclay.buptallinone.network.login.LoginException;
+import xyz.cyanclay.buptallinone.network.login.LoginStatus;
+import xyz.cyanclay.buptallinone.network.login.LoginTask;
 
 public class ItemDetailFragment extends Fragment {
 
@@ -51,7 +54,7 @@ public class ItemDetailFragment extends Fragment {
             @Override
             public void onChanged(InfoItem infoItem) {
                 item = infoItem;
-                parseItem(root, item, false);
+                parseItem(ItemDetailFragment.this, item, false);
             }
         });
         final MainActivity activity = (MainActivity) getActivity();
@@ -62,7 +65,7 @@ public class ItemDetailFragment extends Fragment {
         srl.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                parseItem(root, item, true);
+                parseItem(ItemDetailFragment.this, item, true);
             }
         });
 
@@ -97,17 +100,21 @@ public class ItemDetailFragment extends Fragment {
         }
     }
 
-    private static void parseItem(final View root, final InfoItem item, final boolean isRefresh) {
+    private static void parseItem(final ItemDetailFragment idf, final InfoItem item, final boolean isRefresh) {
         DisplayMetrics metrics;
-        metrics = root.getContext().getApplicationContext().getResources().getDisplayMetrics();
+        metrics = idf.root.getContext().getApplicationContext().getResources().getDisplayMetrics();
         final int mWidth = metrics.widthPixels - 20;
         new AsyncTask<Void, Void, InfoItem>() {
+            LoginException exception = null;
             @Override
             protected InfoItem doInBackground(Void... voids) {
                 try {
                     item.parseContentSpanned(mWidth, isRefresh);
                 } catch (IOException e) {
                     e.printStackTrace();
+                    cancel(true);
+                } catch (LoginException e){
+                    exception = e;
                     cancel(true);
                 }
                 return item;
@@ -116,25 +123,27 @@ public class ItemDetailFragment extends Fragment {
             @Override
             protected void onPostExecute(InfoItem item) {
 
-                ((TextView) root.findViewById(R.id.textViewItemTitle)).setText(item.titleFull);
-                ((TextView) root.findViewById(R.id.textViewItemAnnouncer)).setText(item.announcer);
-                ((TextView) root.findViewById(R.id.textViewItemTime)).setText(item.time);
-                ((TextView) root.findViewById(R.id.textViewItemContent)).setText(item.contentSpanned);
+                ((TextView) idf.root.findViewById(R.id.textViewItemTitle)).setText(item.titleFull);
+                ((TextView) idf.root.findViewById(R.id.textViewItemAnnouncer)).setText(item.announcer);
+                ((TextView) idf.root.findViewById(R.id.textViewItemTime)).setText(item.time);
+                ((TextView) idf.root.findViewById(R.id.textViewItemContent)).setText(item.contentSpanned);
 
                 if (isRefresh) {
-                    Snackbar.make(root, R.string.refreshed, Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(idf.root, R.string.refreshed, Snackbar.LENGTH_SHORT).show();
                 }
-                ((SwipeRefreshLayout) root.findViewById(R.id.srlItemDetail)).setRefreshing(false);
+                ((SwipeRefreshLayout) idf.root.findViewById(R.id.srlItemDetail)).setRefreshing(false);
 
-                root.findViewById(R.id.layoutItem).setVisibility(View.VISIBLE);
+                idf.root.findViewById(R.id.layoutItem).setVisibility(View.VISIBLE);
                 super.onPostExecute(item);
             }
 
             @Override
             protected void onCancelled() {
                 super.onCancelled();
-                ((SwipeRefreshLayout) root.findViewById(R.id.srlItemDetail)).setRefreshing(false);
-                Snackbar.make(root, R.string.load_failed, Snackbar.LENGTH_LONG).show();
+                ((SwipeRefreshLayout) idf.root.findViewById(R.id.srlItemDetail)).setRefreshing(false);
+                if (exception == null)
+                    Snackbar.make(idf.root, R.string.load_failed, Snackbar.LENGTH_LONG).show();
+                else LoginTask.handleStatus(idf.getActivity(), idf.root, exception.status);
             }
         }.execute();
     }

@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import xyz.cyanclay.buptallinone.network.login.LoginException;
 import xyz.cyanclay.buptallinone.network.login.LoginStatus;
 
 public class JwxtManager extends SiteManager {
@@ -43,7 +44,7 @@ public class JwxtManager extends SiteManager {
         }
     }
 
-    public Drawable getCapImage() throws IOException {
+    public Drawable getCapImage() throws IOException, LoginException {
         Drawable capImageDrawable = null;
         if (checkLogin()) {
             try {
@@ -60,10 +61,8 @@ public class JwxtManager extends SiteManager {
     }
 
     @Override
-    public LoginStatus doLogin() throws IOException {
-        if (user == null) return LoginStatus.EMPTY_USERNAME;
-        if (pass == null) return LoginStatus.EMPTY_PASSWORD;
-        if (jwCap == null) return LoginStatus.EMPTY_CAPTCHA;
+    public LoginStatus doLogin() throws IOException, LoginException {
+
         Map<String, String> loginData = new HashMap<String, String>() {{
             put("type", "sso");
             put("zjh", user.trim());
@@ -96,7 +95,12 @@ public class JwxtManager extends SiteManager {
         return LoginStatus.UNKNOWN_ERROR;
     }
 
-    public Document checkScore() throws IOException {
+    @Override
+    protected LoginStatus doCaptchaLogin(String captcha) throws IOException {
+        return null;
+    }
+
+    public Document checkScore() throws IOException, LoginException {
 
         Document score = nm.get("https://jwxt.bupt.edu.cn/gradeLnAllAction.do?type=ln&oper=qbinfo&lnxndm=",
                 cookies).parse();

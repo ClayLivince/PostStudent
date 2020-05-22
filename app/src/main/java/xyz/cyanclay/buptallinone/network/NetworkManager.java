@@ -24,6 +24,7 @@ import java.util.Objects;
 
 import xyz.cyanclay.buptallinone.network.info.InfoManager;
 import xyz.cyanclay.buptallinone.network.jwgl.JwglManager;
+import xyz.cyanclay.buptallinone.network.login.LoginException;
 import xyz.cyanclay.buptallinone.network.login.PasswordHelper;
 
 public class NetworkManager {
@@ -33,9 +34,11 @@ public class NetworkManager {
     public JwxtManager jwxtManager;
     public JwglManager jwglManager;
     public VPNManager vpnManager;
+    public AuthManager authManager;
     public InfoManager infoManager;
     public UpdateManager updateManager;
     public ShareManager shareManager;
+    public PasswordHelper passwordHelper;
 
     private static File cacheDir;
     private static File networkCacheDir;
@@ -46,10 +49,12 @@ public class NetworkManager {
         context = appContext;
         vpnManager = new VPNManager(this, context);
         jwxtManager = new JwxtManager(this, context);
+        authManager = new AuthManager(this, context);
         infoManager = new InfoManager(this, context);
         jwglManager = new JwglManager(this, context);
         updateManager = new UpdateManager(this);
         shareManager = new ShareManager(context);
+        passwordHelper = new PasswordHelper();
 
         init();
     }
@@ -65,7 +70,7 @@ public class NetworkManager {
         networkCacheDir = new File(cacheDir, "network");
         picDir = new File(cacheDir, "pic");
 
-        dispatchPassword(PasswordHelper.loadDecrypt(context.getFilesDir()));
+        dispatchPassword(passwordHelper.loadDecrypt(context.getFilesDir()));
     }
 
     public void setUser(String user, String name) {
@@ -74,6 +79,7 @@ public class NetworkManager {
     }
 
     private void dispatchPassword(String[] details) {
+        this.user = details[0];
         vpnManager.setDetails(details[0], details[1]);
         if (details[2] != null) infoManager.setDetails(details[0], details[2]);
         if (details[3] != null) jwglManager.setDetails(details[0], details[3]);
@@ -90,15 +96,15 @@ public class NetworkManager {
     }
 
     public Connection.Response get(String url, Map<String, String> cookies,
-                                   boolean ignoreContent) throws IOException {
+                                   boolean ignoreContent) throws IOException, LoginException {
         return get(Jsoup.connect(url).ignoreContentType(ignoreContent), cookies);
     }
 
-    public Connection.Response get(String url) throws IOException {
+    public Connection.Response get(String url) throws IOException, LoginException {
         return get(Jsoup.connect(url), null);
     }
 
-    public Connection.Response get(Connection conn, Map<String, String> cookies) throws IOException {
+    public Connection.Response get(Connection conn, Map<String, String> cookies) throws IOException, LoginException {
         conn.userAgent(userAgent)
                 .method(Connection.Method.GET)
                 .timeout(10000);
@@ -115,7 +121,7 @@ public class NetworkManager {
         }
     }
 
-    public Connection.Response post(Connection conn) throws IOException {
+    public Connection.Response post(Connection conn) throws IOException, LoginException {
         conn.userAgent(userAgent)
                 .method(Connection.Method.POST)
                 .timeout(10000);
@@ -126,7 +132,7 @@ public class NetworkManager {
         }
     }
 
-    public Connection.Response get(String url, Map<String, String> cookies) throws IOException {
+    public Connection.Response get(String url, Map<String, String> cookies) throws IOException, LoginException {
         return get(Jsoup.connect(url), cookies);
     }
 
@@ -141,11 +147,11 @@ public class NetworkManager {
      * @param cookies 需要携带的cookies
      * @return {@link Document} parse过的html document对象
      */
-    public Document getContent(String url, Map<String, String> cookies) throws IOException {
+    public Document getContent(String url, Map<String, String> cookies) throws IOException, LoginException {
         return getContent(url, cookies, false);
     }
 
-    public byte[] getByteStream(String url, Map<String, String> cookies, boolean forceRefresh) throws IOException {
+    public byte[] getByteStream(String url, Map<String, String> cookies, boolean forceRefresh) throws IOException, LoginException {
         if (!forceRefresh && checkCache(url)) {
             File resFile = new File(picDir, String.valueOf(url.hashCode()));
             InputStream in = new FileInputStream(resFile);
@@ -171,7 +177,7 @@ public class NetworkManager {
      * @param forceRefresh 是否强制刷新缓存
      * @return {@link Document} parse过的html document对象
      */
-    public Document getContent(String url, Map<String, String> cookies, boolean forceRefresh) throws IOException {
+    public Document getContent(String url, Map<String, String> cookies, boolean forceRefresh) throws IOException, LoginException {
 
         if (!forceRefresh && checkCache(url)) {
             File docFile = new File(networkCacheDir, String.valueOf(url.hashCode()));
@@ -206,7 +212,7 @@ public class NetworkManager {
 
     }
 
-    private byte[] refreshResponse(String url, Map<String, String> cookies) throws IOException {
+    private byte[] refreshResponse(String url, Map<String, String> cookies) throws IOException, LoginException {
 
         FileOutputStream outStream = null;
         Connection.Response response = get(url, cookies, true);
@@ -235,7 +241,7 @@ public class NetworkManager {
 
     }
 
-    private Document refreshContent(String url, Map<String, String> cookies) throws IOException {
+    private Document refreshContent(String url, Map<String, String> cookies) throws IOException, LoginException {
         FileOutputStream outStream = null;
 
         Connection.Response response = get(url, cookies);

@@ -1,6 +1,7 @@
 package xyz.cyanclay.buptallinone.network;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 
 import com.eclipsesource.v8.V8;
@@ -11,6 +12,7 @@ import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,11 +22,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import xyz.cyanclay.buptallinone.R;
+import xyz.cyanclay.buptallinone.network.login.LoginException;
 import xyz.cyanclay.buptallinone.network.login.LoginStatus;
 
 public class VPNManager extends SiteManager {
 
     private static String vpnURL = "http://webvpn.bupt.edu.cn";
+
+    private String captchaID = "";
 
     VPNManager(NetworkManager nm, Context context) throws IOException {
         super(nm, context);
@@ -41,8 +46,16 @@ public class VPNManager extends SiteManager {
     }
 
     public LoginStatus doLogin() throws IOException {
-        if (user == null) return LoginStatus.EMPTY_USERNAME;
-        if (pass == null) return LoginStatus.EMPTY_PASSWORD;
+
+        Connection.Response init = Jsoup.connect(vpnURL)
+                .userAgent(NetworkManager.userAgent)
+                .method(Connection.Method.GET)
+                .execute();
+        Document initDoc = init.parse();
+
+        LoginStatus challenge = judgeCaptcha(initDoc);
+        if (challenge != null) return challenge;
+
         Map<String, String> details = new HashMap<String, String>() {{
             put("auth_type", "local");
             put("username", user);
@@ -50,6 +63,57 @@ public class VPNManager extends SiteManager {
             put("password", pass);
         }};
 
+        return loginWithMap(details);
+    }
+
+    private LoginStatus judgeCaptcha(Document initDoc) throws IOException{
+        boolean needCaptcha = false;
+        Elements inputs = initDoc.getElementsByTag("input");
+        for (Element input : inputs) {
+            if (input.hasAttr("name")){
+                if (input.attr("name").equals("needCaptcha")){
+                    String sNeedCaptcha = input.attr("value");
+                    if (sNeedCaptcha.length() != 0){
+                        needCaptcha = Boolean.parseBoolean(sNeedCaptcha);
+                        break;
+                    }
+                }
+            }
+        }
+        if (needCaptcha){
+            try {
+                Element eCaptchaID = initDoc.getElementsByClass("captcha-div").first().child(0);
+                if (eCaptchaID.attr("name").equals("captcha_id"))
+                    captchaID = eCaptchaID.attr("value");
+                LoginStatus captchaRequired = LoginStatus.CAPTCHA_REQUIRED;
+                captchaRequired.captchaImage = getCaptcha(captchaID);
+                captchaRequired.site = this;
+                return captchaRequired;
+            } catch (ArrayIndexOutOfBoundsException e){
+                e.printStackTrace();
+                LoginStatus error = LoginStatus.UNKNOWN_ERROR;
+                error.errorMsg = "Captcha Required But Failed to Read CaptchaID!";
+                return error;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    protected LoginStatus doCaptchaLogin(final String captcha) throws IOException {
+        Map<String, String> details = new HashMap<String, String>() {{
+            put("auth_type", "local");
+            put("username", user);
+            put("sms_code", "");
+            put("password", pass);
+            put("needCaptcha", "true");
+            put("captcha_id", captchaID);
+            put("captcha", captcha);
+        }};
+        return loginWithMap(details);
+    }
+
+    private LoginStatus loginWithMap(Map<String, String> details) throws IOException{
         String loginURL = "http://webvpn.bupt.edu.cn/do-login?local_login=true";
         Connection.Response login = Jsoup.connect(loginURL)
                 .cookies(cookies)
@@ -61,14 +125,43 @@ public class VPNManager extends SiteManager {
         Document loginDoc = login.parse();
 
         if (loginDoc.getElementById("aHref") != null) {
-            isLoggedIn = true;
+            setLoggedIn(true);
             return LoginStatus.LOGIN_SUCCESS;
         } else {
-            return logoutOthers(loginDoc);
+            return checkStatus(loginDoc);
         }
     }
 
-    private LoginStatus logoutOthers(Document loginDoc) throws IOException {
+    private LoginStatus checkStatus(Document loginDoc) throws IOException {
+        String token = checkLogoutOthers(loginDoc);
+        if (token != null){
+            if(token.length() != 0) return logoutOthers(token);
+        }
+        Elements upperBox = loginDoc.getElementsByClass("upper-login-field");
+        if (!upperBox.isEmpty()){
+            Elements msgs = upperBox.first().getElementsByClass("msg");
+            if (!msgs.isEmpty()){
+                String status = msgs.first().ownText();
+                if (status.contains("错误次数过多")){
+                    return LoginStatus.TOO_MANY_ERRORS;
+                } else if (status.contains("验证码错误")) {
+                    LoginStatus challenge = judgeCaptcha(loginDoc);
+                    if (challenge != null) return challenge;
+                } else if (status.contains("用户名密码错误")) {
+                    return LoginStatus.INCORRECT_DETAIL;
+                } else{
+                    LoginStatus error = LoginStatus.UNKNOWN_ERROR;
+                    error.errorMsg = status;
+                    return error;
+                }
+            }
+        }
+        LoginStatus error = LoginStatus.UNKNOWN_ERROR;
+        error.errorMsg = upperBox.text();
+        return error;
+    }
+
+    private String checkLogoutOthers(Document loginDoc){
         StringBuilder sb = new StringBuilder();
         for (Element entry : loginDoc.getElementsByTag("script")) {
             sb.append(entry.data());
@@ -85,8 +178,11 @@ public class VPNManager extends SiteManager {
                 }
             }
         }
+        return token;
+    }
 
-        System.out.println(token);
+    private LoginStatus logoutOthers(String token) throws IOException {
+
         if (!token.equals("")) {
             Connection.Response confirm = Jsoup.connect(vpnURL + "/do-confirm-login")
                     .data("username", user, "logoutOtherToken", token)
@@ -99,7 +195,7 @@ public class VPNManager extends SiteManager {
             try {
                 JSONObject confirmJSON = new JSONObject(confirm.body());
                 if (confirmJSON.getBoolean("success")) {
-                    isLoggedIn = true;
+                    setLoggedIn(true);
                     return LoginStatus.LOGIN_SUCCESS;
                 }
             } catch (JSONException e) {
@@ -107,13 +203,26 @@ public class VPNManager extends SiteManager {
                 throw new IOException("VPN JSON Exception!");
             }
         }
-        isLoggedIn = false;
+        setLoggedIn(false);
         return LoginStatus.UNKNOWN_ERROR;
     }
 
-    public Connection.Response get(Connection conn) throws IOException {
-        if (checkLogin()) {
+    private Drawable getCaptcha(String captchaID) throws IOException {
+        if (captchaID == null){
+            throw new IOException("VPN CaptchaID is null!");
+        }
+        String captchaURL = "http://webvpn.bupt.edu.cn/captcha/" + captchaID;
+        Connection.Response captchaRes = Jsoup.connect(captchaURL)
+                .ignoreContentType(true)
+                .cookies(cookies)
+                .method(Connection.Method.GET)
+                .userAgent(NetworkManager.userAgent)
+                .execute();
+        return Drawable.createFromStream(captchaRes.bodyStream(), "VPNCaptcha");
+    }
 
+    public Connection.Response get(Connection conn) throws IOException, LoginException {
+        if (checkLogin()) {
             conn.cookies(cookies);
             String url = conn.request().url().toString();
             if (!url.contains("webvpn.bupt.edu.cn")) conn.url(analyseURL(url));
@@ -125,7 +234,7 @@ public class VPNManager extends SiteManager {
         throw new IOException("VPN Failed to login.");
     }
 
-    private String analyseURL(String url) {
+    String analyseURL(String url) {
         String protocol = url.split("://", 2)[0];
         String href = url.split("://", 2)[1];
         InputStream is = context.getResources().openRawResource(R.raw.vpn);   //获取用户名与密码加密的js代码

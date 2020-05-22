@@ -100,7 +100,9 @@ public class SettingFragment extends Fragment {
             @Override
             protected String[] doInBackground(Void... voids) {
                 try {
-                    return fragment.updateManager.getUpdateInfo();
+                    String[] infos = fragment.updateManager.getUpdateInfo();
+                    if (infos.length < 3) throw new IOException();
+                    return infos;
                 } catch (IOException e) {
                     e.printStackTrace();
                     cancel(true);

@@ -18,6 +18,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import xyz.cyanclay.buptallinone.network.info.InfoManager;
+import xyz.cyanclay.buptallinone.network.login.LoginException;
 
 public class InfoImageHandler extends ImageHandler {
 
@@ -58,12 +59,12 @@ public class InfoImageHandler extends ImageHandler {
         }
     }
 
-    private Bitmap getBitmap(String url) {
+    private Bitmap getBitmap(String url){
         Bitmap bitmap = null;
         try {
             bitmap = BitmapFactory.decodeStream(new ByteArrayInputStream(
                     infoManager.getBytes(url, forceRefresh)));
-        } catch (IOException e) {
+        } catch (IOException | LoginException e ) {
             e.printStackTrace();
         }
         if (bitmap != null) {

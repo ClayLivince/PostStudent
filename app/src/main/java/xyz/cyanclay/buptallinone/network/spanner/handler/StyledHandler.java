@@ -27,10 +27,6 @@ public abstract class StyledHandler extends TagNodeHandler {
             }
         }
 
-        Log.d("InfoNode", node.toString());
-        Log.d("InfoContent", node.getText().toString());
-        Log.d("InfoParagraph", styles.toString());
-
         buildStyle(styles, builder, start, end);
     }
 

@@ -1,6 +1,9 @@
 package xyz.cyanclay.buptallinone.network;
 
 import android.app.DownloadManager;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationChannelGroup;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -76,14 +79,14 @@ public class UpdateManager {
     }
 
 
-    BroadcastReceiver onComplete = new BroadcastReceiver() {
+    private BroadcastReceiver onComplete = new BroadcastReceiver() {
 
         public void onReceive(Context context, Intent intent) {
 
             NotificationCompat.Builder mBuilder =
                     new NotificationCompat.Builder(nm.context)
                             .setSmallIcon(R.drawable.xiaohui)
-                            .setContentTitle("Kopi81")
+                            .setContentTitle(context.getString(R.string.app_name))
                             .setContentText("Download completed !");
             NotificationManager notificationManager = (NotificationManager) nm.context.getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.notify(455, mBuilder.build());
@@ -107,13 +110,17 @@ public class UpdateManager {
      * 2: infoDetail
      */
     public String[] getUpdateInfo() throws IOException, JSONException {
-        String[] info = new String[3];
+        String[] info = {"", "", ""};
 
         if (json == null) checkForUpdates();
-        info[0] = json.getString("version");
-        info[1] = json.getString("title");
-        info[2] = json.getString("content");
-
+        try {
+            info[0] = json.getString("version");
+            info[1] = json.getString("title");
+            info[2] = json.getString("content");
+        } catch (ArrayIndexOutOfBoundsException e){
+            e.printStackTrace();
+            Log.e("Corrupted update Json", json.toString());
+        }
         return info;
     }
 

@@ -4,14 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginStart="10sp"
-    android:layout_marginTop="10sp"
-    android:layout_marginEnd="10sp"
-    android:layout_marginBottom="10sp"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="20sp">
 
     <TextView
-        android:id="@+id/textViewCaptcha"
+        android:id="@+id/textViewDialogCaptcha"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/captcha" />
@@ -19,7 +16,7 @@
     <ImageView
         android:id="@+id/imageViewCaptcha"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
         tools:srcCompat="@tools:sample/avatars" />
 
     <EditText

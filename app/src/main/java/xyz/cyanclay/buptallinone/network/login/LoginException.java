@@ -1,22 +1,19 @@
 package xyz.cyanclay.buptallinone.network.login;
 
-import java.io.IOException;
-
 import xyz.cyanclay.buptallinone.network.SiteManager;
 
-public class LoginException extends IOException {
-    SiteManager site;
-    String url;
+public class LoginException extends Exception{
+    public SiteManager site;
+    public LoginStatus status;
 
-    public LoginException(SiteManager site, String url) {
+    public LoginException(SiteManager site, LoginStatus status) {
         this.site = site;
-        this.url = url;
+        this.status = status;
     }
 
     public String toString() {
         return "LoginException : "
                 + "\nSite : " + site.toString()
-                + "\nURL : " + url
                 + "\nCause : " + this.getCause();
     }
 

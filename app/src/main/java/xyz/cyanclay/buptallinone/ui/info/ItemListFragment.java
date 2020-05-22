@@ -10,6 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.Navigation;
@@ -27,6 +28,8 @@ import xyz.cyanclay.buptallinone.network.NetworkManager;
 import xyz.cyanclay.buptallinone.network.info.InfoCategory;
 import xyz.cyanclay.buptallinone.network.info.InfoManager.InfoItem;
 import xyz.cyanclay.buptallinone.network.info.InfoManager.InfoItems;
+import xyz.cyanclay.buptallinone.network.login.LoginException;
+import xyz.cyanclay.buptallinone.network.login.LoginTask;
 
 import static xyz.cyanclay.buptallinone.network.info.InfoCategory.INNER_CONTROL_OVERTNESS;
 import static xyz.cyanclay.buptallinone.network.info.InfoCategory.NOTICE_OVERTNESS;
@@ -36,15 +39,22 @@ import static xyz.cyanclay.buptallinone.network.info.InfoCategory.SCHOOL_NOTICE;
 import static xyz.cyanclay.buptallinone.network.info.InfoCategory.SCHOOL_OVERTNESS;
 
 public class ItemListFragment extends Fragment {
+    private boolean infoLoaded = false;
+    private View root = null;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-
-        final View root = inflater.inflate(R.layout.fragment_info_item_list, container, false);
-
-        loadInfo(root, this, false);
+        if (root == null)
+            root = inflater.inflate(R.layout.fragment_info_item_list, container, false);
 
         return root;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        if (!infoLoaded)
+            loadInfo(root, this, false);
     }
 
     private static void loadInfo(final View root, final ItemListFragment fragment, final boolean isRefresh) {
@@ -61,11 +71,18 @@ public class ItemListFragment extends Fragment {
         }};
 
         new AsyncTask<Void, Void, InfoItems[]>() {
+            LoginException exception = null;
             @Override
             protected InfoItems[] doInBackground(Void... voids) {
                 NetworkManager nm = null;
-                while (nm == null)
+                while (nm == null){
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                     nm = activity.getNetworkManager();
+                }
                 InfoItems[] items = new InfoItems[6];
                 for (InfoCategory cate : InfoCategory.values()) {
                     try {
@@ -73,6 +90,9 @@ public class ItemListFragment extends Fragment {
                     } catch (IOException e) {
                         cancel(true);
                         e.printStackTrace();
+                    } catch (LoginException e) {
+                        cancel(true);
+                        exception = e;
                     }
                 }
                 for (InfoItems itemList : items) {
@@ -116,13 +136,15 @@ public class ItemListFragment extends Fragment {
                 }
 
                 root.findViewById(R.id.layoutItemLists).setVisibility(View.VISIBLE);
-
+                fragment.infoLoaded = true;
             }
 
             @Override
             protected void onCancelled() {
                 root.findViewById(R.id.layoutItemLists).setVisibility(View.GONE);
-                Snackbar.make(root, R.string.load_failed, Snackbar.LENGTH_LONG).show();
+                if (exception == null)
+                    Snackbar.make(root, R.string.load_failed, Snackbar.LENGTH_LONG).show();
+                else LoginTask.handleStatus(activity, root, exception.status);
             }
         }.execute();
     }

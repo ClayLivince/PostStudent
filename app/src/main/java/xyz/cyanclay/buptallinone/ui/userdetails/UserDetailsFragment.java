@@ -1,10 +1,13 @@
 package xyz.cyanclay.buptallinone.ui.userdetails;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,7 +16,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -26,23 +28,25 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.SocketTimeoutException;
+import java.util.Arrays;
 
 import xyz.cyanclay.buptallinone.MainActivity;
 import xyz.cyanclay.buptallinone.R;
+import xyz.cyanclay.buptallinone.network.JwxtManager;
 import xyz.cyanclay.buptallinone.network.NetworkManager;
-import xyz.cyanclay.buptallinone.network.login.LoginStatus;
-import xyz.cyanclay.buptallinone.network.login.PasswordHelper;
+import xyz.cyanclay.buptallinone.network.SiteManager;
+import xyz.cyanclay.buptallinone.network.VPNManager;
+import xyz.cyanclay.buptallinone.network.info.InfoManager;
+
+import static xyz.cyanclay.buptallinone.ui.userdetails.VerifyTask.*;
 
 public class UserDetailsFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
-    private View root = null;
+    View root = null;
     private NetworkManager nm;
+    String id = "";
 
     private static String verifySuccess;
-    private static String verifyFailed;
-    private static int colorCorrect;
-    private static int colorError;
 
     private ProgressDialog saveDialog;
 
@@ -56,9 +60,6 @@ public class UserDetailsFragment extends Fragment implements SwipeRefreshLayout.
 
         nm = ((MainActivity) getActivity()).getNetworkManager();
         verifySuccess = getString(R.string.verify_success);
-        verifyFailed = getString(R.string.verify_fail);
-        colorCorrect = getResources().getColor(R.color.colorCorrect);
-        colorError = getResources().getColor(R.color.colorError);
 
         final File fileDir = getContext().getFilesDir();
         loadDetails(root, fileDir);
@@ -81,45 +82,14 @@ public class UserDetailsFragment extends Fragment implements SwipeRefreshLayout.
                         , ((TextView) root.findViewById(R.id.inpID)).getText().toString()
                         , ((TextView) root.findViewById(R.id.inpVPNPass)).getText().toString()
                         , ((TextView) root.findViewById(R.id.inpInfoPass)).getText().toString()
-                        , ((TextView) root.findViewById(R.id.inpJwxtPass)).getText().toString()
-                        , ((TextView) root.findViewById(R.id.inpJwglPass)).getText().toString());
+                        , ((TextView) root.findViewById(R.id.inpJwglPass)).getText().toString()
+                        , ((TextView) root.findViewById(R.id.inpJwxtPass)).getText().toString());
             }
         });
         onRefresh();
 
         ((SwipeRefreshLayout) root.findViewById(R.id.srlUserDetails)).setOnRefreshListener(this);
         return root;
-    }
-
-    private static void showCaptcha(final NetworkManager nm, final View root) {
-        final ImageView captchaView = root.findViewById(R.id.imageViewJwCaptcha);
-        final SwipeRefreshLayout srl = root.findViewById(R.id.srlUserDetails);
-        AsyncTask<Void, Void, Drawable> captchaTask = new AsyncTask<Void, Void, Drawable>() {
-            @Override
-            protected Drawable doInBackground(Void... voids) {
-                try {
-                    return nm.jwxtManager.getCapImage();
-                } catch (IOException e) {
-                    cancel(true);
-                    e.printStackTrace();
-                    return null;
-                }
-            }
-
-            @Override
-            protected void onPostExecute(Drawable drawable) {
-                super.onPostExecute(drawable);
-                captchaView.setImageDrawable(drawable);
-                srl.setRefreshing(false);
-            }
-
-            @Override
-            protected void onCancelled() {
-                Snackbar.make(root, "验证码加载失败。请尝试下拉刷新。", Snackbar.LENGTH_LONG).show();
-                srl.setRefreshing(false);
-            }
-        };
-        captchaTask.execute();
     }
 
     @Override
@@ -139,7 +109,7 @@ public class UserDetailsFragment extends Fragment implements SwipeRefreshLayout.
         EditText inpJwxt = root.findViewById(R.id.inpJwxtPass);
 
         try {
-            String[] details = PasswordHelper.loadDecrypt(fileDir);
+            String[] details = nm.passwordHelper.loadDecrypt(fileDir);
             if (details[0] != null) inpID.setText(details[0]);
             if (details[1] != null) inpVPN.setText(details[1]);
             if (details[2] != null) inpInfo.setText(details[2]);
@@ -149,6 +119,8 @@ public class UserDetailsFragment extends Fragment implements SwipeRefreshLayout.
             Snackbar.make(root, "在获取保存的密码时出现问题。" + e.toString(), Snackbar.LENGTH_LONG);
             e.printStackTrace();
         }
+
+        ((SwipeRefreshLayout) root.findViewById(R.id.srlUserDetails)).setRefreshing(false);
     }
 
     void deterVisibility() {
@@ -158,7 +130,7 @@ public class UserDetailsFragment extends Fragment implements SwipeRefreshLayout.
         //EditText inpJwxtCap = root.findViewById(R.id.inpJwCaptcha);
         Button save = root.findViewById(R.id.buttonSaveUserDetail);
         EditText[] edits = new EditText[]{inpInfo, inpJwgl};
-        if (nm.isSchoolNet | nm.vpnManager.isLoggedIn | isVerified((TextView) root.findViewById(R.id.textViewVPNVerify))) {
+        if (nm.isSchoolNet | nm.vpnManager.isLoggedIn() | isVerified((TextView) root.findViewById(R.id.textViewVPNVerify))) {
             for (EditText edit : edits)
                 edit.setVisibility(View.VISIBLE);
             save.setVisibility(View.VISIBLE);
@@ -173,23 +145,23 @@ public class UserDetailsFragment extends Fragment implements SwipeRefreshLayout.
         SwipeRefreshLayout srl = root.findViewById(R.id.srlUserDetails);
         srl.setEnabled(false);
 
-        String id = ((TextView) root.findViewById(R.id.inpID)).getText().toString();
+        id = ((TextView) root.findViewById(R.id.inpID)).getText().toString();
 
         if (verifyID((TextView) root.findViewById(R.id.textViewVPNVerify), (EditText) root.findViewById(R.id.inpVPNPass))) {
             if (nm.isSchoolNet) {
                 if (!isVerified((TextView) root.findViewById(R.id.textViewInfoVerify)))
-                    verifyInfo(id);
+                    verifyInfo();
                 if (!isVerified((TextView) root.findViewById(R.id.textViewJwglVerify)))
-                    verifyJwgl(id);
+                    verifyJwgl();
             } else {
                 if (!isVerified((TextView) root.findViewById(R.id.textViewVPNVerify))) {
-                    verifyVPN(id);
+                    verifyVPN();
                     Snackbar.make(root, "非校园网先验证VPN哦~待成功后再点击一次验证按钮~", Snackbar.LENGTH_LONG).show();
                 } else {
                     if (!isVerified((TextView) root.findViewById(R.id.textViewInfoVerify)))
-                        verifyInfo(id);
+                        verifyInfo();
                     if (!isVerified((TextView) root.findViewById(R.id.textViewJwglVerify)))
-                        verifyJwgl(id);
+                        verifyJwgl();
                     //if (!isVerified((TextView) root.findViewById(R.id.textViewJwxtVerify)))
                     //verifyJwxt(root, nm, id);
                 }
@@ -228,132 +200,52 @@ public class UserDetailsFragment extends Fragment implements SwipeRefreshLayout.
         return false;
     }
 
-    private void verifyVPN(String id) {
-        VerifyTask.verify(this, id, root, (TextView) root.findViewById(R.id.textViewVPNVerify)
-                , (EditText) root.findViewById(R.id.inpVPNPass)
-                , (ProgressBar) root.findViewById(R.id.progressBarVPN)
-                , nm.vpnManager);
+    private void verifyVPN() {
+        VerifyTask.verify(this, nm.vpnManager);
     }
 
-    private void verifyInfo(String id) {
-        VerifyTask.verify(this, id, root, (TextView) root.findViewById(R.id.textViewInfoVerify)
-                , (EditText) root.findViewById(R.id.inpInfoPass)
-                , (ProgressBar) root.findViewById(R.id.progressBarInfoPass)
-                , nm.infoManager);
+    private void verifyInfo() {
+        VerifyTask.verify(this, nm.infoManager);
     }
 
-    private void verifyJwgl(String id) {
-        VerifyTask.verify(this, id, root, (TextView) root.findViewById(R.id.textViewJwglVerify)
-                , (EditText) root.findViewById(R.id.inpJwglPass)
-                , (ProgressBar) root.findViewById(R.id.progressBarJwglPass)
-                , nm.jwglManager);
+    private void verifyJwgl() {
+        VerifyTask.verify(this, nm.jwglManager);
     }
 
-    private static void verifyJwxt(final View root, final NetworkManager nm, String id) {
-        final EditText inpJwxtPass = root.findViewById(R.id.inpJwxtPass);
-        final EditText inpJwCaptcha = root.findViewById(R.id.inpJwCaptcha);
-        String jwxtPass = inpJwxtPass.getText().toString();
-        String captcha = inpJwCaptcha.getText().toString();
-        final ProgressBar jwxtProgress = root.findViewById(R.id.progressBarJwxtPass);
-        final ProgressBar captchaProgress = root.findViewById(R.id.progressBarJwCaptcha);
+    private void verifyJwxt(){
+        VerifyTask.verify(this, nm.jwxtManager);
+    }
 
-        final TextView jwxtStat = root.findViewById(R.id.textViewJwxtVerify);
-        final TextView captchaStat = root.findViewById(R.id.textViewCaptchaVerify);
-        if (jwxtPass.length() != 0) {
-            if (captcha.length() == 4) {
-                jwxtStat.setVisibility(View.VISIBLE);
-                nm.jwxtManager.setDetails(id, jwxtPass);
-                captchaStat.setVisibility(View.VISIBLE);
-                nm.jwxtManager.setJwCap(captcha);
-                jwxtProgress.setVisibility(View.VISIBLE);
-                captchaProgress.setVisibility(View.VISIBLE);
-
-                new AsyncTask<Void, Void, LoginStatus>() {
-                    @Override
-                    protected LoginStatus doInBackground(Void... voids) {
-                        try {
-                            return nm.jwxtManager.login();
-                        } catch (IOException e) {
-                            cancel(true);
-                            e.printStackTrace();
-                            if (e instanceof SocketTimeoutException) return LoginStatus.TIMED_OUT;
-                        }
-                        return LoginStatus.UNKNOWN_ERROR;
-                    }
-
-                    @Override
-                    protected void onPostExecute(LoginStatus loginStatus) {
-                        super.onPostExecute(loginStatus);
-                        jwxtProgress.setVisibility(View.INVISIBLE);
-                        captchaProgress.setVisibility(View.INVISIBLE);
-                        switch (loginStatus) {
-                            case LOGIN_SUCCESS: {
-                                verifySuccess(jwxtStat);
-                                verifySuccess(captchaStat);
-                                break;
-                            }
-                            case INCORRECT_DETAIL: {
-                                verifyFailed(jwxtStat, inpJwxtPass);
-                                Snackbar.make(root, R.string.incorrect_jwxt_password, Snackbar.LENGTH_LONG).show();
-                                break;
-                            }
-                            case INCORRECT_CAPTCHA: {
-                                verifyFailed(captchaStat, inpJwCaptcha);
-                                Snackbar.make(root, R.string.incorrect_captcha, Snackbar.LENGTH_LONG).show();
-                                break;
-                            }
-                            case TIMED_OUT: {
-                                verifyFailed(jwxtStat, inpJwxtPass);
-                                Snackbar.make(root, R.string.load_failed, Snackbar.LENGTH_LONG).show();
-                                break;
-                            }
-                            default: {
-                                Snackbar.make(root, R.string.unknown_error, Snackbar.LENGTH_LONG).show();
-                            }
-                        }
-                    }
-                }.execute();
-            } else {
-                verifyFailed(captchaStat, inpJwCaptcha);
-                Snackbar.make(root, R.string.input_captcha, Snackbar.LENGTH_LONG).show();
-            }
-        }
-
-        /*
+    void popupCaptcha(Drawable image, final SiteManager who){
         AlertDialog.Builder captchaDialogBuilder = new AlertDialog.Builder(getContext());
-            final View captchaView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_captcha_input_panel, null);
-            captchaDialogBuilder.setView(captchaView);
-            captchaDialogBuilder.setTitle(R.string.input_captcha);
-            ImageView iv = captchaView.findViewById(R.id.imageViewCaptcha);
-            iv.setImageDrawable(nm.jwxtManager.getCapImage());
-            captchaDialogBuilder.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    TextView tv = captchaView.findViewById(R.id.inpCaptcha);
-                    String captcha = tv.getText().toString();
-                    if (captcha.length() == 4) {
-                        nm.jwxtManager.setJwCap(captcha);
-                        if (nm.jwxtManager.jwLogin().equals("已成功登录")){
+        final View captchaView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_captcha_input_panel, null);
+        captchaDialogBuilder.setTitle(R.string.input_captcha);
 
-                        }
-                    }
-                }
-            });
-         */
-    }
+        String message;
+        if (who instanceof VPNManager){
+            message = getString(R.string.vpn_captcha);
+        } else if (who instanceof InfoManager){
+            message = getString(R.string.info_captcha);
+        } else if (who instanceof JwxtManager){
+            message = getString(R.string.jwxt_captcha);
+        } else message = getString(R.string.captcha);
+        TextView tv = captchaView.findViewById(R.id.textViewDialogCaptcha);
+        tv.setText(message);
 
-    private static synchronized void verifyFailed(TextView verify, EditText inp) {
-        verify.setText(verifyFailed);
-        verify.setTextColor(colorError);
-        verify.setVisibility(View.VISIBLE);
-        inp.setFocusableInTouchMode(true);
-        inp.requestFocus();
-    }
+        ImageView iv = captchaView.findViewById(R.id.imageViewCaptcha);
+        final EditText et = captchaView.findViewById(R.id.inpCaptcha);
+        iv.setImageDrawable(image);
 
-    private static synchronized void verifySuccess(TextView verify) {
-        verify.setText(verifySuccess);
-        verify.setTextColor(colorCorrect);
-        verify.setVisibility(View.VISIBLE);
+        captchaDialogBuilder.setView(captchaView);
+        captchaDialogBuilder.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                VerifyTask.verify(UserDetailsFragment.this, who, et.getText().toString());
+                dialog.dismiss();
+            }
+        });
+
+        captchaDialogBuilder.show();
     }
 
     @Override
@@ -369,6 +261,7 @@ public class UserDetailsFragment extends Fragment implements SwipeRefreshLayout.
                     if (keyCode == KeyEvent.KEYCODE_BACK
                             && event.getAction() == KeyEvent.ACTION_UP) {
                         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                        if (imm != null)
                         imm.hideSoftInputFromWindow(UserDetailsFragment.this.root.getWindowToken(), 0);
                         Navigation.findNavController(getActivity(), R.id.nav_host_fragment).popBackStack();
                         return true;
@@ -387,10 +280,13 @@ public class UserDetailsFragment extends Fragment implements SwipeRefreshLayout.
             @Override
             protected Boolean doInBackground(Void... voids) {
                 try {
-                    boolean status = PasswordHelper.saveEncrypt(fileDir, details[0]
+                    udf.nm.passwordHelper.saveEncrypt(fileDir, details[0]
                             , details[1], details[2], details[3], details[4]);
-                    Thread.sleep(2000);
-                    return status;
+                    Thread.sleep(500);
+                    String[] decrypted = udf.nm.passwordHelper.loadDecrypt(fileDir);
+                    Log.i("Original", Arrays.toString(details));
+                    Log.i("decrypted", Arrays.toString(decrypted));
+                    return Arrays.equals(decrypted, details);
                 } catch (IOException | InterruptedException e) {
                     e.printStackTrace();
                     cancel(true);
@@ -402,7 +298,9 @@ public class UserDetailsFragment extends Fragment implements SwipeRefreshLayout.
             protected void onPostExecute(Boolean aBoolean) {
                 super.onPostExecute(aBoolean);
                 udf.saveDialog.dismiss();
+                if (aBoolean)
                 Snackbar.make(udf.root, "保存成功！", Snackbar.LENGTH_LONG).show();
+                else Snackbar.make(udf.root, "保存失败，请重试", Snackbar.LENGTH_LONG).show();
             }
 
             @Override
