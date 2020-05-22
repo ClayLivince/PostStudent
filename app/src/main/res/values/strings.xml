@@ -36,7 +36,14 @@
     <string name="timed_out">网络超时，请重试。</string>
     <string name="unknown_error">发生未知错误，请联系我们。</string>
     <string name="input_captcha">请输入验证码</string>
+    <string name="vpn_captcha">VPN验证码</string>
+    <string name="info_captcha">信息门户验证码</string>
+    <string name="jwxt_captcha">旧教务系统验证码</string>
     <string name="incorrect_captcha">验证码不正确，请检查。</string>
+    <string name="empty_details">登录信息未填写！请打开页面填写或点击这里</string>
+    <string name="incorrect_details">登录信息不正确！请打开页面更正或点击这里</string>
+    <string name="vpn_too_many_errors">VPN登录错误次数过多，请稍后再试！</string>
+    <string name="go_fill_details">去填写</string>
     <string name="confirm">确定</string>
     <string name="cancel">取消</string>
     <string name="captcha">验证码</string>
@@ -85,4 +92,5 @@
     <string name="start_update">已开始下载更新</string>
 
     <string name="share_to">分享到……</string>
+    <string name="welcome">欢迎，%s</string>
 </resources>

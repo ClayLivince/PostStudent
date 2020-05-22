@@ -1,7 +1,13 @@
 package xyz.cyanclay.buptallinone;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,7 +24,12 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.io.IOException;
 
+import xyz.cyanclay.buptallinone.network.JwxtManager;
 import xyz.cyanclay.buptallinone.network.NetworkManager;
+import xyz.cyanclay.buptallinone.network.SiteManager;
+import xyz.cyanclay.buptallinone.network.VPNManager;
+import xyz.cyanclay.buptallinone.network.info.InfoManager;
+import xyz.cyanclay.buptallinone.network.login.LoginTask;
 import xyz.cyanclay.buptallinone.ui.userdetails.UserDetailsFragment;
 
 public class MainActivity extends AppCompatActivity {
@@ -83,13 +94,11 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         }.start();
-
-
     }
 
     public void setUser(String user, String name) {
         NavigationView nv = findViewById(R.id.nav_view);
-        ((TextView) nv.getHeaderView(0).findViewById(R.id.textViewNavName)).setText(user);
+        ((TextView) nv.getHeaderView(0).findViewById(R.id.textViewNavName)).setText(getString(R.string.welcome, name));
     }
 
     @Override
@@ -105,6 +114,38 @@ public class MainActivity extends AppCompatActivity {
         navigationView.setCheckedItem(R.id.nav_send);
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawers();
+    }
+
+    public void popupCaptcha(final View from, Drawable image, final SiteManager who){
+        AlertDialog.Builder captchaDialogBuilder = new AlertDialog.Builder(this);
+        final View captchaView = LayoutInflater.from(this).inflate(R.layout.dialog_captcha_input_panel, null);
+        captchaDialogBuilder.setTitle(R.string.input_captcha);
+
+        String message;
+        if (who instanceof VPNManager){
+            message = getString(R.string.vpn_captcha);
+        } else if (who instanceof InfoManager){
+            message = getString(R.string.info_captcha);
+        } else if (who instanceof JwxtManager){
+            message = getString(R.string.jwxt_captcha);
+        } else message = getString(R.string.captcha);
+        TextView tv = captchaView.findViewById(R.id.textViewDialogCaptcha);
+        tv.setText(message);
+
+        ImageView iv = captchaView.findViewById(R.id.imageViewCaptcha);
+        final EditText et = captchaView.findViewById(R.id.inpCaptcha);
+        iv.setImageDrawable(image);
+
+        captchaDialogBuilder.setView(captchaView);
+        captchaDialogBuilder.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                LoginTask.login(MainActivity.this, from, who, et.getText().toString());
+                dialog.dismiss();
+            }
+        });
+
+        captchaDialogBuilder.show();
     }
 
     public NetworkManager getNetworkManager() {

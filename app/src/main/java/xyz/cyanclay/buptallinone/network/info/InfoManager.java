@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import xyz.cyanclay.buptallinone.network.AuthManager;
 import xyz.cyanclay.buptallinone.network.NetworkManager;
 import xyz.cyanclay.buptallinone.network.SiteManager;
 import xyz.cyanclay.buptallinone.network.login.LoginException;
@@ -28,94 +29,57 @@ public class InfoManager extends SiteManager {
 
     private Document cachedDocument;
     private InfoAnnouncer announcer;
-    BuptSpanner buptSpanner = new BuptSpanner(this);
+    private BuptSpanner buptSpanner = new BuptSpanner(this);
 
     public InfoManager(NetworkManager nm, Context context) {
         super(nm, context);
         announcer = new InfoAnnouncer(context);
     }
 
-    public LoginStatus doLogin() throws IOException {
+    public LoginStatus doLogin() throws IOException, LoginException {
 
-        if (user == null) {
-            return LoginStatus.EMPTY_USERNAME;
-        }
-        if (pass == null) {
-            return LoginStatus.EMPTY_PASSWORD;
-        }
+        Connection.Response infoInit = nm.get(Jsoup.connect(infoURL)
+                .followRedirects(false), cookies);
+        cookies = infoInit.cookies();
 
-        Connection.Response infoInit = nm.get(infoURL);
-        Connection.Response authInit = nm.get(loginURL);
+        Connection.Response init = nm.get(Jsoup.connect(infoURL), cookies);
+        nm.authManager.setDetails(this.user, this.pass);
 
-        if (infoInit != null && authInit != null) {
-
-            cookies = infoInit.cookies();
-            Map<String, String> authCookies = authInit.cookies();
-            final Document auth = authInit.parse();
-
-            if (auth.title().contains("欢迎")) {
-                nm.setUser(user, auth.getElementsByClass("topinner").first().ownText().split(",")[0]);
-                isLoggedIn = true;
-                cachedDocument = auth;
-                return LoginStatus.LOGIN_SUCCESS;
-            }
-
-            Map<String, String> loginDetail = new HashMap<String, String>() {{
-                put("username", user);
-                put("password", pass);
-                put("lt", auth.getElementsByAttributeValue("name", "lt").first().attr("value"));
-                put("execution", auth.getElementsByAttributeValue("name", "execution").first().attr("value"));
-                put("_eventId", auth.getElementsByAttributeValue("name", "_eventId").first().attr("value"));
-                put("rmShown", auth.getElementsByAttributeValue("name", "rmShown").first().attr("value"));
-            }};
-
-            Connection.Response authLogin = nm.post(Jsoup.connect(loginURL)
-                    .cookies(authCookies)
-                    .data(loginDetail));
-
-            cookies = authLogin.cookies();
-            Document login = Jsoup.parse(authLogin.body());
-            if (login.getElementsByClass("errors").first() != null) {
-                String status = login.getElementsByClass("errors").first().ownText();
-                if (status != null) {
-                    isLoggedIn = false;
-                    if (status.equals("Username is a required field.")) {
-                        return LoginStatus.EMPTY_USERNAME;
-                    } else if (status.equals("Password is a required field.")) {
-                        return LoginStatus.EMPTY_PASSWORD;
-                    } else if (status.equals("The username or password you provided cannot be determined to be authentic.")) {
-                        return LoginStatus.INCORRECT_DETAIL;
-                    } else if (status.equals("Please enter captcha.")) {
-                        return LoginStatus.EMPTY_CAPTCHA;
-                    } else if (status.equals("invalid captcha.")) {
-                        return LoginStatus.INCORRECT_CAPTCHA;
-                    } else if (status.length() != 0) {
-                        return LoginStatus.UNKNOWN_ERROR;
-                    }
-                }
-            } else if (login.title().contains("欢迎")) {
-                nm.setUser(user, login.getElementsByClass("topinner").first().ownText().split(",")[0]);
-                isLoggedIn = true;
-                cachedDocument = login;
+        String initUrl = init.url().toString();
+        if (initUrl.contains("auth.bupt.edu.cn") |
+                initUrl.contains("77726476706e69737468656265737421f1e2559469327d406a468ca88d1b203b"))
+        {
+            return nm.authManager.login(infoURL + "login.portal");
+        } else {
+            Document initDoc = init.parse();
+            if (initDoc.title().contains("欢迎")) {
+                nm.setUser(user, initDoc.getElementsByClass("topinner").first().ownText().split(",")[0]);
+                setLoggedIn(true);
+                cachedDocument = initDoc;
                 return LoginStatus.LOGIN_SUCCESS;
             }
         }
         return LoginStatus.UNKNOWN_ERROR;
     }
 
-    private Document getContent(String url, boolean refresh) throws IOException {
+    @Override
+    public LoginStatus doCaptchaLogin(String captcha) throws IOException, LoginException {
+        return nm.authManager.loginWithCaptcha(loginURL, captcha);
+    }
+
+    private Document getContent(String url, boolean refresh) throws IOException, LoginException {
         if (checkLogin()) {
             return nm.getContent(url, cookies, refresh);
         } else throw new IOException("Info Login Failed.");
     }
 
-    public byte[] getBytes(String url, boolean force) throws IOException {
+    public byte[] getBytes(String url, boolean force) throws IOException, LoginException {
         if (checkLogin()) {
             return nm.getByteStream(url, cookies, force);
         } else throw new IOException("Info Login Failed.");
     }
 
-    public InfoItems parseMainpage(InfoCategory category) throws IOException {
+    public InfoItems parseMainpage(InfoCategory category) throws IOException, LoginException {
         if (checkLogin()) {
             if (cachedDocument != null) {
                 InfoItems items = new InfoItems();
@@ -136,34 +100,34 @@ public class InfoManager extends SiteManager {
         return null;
     }
 
-    public InfoItems parseNotice(InfoCategory category, boolean refresh) throws IOException {
+    public InfoItems parseNotice(InfoCategory category, boolean refresh) throws IOException, LoginException {
         return parseNotice(category, buildURL(category, -1, -1, 1), refresh);
     }
 
-    public InfoItems parseNotice(InfoCategory category, int cate, int id, int page, boolean refresh) throws IOException {
+    public InfoItems parseNotice(InfoCategory category, int cate, int id, int page, boolean refresh) throws IOException, LoginException {
         return parseNotice(category, buildURL(category, cate, id, page), refresh);
     }
 
     public InfoItems parseNotice(InfoCategory category, int cate, int id, int page,
-                                 String searchWord) throws IOException {
+                                 String searchWord) throws IOException, LoginException {
         return parseNotice(category, buildURL(category, cate, id, page), searchWord);
     }
 
-    private InfoItems parseNotice(InfoCategory category, String url, String searchWord) throws IOException {
+    private InfoItems parseNotice(InfoCategory category, String url, String searchWord) throws IOException, LoginException {
         if (checkLogin()) {
             Document document = nm.post(Jsoup.connect(url)
                     .data("v_title", searchWord)).parse();
             return parseNotice(category, document, url, true, searchWord);
         }
-        throw new LoginException(this, url);
+        throw new LoginException(this, LoginStatus.UNKNOWN_ERROR);
     }
 
-    private InfoItems parseNotice(InfoCategory category, String url, boolean refresh) throws IOException {
+    private InfoItems parseNotice(InfoCategory category, String url, boolean refresh) throws IOException, LoginException {
         if (checkLogin()) {
             Document document = getContent(url, refresh);
             return parseNotice(category, document, url, false, null);
         }
-        throw new LoginException(this, url);
+        throw new LoginException(this, LoginStatus.UNKNOWN_ERROR);
     }
 
     private InfoItems parseNotice(InfoCategory category, Document document, String url,
@@ -201,7 +165,7 @@ public class InfoManager extends SiteManager {
         return sb.toString();
     }
 
-    private boolean refreshCachedDocument() throws IOException {
+    private boolean refreshCachedDocument() throws IOException, LoginException {
         if (checkLogin()) {
             cachedDocument = nm.getContent(infoURL, cookies, true);
             return cachedDocument.title().equals("欢迎访问信息服务门户");
@@ -246,11 +210,11 @@ public class InfoManager extends SiteManager {
          */
         public HashMap<String, String> attachments;
 
-        private Document getContentDocument(boolean refresh) throws IOException {
+        private Document getContentDocument(boolean refresh) throws IOException, LoginException {
             return InfoManager.this.getContent(url, refresh);
         }
 
-        public void parseContentSpanned(int maxWidth, boolean force) throws IOException {
+        public void parseContentSpanned(int maxWidth, boolean force) throws IOException, LoginException {
             Document document = getContentDocument(force);
             titleFull = document.getElementsByClass("singlemainbox").first().getElementsByTag("h1").first().ownText();
             announcer = document.getElementsByClass("pdept").first().ownText().split("：")[1];
@@ -284,7 +248,7 @@ public class InfoManager extends SiteManager {
             this.searchWord = searchWord;
         }
 
-        public void getMore() throws IOException {
+        public void getMore() throws IOException, LoginException {
             if (url != null) {
                 page++;
                 InfoItems more;
@@ -299,6 +263,5 @@ public class InfoManager extends SiteManager {
                 bottom = true;
             }
         }
-
     }
 }

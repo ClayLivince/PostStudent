@@ -1,5 +1,8 @@
 package xyz.cyanclay.buptallinone.network.login;
 
+import android.util.Base64;
+import android.util.Log;
+
 import androidx.annotation.Nullable;
 
 import java.io.BufferedReader;
@@ -8,22 +11,28 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.Arrays;
+import java.nio.charset.StandardCharsets;
 
 import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 public class PasswordHelper {
 
-    public static boolean saveEncrypt(File resourceDir, String id, String vpnPass, String infoPass, @Nullable String jwxtPass, @Nullable String jwglPass) throws IOException {
+    private IvParameterSpec IV;
+    private SecretKeySpec key;
+    private static String charset = "ISO-8859-1";
+
+    public PasswordHelper(){
+        byte[] iv = "APPCREATEDBYCLAY".getBytes();
+        IV = new IvParameterSpec(iv);
+        String sKey = "BUPTISTHEBESTONE";
+        byte[] keyArray = sKey.getBytes(StandardCharsets.US_ASCII);
+        key = new SecretKeySpec(keyArray, "AES");
+    }
+
+    public void saveEncrypt(File resourceDir, String id, String vpnPass, String infoPass, @Nullable String jwxtPass, @Nullable String jwglPass) throws IOException {
         File tokenDir = verifyTokenDir(resourceDir);
-        SecretKey key = getKey(tokenDir, true);
         FileOutputStream fos = null;
         try {
             File detail = new File(tokenDir, "detail");
@@ -32,22 +41,18 @@ public class PasswordHelper {
             }
             if (detail.createNewFile()) {
                 fos = new FileOutputStream(detail);
-                fos.write(encrypt(key, id));
-                fos.write("\n".getBytes("ISO8859-1"));
-                fos.write(encrypt(key, vpnPass));
-                fos.write("\n".getBytes("ISO8859-1"));
-                fos.write(encrypt(key, infoPass));
-                fos.write("\n".getBytes("ISO8859-1"));
-                if (jwxtPass != null && jwxtPass.length() != 0) {
-                    fos.write(encrypt(key, jwxtPass));
-                    fos.write("\n".getBytes("ISO8859-1"));
-                }
+                fos.write(encrypt(id.getBytes(charset)));
+                fos.write(encrypt(vpnPass.getBytes(charset)));
+                fos.write(encrypt(infoPass.getBytes(charset)));
                 if (jwglPass != null && jwglPass.length() != 0) {
-                    fos.write(encrypt(key, jwglPass));
-                    fos.write("\n".getBytes("ISO8859-1"));
+                    fos.write(encrypt(jwglPass.getBytes(charset)));
                 }
+                if (jwxtPass != null && jwxtPass.length() != 0) {
+                    fos.write(encrypt(jwxtPass.getBytes(charset)));
+                    fos.write("\n".getBytes());
+                } else fos.write("\n".getBytes());
+
                 fos.flush();
-                return true;
             } else throw new IOException("Failed to create detail file.");
         } catch (Exception e) {
             e.printStackTrace();
@@ -60,24 +65,22 @@ public class PasswordHelper {
                 }
             }
         }
-        return false;
     }
 
-    public static String[] loadDecrypt(File resourceDir) throws IOException {
+    public String[] loadDecrypt(File resourceDir) throws IOException {
         File tokenDir = verifyTokenDir(resourceDir);
-        SecretKey key = getKey(tokenDir, false);
         InputStreamReader isr = null;
         BufferedReader br = null;
         String[] details = new String[5];
         try {
             File detail = new File(tokenDir, "detail");
             if (detail.exists()) {
-                isr = new InputStreamReader(new FileInputStream(detail), "ISO8859-1");
+                isr = new InputStreamReader(new FileInputStream(detail));
                 br = new BufferedReader(isr);
                 for (int i = 0; i < 5; i++) {
                     String line = br.readLine();
                     if (line != null) {
-                        details[i] = decrypt(key, line.replace("\n", ""));
+                        details[i] = decrypt(line.replace("\n", ""));
                     }
                 }
             }
@@ -102,7 +105,7 @@ public class PasswordHelper {
         return details;
     }
 
-    private static File verifyTokenDir(File resourceDir) throws IOException {
+    private File verifyTokenDir(File resourceDir) throws IOException {
         File tokenDir = new File(resourceDir, "token");
         if (tokenDir.exists()) {
             return tokenDir;
@@ -113,94 +116,29 @@ public class PasswordHelper {
         }
     }
 
-    private static synchronized SecretKey getKey(File tokenDir, boolean forceRefresh) throws IOException {
-        if (Arrays.asList(tokenDir.list()).contains("key") && !forceRefresh) {
-            return readKey(tokenDir);
-        } else {
-            return writeKey(tokenDir);
-        }
-    }
-
-    private static synchronized SecretKey readKey(File tokenDir) throws IOException {
-        File keyFile = new File(tokenDir, "key");
-        ObjectInputStream ois = null;
-        SecretKey key = null;
-        try {
-            ois = new ObjectInputStream(new FileInputStream(keyFile));
-            key = (SecretKey) ois.readObject();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } finally {
-            if (ois != null) {
-                try {
-                    ois.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return key;
-    }
-
-    private static synchronized SecretKey writeKey(File tokenDir) throws IOException {
-        File keyFile = new File(tokenDir, "key");
-        ObjectOutputStream oos = null;
-        SecretKey key = null;
-        try {
-            key = generateKey();
-            if (keyFile.exists()) {
-                if (!keyFile.delete()) throw new IOException("Failed to delete key File.");
-            }
-            if (keyFile.createNewFile()) {
-                oos = new ObjectOutputStream(new FileOutputStream(keyFile));
-                oos.writeObject(key);
-                oos.flush();
-            } else throw new IOException("Failed to create keyFile.");
-
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } finally {
-            if (oos != null) {
-                try {
-                    oos.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return key;
-    }
-
-    private static SecretKey generateKey() throws NoSuchAlgorithmException {
-        // Generate a 256-bit key
-        final int outputKeyLength = 256;
-        SecureRandom secureRandom = new SecureRandom();
-        // Do *not* seed secureRandom! Automatically seeded from system entropy.
-        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
-        keyGenerator.init(outputKeyLength, secureRandom);
-        return keyGenerator.generateKey();
-    }
-
     /**
      * @param clear clear text string
      * @param mode  this should either be Cipher.ENCRYPT_MODE or Cipher.DECRYPT_MODE
      * @return byte[] encoded bytes
      * @throws Exception cipher exception
      */
-    private static byte[] translate(SecretKey key, String clear, int mode) throws Exception {
+    private byte[] translate(byte[] clear, int mode) throws Exception {
         if (mode != Cipher.ENCRYPT_MODE && mode != Cipher.DECRYPT_MODE)
             throw new IllegalArgumentException("Encryption invalid. Mode should be either Cipher.ENCRYPT_MODE or Cipher.DECRYPT_MODE");
-        SecretKeySpec skeySpec = new SecretKeySpec(key.getEncoded(), "AES");
-        Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-        cipher.init(mode, skeySpec);
-        return cipher.doFinal(clear.getBytes("ISO8859-1"));
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher.init(mode, key, IV);
+        return cipher.doFinal(clear);
     }
 
-    private static byte[] encrypt(SecretKey key, String clear) throws Exception {
-        return translate(key, clear, Cipher.ENCRYPT_MODE);
+    private byte[] encrypt(byte[] clear) throws Exception {
+        byte[] cipherText = translate(clear, Cipher.ENCRYPT_MODE);
+        return Base64.encode(cipherText, Base64.DEFAULT);
     }
 
-    private static String decrypt(SecretKey key, String encrypted) throws Exception {
-        return new String(translate(key, encrypted, Cipher.DECRYPT_MODE));
+    private String decrypt(String encrypted) throws Exception {
+        byte[] s = Base64.decode(encrypted, Base64.DEFAULT);
+        String decrypted = new String(translate(s, Cipher.DECRYPT_MODE));
+        Log.e("decrypted", decrypted);
+        return decrypted;
     }
 }

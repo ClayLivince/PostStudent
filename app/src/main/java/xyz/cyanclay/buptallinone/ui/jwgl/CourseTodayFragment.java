@@ -20,6 +20,8 @@ import xyz.cyanclay.buptallinone.MainActivity;
 import xyz.cyanclay.buptallinone.R;
 import xyz.cyanclay.buptallinone.network.NetworkManager;
 import xyz.cyanclay.buptallinone.network.jwgl.Course;
+import xyz.cyanclay.buptallinone.network.login.LoginException;
+import xyz.cyanclay.buptallinone.network.login.LoginTask;
 
 public class CourseTodayFragment extends Fragment {
 
@@ -60,6 +62,9 @@ public class CourseTodayFragment extends Fragment {
             fetchCourse(this, false);
             inited = true;
         }
+        if (adapter.courseList.isEmpty()){
+            fetchCourse(this, false);
+        }
     }
 
     @Override
@@ -77,18 +82,29 @@ public class CourseTodayFragment extends Fragment {
 
     private static void fetchCourse(final CourseTodayFragment fragment, final boolean force) {
         new AsyncTask<Void, Void, List<Course>>() {
+            LoginException exception = null;
             @Override
             protected List<Course> doInBackground(Void... voids) {
                 NetworkManager nm = null;
-                while (nm == null)
-                    nm = ((MainActivity) fragment.getActivity()).getNetworkManager();
+                MainActivity activity = (MainActivity) fragment.getActivity();
+                while (nm == null){
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    nm = activity.getNetworkManager();
+                }
                 try {
                     return nm.jwglManager.getClassToday(force);
                 } catch (IOException e) {
                     e.printStackTrace();
                     cancel(true);
-                    return null;
+                } catch (LoginException e){
+                    exception = e;
+                    cancel(true);
                 }
+                return null;
             }
 
             @Override
@@ -101,7 +117,9 @@ public class CourseTodayFragment extends Fragment {
             protected void onCancelled() {
                 super.onCancelled();
                 fragment.rv.setVisibility(View.GONE);
-                Snackbar.make(fragment.root, "加载今日课程表失败！", Snackbar.LENGTH_LONG).show();
+                if (exception == null)
+                    Snackbar.make(fragment.root, "加载今日课程表失败！", Snackbar.LENGTH_LONG).show();
+                else LoginTask.handleStatus(fragment.getActivity(), fragment.root, exception.status);
             }
         }.execute();
     }

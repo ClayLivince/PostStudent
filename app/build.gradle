@@ -8,7 +8,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 29
         versionCode 1
-        versionName '0.3.2a'
+        versionName '0.3.3a'
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -46,5 +46,4 @@ dependencies {
     //implementation 'com.github.Hitomis:transferee:1.5.0'
     def multidex_version = "2.0.1"
     implementation "androidx.multidex:multidex:$multidex_version"
-    implementation files('libs/open_sdk_r8353806_lite.jar')
 }

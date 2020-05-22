@@ -13,27 +13,68 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 
 import xyz.cyanclay.buptallinone.R;
+import xyz.cyanclay.buptallinone.network.JwxtManager;
 import xyz.cyanclay.buptallinone.network.SiteManager;
+import xyz.cyanclay.buptallinone.network.VPNManager;
+import xyz.cyanclay.buptallinone.network.info.InfoManager;
+import xyz.cyanclay.buptallinone.network.jwgl.JwglManager;
+import xyz.cyanclay.buptallinone.network.login.LoginException;
 import xyz.cyanclay.buptallinone.network.login.LoginStatus;
 
 class VerifyTask {
 
-    static void verify(final UserDetailsFragment udf, String user, final View root, final TextView verify, final EditText input, final ProgressBar progress,
-                       final SiteManager site) {
+    static void verify(final UserDetailsFragment udf,
+                       final SiteManager site){
+        verify(udf, site, null);
+    }
+
+    static void verify(final UserDetailsFragment udf,
+                       final SiteManager site, final String captcha) {
+        final TextView verify;
+        final EditText input;
+        final ProgressBar progress;
+        if (site instanceof VPNManager){
+            verify = udf.root.findViewById(R.id.textViewVPNVerify);
+            input = udf.root.findViewById(R.id.inpVPNPass);
+            progress = udf.root.findViewById(R.id.progressBarVPN);
+        } else if (site instanceof InfoManager){
+            verify = udf.root.findViewById(R.id.textViewInfoVerify);
+            input = udf.root.findViewById(R.id.inpInfoPass);
+            progress = udf.root.findViewById(R.id.progressBarInfoPass);
+        } else if (site instanceof JwglManager){
+            verify = udf.root.findViewById(R.id.textViewJwglVerify);
+            input = udf.root.findViewById(R.id.inpJwglPass);
+            progress = udf.root.findViewById(R.id.progressBarJwglPass);
+        } else if (site instanceof JwxtManager){
+            verify = udf.root.findViewById(R.id.textViewJwxtVerify);
+            input = udf.root.findViewById(R.id.inpJwxtPass);
+            progress = udf.root.findViewById(R.id.progressBarJwxtPass);
+        } else {
+            verify = udf.root.findViewById(R.id.textViewVPNVerify);
+            input = udf.root.findViewById(R.id.inpVPNPass);
+            progress = udf.root.findViewById(R.id.progressBarVPN);
+        }
 
         verify.setVisibility(View.VISIBLE);
         progress.setVisibility(View.VISIBLE);
-        site.setDetails(user, input.getText().toString());
+        site.setDetails(udf.id, input.getText().toString());
 
         new AsyncTask<Void, Void, LoginStatus>() {
+            LoginException exception;
             @Override
             protected LoginStatus doInBackground(Void... voids) {
                 try {
+                    if (captcha != null) return site.login(captcha);
                     return site.login();
                 } catch (IOException e) {
                     e.printStackTrace();
                     if (e instanceof SocketTimeoutException) return LoginStatus.TIMED_OUT;
-                    return LoginStatus.UNKNOWN_ERROR;
+                    LoginStatus error = LoginStatus.UNKNOWN_ERROR;
+                    error.errorMsg = e.toString();
+                    return error;
+                } catch (LoginException e){
+                    exception = e;
+                    return e.status;
                 }
             }
 
@@ -47,21 +88,32 @@ class VerifyTask {
                     }
                     case INCORRECT_DETAIL: {
                         verifyFailed(verify, input);
-                        Snackbar.make(root, R.string.incorrect_password, Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(udf.root, R.string.incorrect_password, Snackbar.LENGTH_LONG).show();
                         break;
                     }
                     case TIMED_OUT: {
                         verifyFailed(verify, input);
-                        Snackbar.make(root, R.string.timed_out, Snackbar.LENGTH_LONG);
+                        Snackbar.make(udf.root, R.string.timed_out, Snackbar.LENGTH_LONG).show();
+                        break;
+                    }
+                    case CAPTCHA_REQUIRED:{
+                        if (exception != null)
+                            udf.popupCaptcha(loginStatus.captchaImage
+                                    , exception.site);
+                        else udf.popupCaptcha(loginStatus.captchaImage, loginStatus.site);
+                        break;
+                    }
+                    case INCORRECT_CAPTCHA:{
+                        Snackbar.make(udf.root, R.string.incorrect_captcha, Snackbar.LENGTH_LONG).show();
                         break;
                     }
                     case UNKNOWN_ERROR: {
                         verifyFailed(verify, input);
-                        Snackbar.make(root, "发生错误： " + loginStatus.errorMsg, Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(udf.root, "发生错误： " + loginStatus.errorMsg, Snackbar.LENGTH_LONG).show();
                     }
                     default: {
                         verifyFailed(verify, input);
-                        Snackbar.make(root, R.string.unknown_error, Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(udf.root, R.string.unknown_error, Snackbar.LENGTH_LONG).show();
                     }
                 }
                 udf.deterVisibility();
@@ -69,7 +121,7 @@ class VerifyTask {
         }.execute();
     }
 
-    private static synchronized void verifyFailed(TextView verify, EditText inp) {
+    static synchronized void verifyFailed(TextView verify, EditText inp) {
         verify.setText("× 验证失败");
         verify.setTextColor(Color.parseColor("#E03030"));
         verify.setVisibility(View.VISIBLE);
@@ -77,7 +129,7 @@ class VerifyTask {
         inp.requestFocus();
     }
 
-    private static synchronized void verifySuccess(TextView verify) {
+    static synchronized void verifySuccess(TextView verify) {
         verify.setText("√ 验证成功");
         verify.setTextColor(Color.parseColor("#00C020"));
         verify.setVisibility(View.VISIBLE);

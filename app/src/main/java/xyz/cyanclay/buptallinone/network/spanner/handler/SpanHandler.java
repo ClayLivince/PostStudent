@@ -5,6 +5,7 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 
 import java.util.Map;
 
@@ -29,20 +30,24 @@ public class SpanHandler extends StyledHandler {
         if (color != null) {
             ForegroundColorSpan colorSpan;
             int mColor;
-            if (color.contains("rgb")) {
-                color = color.replace("rgb(", "");
-                color = color.replace(")", "");
-                String[] colorInts = color.split(",");
-                mColor = Color.rgb(Integer.parseInt(colorInts[0].trim()),
-                        Integer.parseInt(colorInts[1].trim()),
-                        Integer.parseInt(colorInts[2].trim()));
-            } else mColor = Color.parseColor(color.trim());
             try {
-                colorSpan = new ForegroundColorSpan(mColor);
-                builder.setSpan(colorSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            } catch (IllegalArgumentException e) {
-                e.printStackTrace();
+                if (color.contains("rgb")) {
+                    color = color.replace("rgb(", "");
+                    color = color.replace(")", "");
+                    String[] colorInts = color.split(",");
+                    mColor = Color.rgb(Integer.parseInt(colorInts[0].trim()),
+                            Integer.parseInt(colorInts[1].trim()),
+                            Integer.parseInt(colorInts[2].trim()));
+                } else mColor = Color.parseColor(color.trim());
+            } catch (IllegalArgumentException | ArrayIndexOutOfBoundsException e){
+                mColor = Color.BLACK;
+                Log.e("Color", "Unexpected color ::" + color);
+
             }
+
+            colorSpan = new ForegroundColorSpan(mColor);
+            builder.setSpan(colorSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
         }
     }
 }

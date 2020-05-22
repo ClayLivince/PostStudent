@@ -21,6 +21,7 @@ import java.util.Map;
 
 import xyz.cyanclay.buptallinone.network.NetworkManager;
 import xyz.cyanclay.buptallinone.network.SiteManager;
+import xyz.cyanclay.buptallinone.network.login.LoginException;
 import xyz.cyanclay.buptallinone.network.login.LoginStatus;
 
 public class JwglManager extends SiteManager {
@@ -35,12 +36,12 @@ public class JwglManager extends SiteManager {
         data = new JwglData(this);
     }
 
-    public int getWeek() throws IOException {
+    public int getWeek() throws IOException, LoginException {
         if (data.currentWeek == 0) getTime();
         return data.currentWeek;
     }
 
-    private void getTime() throws IOException {
+    private void getTime() throws IOException, LoginException {
         if (checkLogin()) {
             Calendar calendar = Calendar.getInstance();
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA);
@@ -69,7 +70,7 @@ public class JwglManager extends SiteManager {
         }
     }
 
-    public List<Course> getClassToday(boolean forceRefresh) throws IOException {
+    public List<Course> getClassToday(boolean forceRefresh) throws IOException, LoginException {
         List<Course> today = new LinkedList<>();
         if (data.courseWeek.isEmpty()) {
             getClassWeek(-1, forceRefresh);
@@ -83,7 +84,7 @@ public class JwglManager extends SiteManager {
         return today;
     }
 
-    public List<Course> getClassWeek(final int week, boolean forceRefresh) throws IOException {
+    public List<Course> getClassWeek(final int week, boolean forceRefresh) throws IOException, LoginException {
         List<Course> list = new LinkedList<>();
         if (week == -1) {
             if (data.currentWeek == 0) getTime();
@@ -99,7 +100,7 @@ public class JwglManager extends SiteManager {
         return list;
     }
 
-    private List<Course> fetchCourse(final int week) throws IOException {
+    private List<Course> fetchCourse(final int week) throws IOException, LoginException {
         List<Course> list = new LinkedList<>();
         if (checkLogin()) {
 
@@ -129,7 +130,7 @@ public class JwglManager extends SiteManager {
         return list;
     }
 
-    public LoginStatus doLogin() throws IOException {
+    public LoginStatus doLogin() throws IOException, LoginException {
 
         Map<String, String> details = new HashMap<String, String>() {{
             put("method", "authUser");
@@ -144,6 +145,7 @@ public class JwglManager extends SiteManager {
             boolean success = response.getBoolean("success");
             if (success) {
                 token = response.getString("token");
+                setLoggedIn(true);
                 return LoginStatus.LOGIN_SUCCESS;
             } else {
                 String msg = response.getString("msg");
@@ -159,6 +161,11 @@ public class JwglManager extends SiteManager {
         }
 
         return LoginStatus.UNKNOWN_ERROR;
+    }
+
+    @Override
+    protected LoginStatus doCaptchaLogin(String captcha) throws IOException {
+        return null;
     }
 
     /*

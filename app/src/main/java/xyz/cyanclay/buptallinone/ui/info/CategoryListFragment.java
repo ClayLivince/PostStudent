@@ -24,6 +24,7 @@ import xyz.cyanclay.buptallinone.R;
 import xyz.cyanclay.buptallinone.network.NetworkManager;
 import xyz.cyanclay.buptallinone.network.info.InfoCategory;
 import xyz.cyanclay.buptallinone.network.info.InfoManager.InfoItems;
+import xyz.cyanclay.buptallinone.network.login.LoginException;
 
 public class CategoryListFragment extends Fragment {
 
@@ -134,6 +135,8 @@ public class CategoryListFragment extends Fragment {
                     cancel(true);
                     message[0] = e.getMessage();
                     message[1] = e.toString();
+                } catch (LoginException e){
+
                 }
                 return null;
             }
@@ -172,6 +175,8 @@ public class CategoryListFragment extends Fragment {
                     }
                 } catch (IOException e) {
                     solveException(e);
+                } catch (LoginException e){
+
                 }
                 return null;
             }

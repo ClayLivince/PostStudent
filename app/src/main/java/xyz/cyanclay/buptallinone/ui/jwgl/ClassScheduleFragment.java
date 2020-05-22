@@ -33,6 +33,8 @@ import xyz.cyanclay.buptallinone.MainActivity;
 import xyz.cyanclay.buptallinone.R;
 import xyz.cyanclay.buptallinone.network.NetworkManager;
 import xyz.cyanclay.buptallinone.network.jwgl.Course;
+import xyz.cyanclay.buptallinone.network.login.LoginException;
+import xyz.cyanclay.buptallinone.network.login.LoginTask;
 
 public class ClassScheduleFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
@@ -324,7 +326,7 @@ public class ClassScheduleFragment extends Fragment implements SwipeRefreshLayou
     private static void taskFetchCourses(final ClassScheduleFragment csf, final int week, final boolean forceRefresh) {
         final int[] currentWeek = new int[1];
         new AsyncTask<Void, Void, List<Course>>() {
-
+            LoginException exception = null;
             @Override
             protected List<Course> doInBackground(Void... voids) {
                 try {
@@ -333,8 +335,11 @@ public class ClassScheduleFragment extends Fragment implements SwipeRefreshLayou
                 } catch (IOException e) {
                     e.printStackTrace();
                     cancel(true);
-                    return null;
+                } catch (LoginException e){
+                    exception = e;
+                    cancel(true);
                 }
+                return null;
             }
 
             @Override
@@ -358,7 +363,9 @@ public class ClassScheduleFragment extends Fragment implements SwipeRefreshLayou
                 if (csf.srl.isRefreshing()) {
                     csf.srl.setRefreshing(false);
                 }
-                Snackbar.make(csf.root, R.string.load_failed, Snackbar.LENGTH_SHORT).show();
+                if (exception != null)
+                    Snackbar.make(csf.root, R.string.load_failed, Snackbar.LENGTH_SHORT).show();
+                else LoginTask.handleStatus(csf.getActivity(), csf.root, exception.status);
             }
         }.execute();
     }
