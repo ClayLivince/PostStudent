@@ -2,7 +2,6 @@ package xyz.cyanclay.buptallinone.network;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -19,7 +18,7 @@ import java.util.Map;
 import xyz.cyanclay.buptallinone.network.login.LoginException;
 import xyz.cyanclay.buptallinone.network.login.LoginStatus;
 
-public class AuthManager extends SiteManager{
+public class AuthManager extends SiteManager {
 
     private static final String loginURL = "https://auth.bupt.edu.cn/authserver/login";
     private Map<String, String> cachedDetails;
@@ -37,11 +36,14 @@ public class AuthManager extends SiteManager{
         Connection.Response authInit = nm.get(url);
         String authInitURL = authInit.url().toString();
         cookies = authInit.cookies();
-        final Document auth = authInit.parse();
-        if (!(authInitURL.contains("auth.bupt.edu.cn") | authInitURL.contains("77726476706e69737468656265737421f1e2559469327d406a468ca88d1b203b"))){
+
+        if (!(authInitURL.contains("auth.bupt.edu.cn") |
+                authInitURL.contains("77726476706e69737468656265737421f1e2559469327d406a468ca88d1b203b"))) {
             setLoggedIn(true);
             return LoginStatus.LOGIN_SUCCESS;
         }
+
+        final Document auth = authInit.parse();
         LoginStatus challenge = judgeCaptcha(auth, captcha);
         if (challenge != null) return challenge;
         else return loginWithMap(cachedDetails, service);
@@ -59,9 +61,9 @@ public class AuthManager extends SiteManager{
         if (sCaptcha != null) details.put("captchaResponse", sCaptcha);
         this.cachedDetails = details;
         Element captchaDiv = target.getElementById("casCaptcha");
-        if (!captchaDiv.children().isEmpty()){
+        if (!captchaDiv.children().isEmpty()) {
             Element eCaptchaImg = captchaDiv.getElementById("captchaImg");
-            if (eCaptchaImg != null){
+            if (eCaptchaImg != null) {
                 Connection.Response captchaRes = nm.get(Jsoup.connect(eCaptchaImg.absUrl("src"))
                         .ignoreContentType(true), cookies);
                 Drawable captchaImg = Drawable.createFromStream(captchaRes.bodyStream(), "AuthCaptcha");
@@ -75,7 +77,7 @@ public class AuthManager extends SiteManager{
     }
 
     public LoginStatus loginWithCaptcha(String service, String captcha) throws IOException, LoginException {
-        if (cachedDetails != null){
+        if (cachedDetails != null) {
             cachedDetails.put("captchaResponse", captcha);
             return loginWithMap(cachedDetails, service);
         } else {
@@ -90,7 +92,7 @@ public class AuthManager extends SiteManager{
                 .data(details));
 
         String authLoginUrl = authLogin.url().toString();
-        cookies = authLogin.cookies();
+        cookies.putAll(authLogin.cookies());
         final Document login = Jsoup.parse(authLogin.body());
         if (login.getElementsByClass("errors").first() != null) {
             String status = login.getElementsByClass("errors").first().ownText();
@@ -124,37 +126,39 @@ public class AuthManager extends SiteManager{
         return LoginStatus.UNKNOWN_ERROR;
     }
 
-    private String getEncodedURL(String service){
+    private String getEncodedURL(String service) {
         try {
             return URLEncoder.encode(service, "UTF-8");
-        } catch (UnsupportedEncodingException e){
+        } catch (UnsupportedEncodingException e) {
             return service;
         }
     }
 
     @Override
-    public void setLoggedIn(boolean in){
+    public void setLoggedIn(boolean in) {
         super.setLoggedIn(in);
         nm.infoManager.setLoggedIn(in);
     }
 
     /**
      * Don't Use This Method! Empty Shell!
+     *
      * @return Definitely null
      */
     @Override
     @Deprecated
-    protected LoginStatus doLogin(){
+    protected LoginStatus doLogin() {
         return null;
     }
 
     /**
      * Don't Use This Method! Empty Shell!
+     *
      * @return Definitely null
      */
     @Override
     @Deprecated
-    protected LoginStatus doCaptchaLogin(String captcha){
+    protected LoginStatus doCaptchaLogin(String captcha) {
         return null;
     }
 }

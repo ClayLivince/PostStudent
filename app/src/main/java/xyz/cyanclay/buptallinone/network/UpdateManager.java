@@ -1,10 +1,6 @@
 package xyz.cyanclay.buptallinone.network;
 
 import android.app.DownloadManager;
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationChannelGroup;
-import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -14,8 +10,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
-
-import androidx.core.app.NotificationCompat;
+import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,6 +18,7 @@ import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import xyz.cyanclay.buptallinone.R;
 
@@ -30,8 +26,10 @@ public class UpdateManager {
 
     private NetworkManager nm;
     private DownloadManager downloadManager;
+    private String versionCode;
     private JSONObject json;
     private long id = 0;
+    private HashMap<String, Long> ids = new HashMap<>();
 
     private static final String versionURL = "https://www.cyanclay.xyz/bupt/version.json";
     private static final String apkURL = "https://www.cyanclay.xyz/bupt/latest.apk";
@@ -39,6 +37,40 @@ public class UpdateManager {
     UpdateManager(NetworkManager nm) {
         this.nm = nm;
         downloadManager = (DownloadManager) nm.context.getSystemService(Context.DOWNLOAD_SERVICE);
+    }
+
+    public void download(String url, String name) {
+        Uri uri = Uri.parse(url);
+
+        nm.context.registerReceiver(onComplete,
+                new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+
+        DownloadManager.Request request = new DownloadManager.Request(uri);
+        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE);
+        request.setAllowedOverRoaming(false);
+        request.setDestinationInExternalFilesDir(nm.context, "/attachments/", name);
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        request.setTitle("Downloading " + name);
+        request.setDescription("Downloading " + name);
+        request.allowScanningByMediaScanner();
+        request.setVisibleInDownloadsUi(true);
+        StringBuilder sb = new StringBuilder();
+        SiteManager site = nm.infoManager;
+        for (String key : site.cookies.keySet()) {
+            sb.append(key)
+                    .append("=")
+                    .append(site.cookies.get(key))
+                    .append("; ");
+        }
+        site = nm.vpnManager;
+        for (String key : site.cookies.keySet()) {
+            sb.append(key)
+                    .append("=")
+                    .append(site.cookies.get(key))
+                    .append("; ");
+        }
+        request.addRequestHeader("Cookie", sb.toString());
+        long id = downloadManager.enqueue(request);
     }
 
     public void update() {
@@ -51,10 +83,10 @@ public class UpdateManager {
         DownloadManager.Request request = new DownloadManager.Request(uri);
         request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE);
         request.setAllowedOverRoaming(false);
-        request.setDestinationInExternalFilesDir(nm.context, "/update/", "app-latest.apk");
+        request.setDestinationInExternalFilesDir(nm.context, "/update/", "bupt-app-" + versionCode + ".apk");
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-        request.setTitle("Download");
-        request.setDescription("Downloading Latest BUPT-APP");
+        request.setTitle("Downloading BUPT-APP " + versionCode);
+        request.setDescription("Downloading BUPT-APP " + versionCode);
         request.setMimeType("application/vnd.android.package-archive");
         request.allowScanningByMediaScanner();
         request.setVisibleInDownloadsUi(true);
@@ -82,15 +114,7 @@ public class UpdateManager {
     private BroadcastReceiver onComplete = new BroadcastReceiver() {
 
         public void onReceive(Context context, Intent intent) {
-
-            NotificationCompat.Builder mBuilder =
-                    new NotificationCompat.Builder(nm.context)
-                            .setSmallIcon(R.drawable.xiaohui)
-                            .setContentTitle(context.getString(R.string.app_name))
-                            .setContentText("Download completed !");
-            NotificationManager notificationManager = (NotificationManager) nm.context.getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.notify(455, mBuilder.build());
-
+            Toast.makeText(context, R.string.downloaded, Toast.LENGTH_SHORT).show();
         }
     };
 
@@ -99,8 +123,8 @@ public class UpdateManager {
         Connection.Response res = nm.getNoVPN(Jsoup.connect(versionURL)
                 .ignoreContentType(true));
         json = new JSONObject(res.body());
-        String version = json.getString("version");
-        return compare(version);
+        versionCode = json.getString("version");
+        return compare(versionCode);
     }
 
     /**
@@ -117,7 +141,7 @@ public class UpdateManager {
             info[0] = json.getString("version");
             info[1] = json.getString("title");
             info[2] = json.getString("content");
-        } catch (ArrayIndexOutOfBoundsException e){
+        } catch (ArrayIndexOutOfBoundsException e) {
             e.printStackTrace();
             Log.e("Corrupted update Json", json.toString());
         }

@@ -3,7 +3,6 @@ package xyz.cyanclay.buptallinone.network;
 import android.content.Context;
 import android.util.Log;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,18 +28,14 @@ public abstract class SiteManager {
         this.pass = pass;
     }
 
-    public LoginStatus login() throws IOException, LoginException {
+    public synchronized LoginStatus login() throws Exception {
         Log.i("BUPTAllInOne", this.toString() + "is trying to login with " + user + pass);
-        if (user == null) return LoginStatus.EMPTY_USERNAME;
-        if (pass == null) return LoginStatus.EMPTY_PASSWORD;
-        return doLogin();
+        return checkLoginStatus(null);
     }
 
-    public LoginStatus login(String captcha) throws IOException, LoginException {
+    public synchronized LoginStatus login(String captcha) throws Exception {
         Log.i("BUPTAllInOne", this.toString() + "is trying to login with " + user + pass + captcha);
-        if (user == null) return LoginStatus.EMPTY_USERNAME;
-        if (pass == null) return LoginStatus.EMPTY_PASSWORD;
-        return doCaptchaLogin(captcha);
+        return checkLoginStatus(captcha);
     }
 
     public boolean isLoggedIn() {
@@ -51,12 +46,24 @@ public abstract class SiteManager {
         isLoggedIn = loggedIn;
     }
 
-    protected abstract LoginStatus doLogin() throws IOException, LoginException;
+    protected abstract LoginStatus doLogin() throws Exception;
 
-    protected abstract LoginStatus doCaptchaLogin(final String captcha) throws IOException, LoginException;
+    protected abstract LoginStatus doCaptchaLogin(final String captcha) throws Exception;
 
-    protected boolean checkLogin() throws IOException, LoginException {
-        if (isLoggedIn & cookies != null) {
+    protected synchronized LoginStatus checkLoginStatus(String captcha) throws Exception {
+        if (user == null) return LoginStatus.EMPTY_USERNAME;
+        if (pass == null) return LoginStatus.EMPTY_PASSWORD;
+        if (isLoggedIn & !cookies.isEmpty()) {
+            return LoginStatus.LOGIN_SUCCESS;
+        } else {
+            if (captcha == null)
+                return doLogin();
+            else return doCaptchaLogin(captcha);
+        }
+    }
+
+    protected synchronized boolean checkLogin() throws Exception {
+        if (isLoggedIn & !cookies.isEmpty()) {
             return true;
         } else {
             LoginStatus login = login();

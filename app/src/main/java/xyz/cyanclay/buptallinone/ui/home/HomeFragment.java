@@ -2,7 +2,6 @@ package xyz.cyanclay.buptallinone.ui.home;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,7 +17,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.navigation.NavigationView;
 
-import xyz.cyanclay.buptallinone.CheckScoreActivity;
 import xyz.cyanclay.buptallinone.MainActivity;
 import xyz.cyanclay.buptallinone.R;
 import xyz.cyanclay.buptallinone.constant.ImageList;
@@ -92,8 +90,12 @@ public class HomeFragment extends Fragment {
     private View.OnClickListener listener_score = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            Intent intent = new Intent(getContext(), CheckScoreActivity.class);
-            startActivity(intent);
+            if (activity.getNetworkManager().jwglManager.user != null) {
+                Navigation.findNavController(activity, R.id.nav_host_fragment)
+                        .navigate(R.id.action_nav_home_to_nav_check_score);
+            } else {
+                showLoginPopup();
+            }
         }
     };
 

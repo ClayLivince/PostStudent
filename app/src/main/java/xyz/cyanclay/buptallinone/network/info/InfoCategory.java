@@ -1,25 +1,46 @@
 package xyz.cyanclay.buptallinone.network.info;
 
-import java.util.HashMap;
-import java.util.Map;
+import android.content.Context;
 
-public enum InfoCategory {
+import com.google.gson.Gson;
 
-    SCHOOL_NOTICE,
-    SCHOOL_NEWS,
-    PARTY_OVERTNESS,
-    SCHOOL_OVERTNESS,
-    INNER_CONTROL_OVERTNESS,
-    NOTICE_OVERTNESS;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 
-    static final Map<InfoCategory, String> pens = new HashMap<InfoCategory, String>() {{
-        put(SCHOOL_NOTICE, ".pen=pe1144");
-        put(SCHOOL_NEWS, ".pen=pe1142");
-        put(PARTY_OVERTNESS, ".pen=pe1942");
-        put(SCHOOL_OVERTNESS, ".pen=pe1941");
-        put(INNER_CONTROL_OVERTNESS, ".pen=pe1962");
-        put(NOTICE_OVERTNESS, ".pen=pe1921");
-    }};
+import xyz.cyanclay.buptallinone.R;
 
+public class InfoCategory {
 
+    public String name;
+    public String id;
+    public ArrayList<InfoCategory> subCategory;
+
+    private InfoCategory() {
+    }
+
+    private static InfoCategory category = new InfoCategory();
+
+    public static InfoCategory getRootCategory() {
+        return category;
+    }
+
+    public static void init(Context context) {
+        InputStream in = context.getResources().openRawResource(R.raw.info_announcer);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+
+        Gson gson = new Gson();
+        category = gson.fromJson(reader, InfoCategory.class);
+    }
+
+    public ArrayList<String> getSubNames() {
+        ArrayList<String> list = new ArrayList<>();
+        if (subCategory != null) {
+            for (InfoCategory subCate : subCategory) {
+                list.add(subCate.name);
+            }
+        }
+        return list;
+    }
 }

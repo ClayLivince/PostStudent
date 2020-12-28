@@ -1,6 +1,5 @@
 package xyz.cyanclay.buptallinone.ui.info;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
@@ -10,7 +9,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,33 +24,28 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import xyz.cyanclay.buptallinone.MainActivity;
 import xyz.cyanclay.buptallinone.R;
-import xyz.cyanclay.buptallinone.network.NetworkManager;
 import xyz.cyanclay.buptallinone.network.info.InfoCategory;
 import xyz.cyanclay.buptallinone.network.info.InfoManager.InfoItem;
 import xyz.cyanclay.buptallinone.network.login.LoginException;
-import xyz.cyanclay.buptallinone.network.login.LoginStatus;
 import xyz.cyanclay.buptallinone.network.login.LoginTask;
+import xyz.cyanclay.buptallinone.ui.components.TryAsyncTask;
+import xyz.cyanclay.buptallinone.util.Utils;
 
 public class ItemDetailFragment extends Fragment {
 
     private InfoItem item;
     private View root;
 
-    static ItemDetailFragment newInstance() {
-        return new ItemDetailFragment();
-    }
-
-    private ItemDetailViewModel mViewModel;
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        root = inflater.inflate(R.layout.fragment_item_detail, container, false);
+        root = inflater.inflate(R.layout.fragment_info_detail, container, false);
 
-        mViewModel = ViewModelProviders.of(getActivity()).get(ItemDetailViewModel.class);
+        ItemDetailViewModel mViewModel = ViewModelProviders.of(requireActivity()).get(ItemDetailViewModel.class);
         mViewModel.getItem().observe(getViewLifecycleOwner(), new Observer<InfoItem>() {
             @Override
             public void onChanged(InfoItem infoItem) {
@@ -57,8 +53,6 @@ public class ItemDetailFragment extends Fragment {
                 parseItem(ItemDetailFragment.this, item, false);
             }
         });
-        final MainActivity activity = (MainActivity) getActivity();
-        final NetworkManager nm = activity.getNetworkManager();
 
         SwipeRefreshLayout srl = root.findViewById(R.id.srlItemDetail);
         srl.setColorSchemeResources(R.color.colorPrimary, R.color.colorPrimaryDark);
@@ -93,10 +87,44 @@ public class ItemDetailFragment extends Fragment {
 
     private void shareItem() {
         if (item.category == InfoCategory.SCHOOL_NOTICE | item.category == InfoCategory.SCHOOL_NEWS) {
-            MainActivity activity = (MainActivity) getActivity();
+            MainActivity activity = (MainActivity) requireActivity();
             activity.getNetworkManager().shareManager.share(item, activity);
         } else {
             Snackbar.make(root, "仅能分享校内通知和校内新闻哦~", Snackbar.LENGTH_LONG).show();
+        }
+    }
+
+    private void layoutItem() {
+
+        ((TextView) root.findViewById(R.id.textViewItemTitle)).setText(item.titleFull);
+        ((TextView) root.findViewById(R.id.textViewItemAnnouncer)).setText(item.announcer);
+        ((TextView) root.findViewById(R.id.textViewItemTime)).setText(item.time);
+        ((TextView) root.findViewById(R.id.textViewItemContent)).setText(item.contentSpanned);
+
+
+        ((SwipeRefreshLayout) root.findViewById(R.id.srlItemDetail)).setRefreshing(false);
+
+        root.findViewById(R.id.layoutItem).setVisibility(View.VISIBLE);
+
+        if (!item.attachments.isEmpty()) {
+            LinearLayout container = root.findViewById(R.id.layoutAtachment);
+            for (final String name : item.attachments.keySet()) {
+                TextView textView = new TextView(requireContext());
+                textView.setText(String.format(" ◈ %s", name));
+                textView.setClickable(true);
+                textView.setPadding(0, 15, 0, 15);
+                textView.setTextSize(12);
+                final String url = item.attachments.get(name);
+                textView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Toast.makeText(requireContext(), String.format((String) getText(R.string.start_download_attachment), name), Toast.LENGTH_SHORT).show();
+                        Objects.requireNonNull(Utils.getNetworkManager((MainActivity) getActivity()))
+                                .updateManager.download(url, name);
+                    }
+                });
+                container.addView(textView);
+            }
         }
     }
 
@@ -104,8 +132,9 @@ public class ItemDetailFragment extends Fragment {
         DisplayMetrics metrics;
         metrics = idf.root.getContext().getApplicationContext().getResources().getDisplayMetrics();
         final int mWidth = metrics.widthPixels - 20;
-        new AsyncTask<Void, Void, InfoItem>() {
+        new TryAsyncTask<Void, Void, InfoItem>() {
             LoginException exception = null;
+
             @Override
             protected InfoItem doInBackground(Void... voids) {
                 try {
@@ -113,7 +142,7 @@ public class ItemDetailFragment extends Fragment {
                 } catch (IOException e) {
                     e.printStackTrace();
                     cancel(true);
-                } catch (LoginException e){
+                } catch (LoginException e) {
                     exception = e;
                     cancel(true);
                 }
@@ -121,24 +150,15 @@ public class ItemDetailFragment extends Fragment {
             }
 
             @Override
-            protected void onPostExecute(InfoItem item) {
-
-                ((TextView) idf.root.findViewById(R.id.textViewItemTitle)).setText(item.titleFull);
-                ((TextView) idf.root.findViewById(R.id.textViewItemAnnouncer)).setText(item.announcer);
-                ((TextView) idf.root.findViewById(R.id.textViewItemTime)).setText(item.time);
-                ((TextView) idf.root.findViewById(R.id.textViewItemContent)).setText(item.contentSpanned);
-
+            protected void postExecute(InfoItem item) {
+                idf.layoutItem();
                 if (isRefresh) {
                     Snackbar.make(idf.root, R.string.refreshed, Snackbar.LENGTH_SHORT).show();
                 }
-                ((SwipeRefreshLayout) idf.root.findViewById(R.id.srlItemDetail)).setRefreshing(false);
-
-                idf.root.findViewById(R.id.layoutItem).setVisibility(View.VISIBLE);
-                super.onPostExecute(item);
             }
 
             @Override
-            protected void onCancelled() {
+            protected void cancelled() throws Exception {
                 super.onCancelled();
                 ((SwipeRefreshLayout) idf.root.findViewById(R.id.srlItemDetail)).setRefreshing(false);
                 if (exception == null)
@@ -162,15 +182,16 @@ public class ItemDetailFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        getView().setFocusableInTouchMode(true);
-        getView().requestFocus();
-        getView().setOnKeyListener(new View.OnKeyListener() {
+        View view = requireView();
+        view.setFocusableInTouchMode(true);
+        view.requestFocus();
+        view.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 try {
                     if (keyCode == KeyEvent.KEYCODE_BACK
                             && event.getAction() == KeyEvent.ACTION_UP) {
-                        Navigation.findNavController(getActivity().findViewById(R.id.nav_host_fragment))
+                        Navigation.findNavController(requireActivity().findViewById(R.id.nav_host_fragment))
                                 .popBackStack();
                         return true;
                     }

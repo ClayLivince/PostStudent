@@ -5,7 +5,9 @@
     android:layout_height="wrap_content"
     android:background="#FFFFFF"
     android:gravity="center"
-    android:padding="8sp">
+    android:padding="8sp"
+    android:clickable="true"
+    android:focusable="true">
 
     <TextView
         android:id="@+id/textViewItemSetting"

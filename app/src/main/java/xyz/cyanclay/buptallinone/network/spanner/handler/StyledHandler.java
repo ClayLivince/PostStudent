@@ -1,7 +1,6 @@
 package xyz.cyanclay.buptallinone.network.spanner.handler;
 
 import android.text.SpannableStringBuilder;
-import android.util.Log;
 
 import net.nightwhistler.htmlspanner.TagNodeHandler;
 

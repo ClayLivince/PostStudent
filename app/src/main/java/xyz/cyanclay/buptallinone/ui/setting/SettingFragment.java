@@ -2,7 +2,6 @@ package xyz.cyanclay.buptallinone.ui.setting;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +22,7 @@ import java.io.IOException;
 import xyz.cyanclay.buptallinone.MainActivity;
 import xyz.cyanclay.buptallinone.R;
 import xyz.cyanclay.buptallinone.network.UpdateManager;
+import xyz.cyanclay.buptallinone.ui.components.TryAsyncTask;
 
 public class SettingFragment extends Fragment {
 
@@ -60,7 +60,7 @@ public class SettingFragment extends Fragment {
 
     private static void taskCheckUpdate(final SettingFragment fragment) {
         final String[] msg = new String[1];
-        new AsyncTask<Void, Void, Boolean>() {
+        new TryAsyncTask<Void, Void, Boolean>() {
             @Override
             protected Boolean doInBackground(Void... voids) {
                 try {
@@ -78,7 +78,7 @@ public class SettingFragment extends Fragment {
             }
 
             @Override
-            protected void onPostExecute(Boolean result) {
+            protected void postExecute(Boolean result) {
                 if (result) {
                     taskUpdateConfirm(fragment);
                 } else {
@@ -87,8 +87,7 @@ public class SettingFragment extends Fragment {
             }
 
             @Override
-            protected void onCancelled() {
-                super.onCancelled();
+            protected void cancelled() throws Exception {
                 Snackbar.make(fragment.root, msg[0], Snackbar.LENGTH_LONG).show();
             }
         }.execute();
@@ -96,7 +95,7 @@ public class SettingFragment extends Fragment {
 
     private static void taskUpdateConfirm(final SettingFragment fragment) {
         final String[] msg = new String[1];
-        new AsyncTask<Void, Void, String[]>() {
+        new TryAsyncTask<Void, Void, String[]>() {
             @Override
             protected String[] doInBackground(Void... voids) {
                 try {
@@ -116,7 +115,7 @@ public class SettingFragment extends Fragment {
             }
 
             @Override
-            protected void onPostExecute(String[] infos) {
+            protected void postExecute(String[] infos) {
                 AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(fragment.getContext());
                 dialogBuilder.setTitle(infos[1]);
                 dialogBuilder.setMessage("Version :" + infos[0] + "\n" + infos[2]);
@@ -138,8 +137,7 @@ public class SettingFragment extends Fragment {
             }
 
             @Override
-            protected void onCancelled() {
-                super.onCancelled();
+            protected void cancelled() {
                 Snackbar.make(fragment.root, msg[0], Snackbar.LENGTH_LONG).show();
             }
         }.execute();

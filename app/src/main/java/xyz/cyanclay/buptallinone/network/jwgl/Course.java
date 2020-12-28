@@ -5,6 +5,11 @@ import com.google.gson.annotations.SerializedName;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Objects;
+
+import static xyz.cyanclay.buptallinone.network.jwgl.CourseTime.getEndTime;
+import static xyz.cyanclay.buptallinone.network.jwgl.CourseTime.getStartTime;
+
 public class Course implements Comparable<Course> {
 
     public int day = -1;
@@ -45,6 +50,16 @@ public class Course implements Comparable<Course> {
             startSection = Byte.parseByte(courseTime.substring(1, 3));
             endSection = Byte.parseByte(courseTime.substring(3, 5));
         }
+    }
+
+    public void setStartSection(int startSection) {
+        this.startSection = startSection;
+        this.startTime = getStartTime(startSection);
+    }
+
+    public void setEndSection(int endSection) {
+        this.endSection = endSection;
+        this.endTime = getEndTime(endSection);
     }
 
     private void parseClass(JSONObject object) {
@@ -91,5 +106,25 @@ public class Course implements Comparable<Course> {
             }
         }
         return 0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Course course = (Course) o;
+        return day == course.day &&
+                startSection == course.startSection &&
+                endSection == course.endSection &&
+                weekType == course.weekType &&
+                weekHas.equals(course.weekHas) &&
+                courseName.equals(course.courseName) &&
+                classRoom.equals(course.classRoom) &&
+                teacherName.equals(course.teacherName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(day, startSection, endSection, weekType, weekHas, courseName, classRoom, teacherName);
     }
 }

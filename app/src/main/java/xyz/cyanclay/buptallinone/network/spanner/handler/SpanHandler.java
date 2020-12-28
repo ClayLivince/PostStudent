@@ -18,9 +18,13 @@ public class SpanHandler extends StyledHandler {
         String color = styles.get("color");
 
         if (fontSize != null) {
-            AbsoluteSizeSpan sizeSpan = new AbsoluteSizeSpan(Integer.parseInt(
-                    fontSize.substring(0, fontSize.length() - 2).trim()), true);
-            builder.setSpan(sizeSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            try {
+                AbsoluteSizeSpan sizeSpan = new AbsoluteSizeSpan((int) Float.parseFloat(
+                        fontSize.substring(0, fontSize.length() - 2).trim()), true);
+                builder.setSpan(sizeSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
         }
 
         if (fontFamily != null) {
@@ -39,7 +43,7 @@ public class SpanHandler extends StyledHandler {
                             Integer.parseInt(colorInts[1].trim()),
                             Integer.parseInt(colorInts[2].trim()));
                 } else mColor = Color.parseColor(color.trim());
-            } catch (IllegalArgumentException | ArrayIndexOutOfBoundsException e){
+            } catch (IllegalArgumentException | ArrayIndexOutOfBoundsException e) {
                 mColor = Color.BLACK;
                 Log.e("Color", "Unexpected color ::" + color);
 

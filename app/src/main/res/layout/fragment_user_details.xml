@@ -7,249 +7,260 @@
     android:background="#ffffff"
     tools:context=".ui.userdetails.UserDetailsFragment">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="175dp"
-            android:src="@drawable/user_deatils_background" />
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@android:color/background_light"
-            android:orientation="vertical"
-            android:padding="10sp">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="175dp"
+                android:src="@drawable/user_deatils_background" />
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="20dp"
-                android:gravity="center"
-                android:orientation="vertical">
+                android:layout_height="match_parent"
+                android:background="@android:color/background_light"
+                android:orientation="vertical"
+                android:padding="8sp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginEnd="20dp"
+                    android:gravity="center"
+                    android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/textViewID"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/hint_id" />
+                        android:orientation="horizontal">
 
-                    <TextView
-                        android:id="@+id/textViewIDVerify"
-                        android:layout_width="wrap_content"
+                        <TextView
+                            android:id="@+id/textViewID"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/hint_id" />
+
+                        <TextView
+                            android:id="@+id/textViewIDVerify"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/verifying"
+                            android:textAlignment="textEnd"
+                            android:visibility="invisible" />
+
+                        <ProgressBar
+                            android:id="@+id/progressBarID"
+                            style="?android:attr/progressBarStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:visibility="invisible" />
+                    </LinearLayout>
+
+                    <EditText
+                        android:id="@+id/inpID"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/verifying"
-                        android:textAlignment="textEnd"
-                        android:visibility="invisible" />
+                        android:ems="10"
+                        android:hint="@string/hint_id"
+                        android:importantForAutofill="no"
+                        android:inputType="number" />
 
-                    <ProgressBar
-                        android:id="@+id/progressBarID"
-                        style="?android:attr/progressBarStyle"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/textViewVPNPass"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/hint_vpn_pass" />
+
+                        <TextView
+                            android:id="@+id/textViewVPNVerify"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/verifying"
+                            android:textAlignment="textEnd"
+                            android:visibility="invisible" />
+
+                        <ProgressBar
+                            android:id="@+id/progressBarVPN"
+                            style="?android:attr/progressBarStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:visibility="invisible" />
+                    </LinearLayout>
+
+                    <EditText
+                        android:id="@+id/inpVPNPass"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ems="10"
+                        android:hint="@string/hint_vpn_pass"
+                        android:importantForAutofill="no"
+                        android:inputType="textPassword" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:visibility="invisible" />
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/textViewInfoPassword"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/hint_info_password" />
+
+                        <TextView
+                            android:id="@+id/textViewInfoVerify"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/verifying"
+                            android:textAlignment="textEnd"
+                            android:visibility="invisible" />
+
+                        <ProgressBar
+                            android:id="@+id/progressBarInfoPass"
+                            style="?android:attr/progressBarStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:visibility="invisible" />
+                    </LinearLayout>
+
+                    <EditText
+                        android:id="@+id/inpInfoPass"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ems="10"
+                        android:hint="@string/hint_info_password"
+                        android:importantForAutofill="no"
+                        android:inputType="textPassword" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/textViewJwglPassword"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/hint_jwgl_password" />
+
+                        <TextView
+                            android:id="@+id/textViewJwglVerify"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/verifying"
+                            android:textAlignment="textEnd"
+                            android:visibility="invisible" />
+
+                        <ProgressBar
+                            android:id="@+id/progressBarJwglPass"
+                            style="?android:attr/progressBarStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:visibility="invisible" />
+                    </LinearLayout>
+
+                    <EditText
+                        android:id="@+id/inpJwglPass"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ems="10"
+                        android:hint="@string/hint_jwgl_password"
+                        android:importantForAutofill="no"
+                        android:inputType="textPassword" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:id="@+id/textViewJwxtPassword"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/hint_jwxt_password"
+                            android:visibility="invisible" />
+
+                        <TextView
+                            android:id="@+id/textViewJwxtVerify"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/verifying"
+                            android:textAlignment="textEnd"
+                            android:visibility="invisible" />
+
+                        <ProgressBar
+                            android:id="@+id/progressBarJwxtPass"
+                            style="?android:attr/progressBarStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:visibility="invisible" />
+                    </LinearLayout>
+
+                    <EditText
+                        android:id="@+id/inpJwxtPass"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ems="10"
+                        android:hint="@string/hint_jwxt_password"
+                        android:importantForAutofill="no"
+                        android:inputType="textPassword"
+                        android:visibility="gone" />
+
                 </LinearLayout>
 
-                <EditText
-                    android:id="@+id/inpID"
+                <Button
+                    android:id="@+id/buttonVerifyPassword"
+                    style="@style/Widget.AppCompat.Button.Borderless.Colored"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:ems="10"
-                    android:hint="@string/hint_id"
-                    android:importantForAutofill="no"
-                    android:inputType="number" />
+                    android:layout_marginStart="12sp"
+                    android:layout_marginEnd="12sp"
+                    android:layout_marginBottom="0sp"
+                    android:background="#A9FFEB3B"
+                    android:text="@string/verify_password"
+                    android:textColor="@color/textPrimaryDark"
+                    android:textSize="16sp" />
 
-                <LinearLayout
+                <Button
+                    android:id="@+id/buttonSaveUserDetail"
+                    style="@style/Widget.AppCompat.Button.Borderless.Colored"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/textViewVPNPass"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/hint_vpn_pass" />
-
-                    <TextView
-                        android:id="@+id/textViewVPNVerify"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/verifying"
-                        android:textAlignment="textEnd"
-                        android:visibility="invisible" />
-
-                    <ProgressBar
-                        android:id="@+id/progressBarVPN"
-                        style="?android:attr/progressBarStyle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:visibility="invisible" />
-                </LinearLayout>
-
-                <EditText
-                    android:id="@+id/inpVPNPass"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:ems="10"
-                    android:hint="@string/hint_vpn_pass"
-                    android:importantForAutofill="no"
-                    android:inputType="textPassword" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/textViewInfoPassword"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/hint_info_password" />
-
-                    <TextView
-                        android:id="@+id/textViewInfoVerify"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/verifying"
-                        android:textAlignment="textEnd"
-                        android:visibility="invisible" />
-
-                    <ProgressBar
-                        android:id="@+id/progressBarInfoPass"
-                        style="?android:attr/progressBarStyle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:visibility="invisible" />
-                </LinearLayout>
-
-                <EditText
-                    android:id="@+id/inpInfoPass"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:ems="10"
-                    android:hint="@string/hint_info_password"
-                    android:importantForAutofill="no"
-                    android:inputType="textPassword" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/textViewJwglPassword"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/hint_jwgl_password" />
-
-                    <TextView
-                        android:id="@+id/textViewJwglVerify"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/verifying"
-                        android:textAlignment="textEnd"
-                        android:visibility="invisible" />
-
-                    <ProgressBar
-                        android:id="@+id/progressBarJwglPass"
-                        style="?android:attr/progressBarStyle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:visibility="invisible" />
-                </LinearLayout>
-
-                <EditText
-                    android:id="@+id/inpJwglPass"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:ems="10"
-                    android:hint="@string/hint_jwgl_password"
-                    android:importantForAutofill="no"
-                    android:inputType="textPassword" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal"
-                    android:visibility="gone">
-
-                    <TextView
-                        android:id="@+id/textViewJwxtPassword"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/hint_jwxt_password"
-                        android:visibility="invisible" />
-
-                    <TextView
-                        android:id="@+id/textViewJwxtVerify"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/verifying"
-                        android:textAlignment="textEnd"
-                        android:visibility="invisible" />
-
-                    <ProgressBar
-                        android:id="@+id/progressBarJwxtPass"
-                        style="?android:attr/progressBarStyle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:visibility="invisible" />
-                </LinearLayout>
-
-                <EditText
-                    android:id="@+id/inpJwxtPass"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:ems="10"
-                    android:hint="@string/hint_jwxt_password"
-                    android:importantForAutofill="no"
-                    android:inputType="textPassword"
-                    android:visibility="gone" />
+                    android:layout_marginStart="12sp"
+                    android:layout_marginTop="5sp"
+                    android:layout_marginEnd="12sp"
+                    android:background="#A900BCD4"
+                    android:text="@string/save"
+                    android:textColor="@color/textPrimaryDark"
+                    android:textSize="16sp"
+                    android:visibility="invisible" />
 
             </LinearLayout>
-
-            <Button
-                android:id="@+id/buttonVerifyPassword"
-                style="@style/Widget.AppCompat.Button.Borderless.Colored"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="#A9FFEB3B"
-                android:text="@string/verify_password"
-                android:textColor="@color/textPrimaryDark"
-                android:textSize="16sp" />
-
-            <Button
-                android:id="@+id/buttonSaveUserDetail"
-                style="@style/Widget.AppCompat.Button.Borderless.Colored"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5sp"
-                android:background="#A900BCD4"
-                android:text="@string/save"
-                android:textColor="@color/textPrimaryDark"
-                android:textSize="16sp"
-                android:visibility="invisible" />
-
         </LinearLayout>
-    </LinearLayout>
+    </ScrollView>
 
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

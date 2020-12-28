@@ -5,9 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +24,9 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.snackbar.Snackbar;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -37,8 +38,9 @@ import xyz.cyanclay.buptallinone.network.NetworkManager;
 import xyz.cyanclay.buptallinone.network.SiteManager;
 import xyz.cyanclay.buptallinone.network.VPNManager;
 import xyz.cyanclay.buptallinone.network.info.InfoManager;
+import xyz.cyanclay.buptallinone.ui.components.TryAsyncTask;
 
-import static xyz.cyanclay.buptallinone.ui.userdetails.VerifyTask.*;
+import static xyz.cyanclay.buptallinone.ui.userdetails.VerifyTask.verifyFailed;
 
 public class UserDetailsFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
@@ -47,6 +49,7 @@ public class UserDetailsFragment extends Fragment implements SwipeRefreshLayout.
     String id = "";
 
     private static String verifySuccess;
+    private static Logger logger = LogManager.getLogger(UserDetailsFragment.class);
 
     private ProgressDialog saveDialog;
 
@@ -58,10 +61,10 @@ public class UserDetailsFragment extends Fragment implements SwipeRefreshLayout.
                              @Nullable Bundle savedInstanceState) {
         root = inflater.inflate(R.layout.fragment_user_details, container, false);
 
-        nm = ((MainActivity) getActivity()).getNetworkManager();
+        nm = ((MainActivity) requireActivity()).getNetworkManager();
         verifySuccess = getString(R.string.verify_success);
 
-        final File fileDir = getContext().getFilesDir();
+        final File fileDir = requireContext().getFilesDir();
         loadDetails(root, fileDir);
         //showCaptcha(nm, root);
         root.findViewById(R.id.buttonVerifyPassword).setOnClickListener(new View.OnClickListener() {
@@ -94,7 +97,7 @@ public class UserDetailsFragment extends Fragment implements SwipeRefreshLayout.
 
     @Override
     public void onRefresh() {
-        final File fileDir = getContext().getFilesDir();
+        final File fileDir = requireContext().getFilesDir();
         loadDetails(root, fileDir);
         //showCaptcha(nm, root);
         deterVisibility();
@@ -212,21 +215,23 @@ public class UserDetailsFragment extends Fragment implements SwipeRefreshLayout.
         VerifyTask.verify(this, nm.jwglManager);
     }
 
-    private void verifyJwxt(){
+    /*
+    private void verifyJwxt() {
         VerifyTask.verify(this, nm.jwxtManager);
     }
+     */
 
-    void popupCaptcha(Drawable image, final SiteManager who){
+    void popupCaptcha(Drawable image, final SiteManager who) {
         AlertDialog.Builder captchaDialogBuilder = new AlertDialog.Builder(getContext());
         final View captchaView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_captcha_input_panel, null);
         captchaDialogBuilder.setTitle(R.string.input_captcha);
 
         String message;
-        if (who instanceof VPNManager){
+        if (who instanceof VPNManager) {
             message = getString(R.string.vpn_captcha);
-        } else if (who instanceof InfoManager){
+        } else if (who instanceof InfoManager) {
             message = getString(R.string.info_captcha);
-        } else if (who instanceof JwxtManager){
+        } else if (who instanceof JwxtManager) {
             message = getString(R.string.jwxt_captcha);
         } else message = getString(R.string.captcha);
         TextView tv = captchaView.findViewById(R.id.textViewDialogCaptcha);
@@ -252,18 +257,19 @@ public class UserDetailsFragment extends Fragment implements SwipeRefreshLayout.
     public void onResume() {
         super.onResume();
         deterVisibility();
-        getView().setFocusableInTouchMode(true);
-        getView().requestFocus();
-        getView().setOnKeyListener(new View.OnKeyListener() {
+        View view = requireView();
+        view.setFocusableInTouchMode(true);
+        view.requestFocus();
+        view.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 try {
                     if (keyCode == KeyEvent.KEYCODE_BACK
                             && event.getAction() == KeyEvent.ACTION_UP) {
-                        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                        InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                         if (imm != null)
-                        imm.hideSoftInputFromWindow(UserDetailsFragment.this.root.getWindowToken(), 0);
-                        Navigation.findNavController(getActivity(), R.id.nav_host_fragment).popBackStack();
+                            imm.hideSoftInputFromWindow(UserDetailsFragment.this.root.getWindowToken(), 0);
+                        Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).popBackStack();
                         return true;
                     }
                 } catch (Exception e) {
@@ -276,7 +282,9 @@ public class UserDetailsFragment extends Fragment implements SwipeRefreshLayout.
 
     private static void taskSavePassword(final UserDetailsFragment udf,
                                          final File fileDir, final String... details) {
-        new AsyncTask<Void, Void, Boolean>() {
+        new TryAsyncTask<Void, Void, Boolean>() {
+            Exception e;
+
             @Override
             protected Boolean doInBackground(Void... voids) {
                 try {
@@ -284,30 +292,30 @@ public class UserDetailsFragment extends Fragment implements SwipeRefreshLayout.
                             , details[1], details[2], details[3], details[4]);
                     Thread.sleep(500);
                     String[] decrypted = udf.nm.passwordHelper.loadDecrypt(fileDir);
-                    Log.i("Original", Arrays.toString(details));
-                    Log.i("decrypted", Arrays.toString(decrypted));
+                    logger.info("Original: " + Arrays.toString(details));
+                    logger.info("Decrypted: " + Arrays.toString(decrypted));
                     return Arrays.equals(decrypted, details);
                 } catch (IOException | InterruptedException e) {
                     e.printStackTrace();
+                    this.e = e;
                     cancel(true);
                     return false;
                 }
             }
 
             @Override
-            protected void onPostExecute(Boolean aBoolean) {
-                super.onPostExecute(aBoolean);
+            protected void postExecute(Boolean aBoolean) {
                 udf.saveDialog.dismiss();
                 if (aBoolean)
-                Snackbar.make(udf.root, "保存成功！", Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(udf.root, "保存成功！", Snackbar.LENGTH_LONG).show();
                 else Snackbar.make(udf.root, "保存失败，请重试", Snackbar.LENGTH_LONG).show();
             }
 
             @Override
-            protected void onCancelled() {
-                super.onCancelled();
+            protected void cancelled() {
                 udf.saveDialog.dismiss();
                 Snackbar.make(udf.root, "保存失败，请重试", Snackbar.LENGTH_LONG).show();
+                if (this.e != null) logger.error("Exception in Saving Password: ", e);
             }
         }.execute();
     }

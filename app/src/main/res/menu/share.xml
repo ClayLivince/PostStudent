@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_share_to"
+        android:icon="@android:drawable/ic_menu_set_as"
         android:orderInCategory="100"
         android:title="@string/share_to"
-        app:showAsAction="never" />
+        app:showAsAction="ifRoom" />
 </menu>

@@ -1,9 +1,11 @@
 package xyz.cyanclay.buptallinone.network.login;
 
 import android.util.Base64;
-import android.util.Log;
 
 import androidx.annotation.Nullable;
+
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -12,6 +14,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -22,8 +25,9 @@ public class PasswordHelper {
     private IvParameterSpec IV;
     private SecretKeySpec key;
     private static String charset = "ISO-8859-1";
+    private Logger logger = LogManager.getLogger(PasswordHelper.class);
 
-    public PasswordHelper(){
+    public PasswordHelper() {
         byte[] iv = "APPCREATEDBYCLAY".getBytes();
         IV = new IvParameterSpec(iv);
         String sKey = "BUPTISTHEBESTONE";
@@ -56,6 +60,8 @@ public class PasswordHelper {
             } else throw new IOException("Failed to create detail file.");
         } catch (Exception e) {
             e.printStackTrace();
+            if (e instanceof IOException)
+                throw (IOException) e;
         } finally {
             if (fos != null) {
                 try {
@@ -86,6 +92,9 @@ public class PasswordHelper {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            logger.error("Error Happened while trying to decrypt password.", e);
+            logger.error("Current Content:" + Arrays.toString(details));
+            Arrays.fill(details, null);
         } finally {
             if (br != null) {
                 try {
@@ -137,8 +146,22 @@ public class PasswordHelper {
 
     private String decrypt(String encrypted) throws Exception {
         byte[] s = Base64.decode(encrypted, Base64.DEFAULT);
-        String decrypted = new String(translate(s, Cipher.DECRYPT_MODE));
-        Log.e("decrypted", decrypted);
+        String decrypted = "";
+        try {
+            decrypted = new String(translate(s, Cipher.DECRYPT_MODE));
+        } catch (NullPointerException e) {
+            // to avoid exception that happens on Android lower than lolipop
+            // that try to get the length of a null string
+            String msg = e.getMessage();
+            if (msg != null) {
+                if (msg.contains("Attempt to get length of null array")) {
+                    return "";
+                }
+            }
+            logger.info("Decryption Error: ", e);
+        } finally {
+            logger.error(decrypted);
+        }
         return decrypted;
     }
 }

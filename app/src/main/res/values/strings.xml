@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">北邮一点通</string>
+    <string name="app_name">邮学生</string>
     <string name="nav_header_title">请点击登录</string>
     <string name="nav_header_subtitle">学号</string>
     <string name="nav_header_desc">Navigation header</string>
@@ -14,8 +14,11 @@
     <string name="menu_send">Send</string>
     <string name="menu_user_details">密码管理</string>
     <string name="menu_class_schedule">课程表</string>
+    <string name="fragment_train_mode">培养方案</string>
+
     <string name="jwlogin">教务系统登录</string>
-    <string name="vpnlogin">查成绩</string>
+    <string name="check_score">查成绩</string>
+    <string name="score_detail">成绩详情</string>
     <string name="text_user_details">密码信息管理</string>
     <string name="hint_id">学号</string>
     <string name="hint_vpn_pass">新版VPN密码，默认为后六位</string>
@@ -27,13 +30,14 @@
     <string name="verifying">验证中</string>
     <string name="verify_success">√ 验证成功</string>
     <string name="verify_fail">× 验证失败</string>
-    <string name="incorrect_id">学号位数不正确，请检查。</string>
-    <string name="incorrect_password">学号或密码不正确，请检查。</string>
+    <string name="incorrect_id">学号位数不正确!&gt;﹏&lt;</string>
+    <string name="incorrect_password">学号或密码不正确!&gt;﹏&lt;</string>
     <string name="please_input_info">请输入密码。</string>
     <string name="incorrect_jwxt_password">旧教务系统密码不正确，请检查。</string>
     <string name="incorrect_jwgl_password">新教务系统密码不正确，请检查。</string>
     <string name="load_failed">加载失败，请检查登陆状态和网络。</string>
-    <string name="timed_out">网络超时，请重试。</string>
+    <string name="timed_out">网络超时了TAT</string>
+    <string name="init_failed">初始化失败！</string>
     <string name="unknown_error">发生未知错误，请联系我们。</string>
     <string name="input_captcha">请输入验证码</string>
     <string name="vpn_captcha">VPN验证码</string>
@@ -60,6 +64,9 @@
     <string name="notice_overtness">公开公示</string>
     <string name="academic_lecture">学术讲座</string>
 
+    <string name="load_failed_sim">加载失败了TAT</string>
+    <string name="empty_courses">没课喔~好好休息~</string>
+    <string name="loading_sim">努力加载中</string>
 
     <string name="time">时间</string>
     <string name="announcer">发布</string>
@@ -80,17 +87,79 @@
     <string name="school_info">校园简讯</string>
 
     <string name="thanks">鸣谢</string>
-    <string name="thanks_group">现代邮政学院学生会技术部\n现代邮政学院18级5班</string>
+    <string name="thanks_group">现代邮政学院\n现代邮政学院18级5班\n信息与通信工程学院 丁陈龙\n全体测试组成员</string>
     <string name="developed_by">Developed by</string>
     <string name="assisted_by">Assisted by</string>
     <string name="developer">Clay Livince</string>
     <string name="team_member">ComeAnt\n张龙</string>
-    <string name="guided_by">指导教师</string>
-    <string name="guide_teacher">？？？</string>
 
     <string name="is_latest">已经是最新版本！</string>
+    <string name="update_problem">检查更新时遇到了问题。</string>
     <string name="start_update">已开始下载更新</string>
+    <string name="start_download_attachment">开始下载附件%s …</string>
+    <string name="downloaded">下载完毕。</string>
 
     <string name="share_to">分享到……</string>
     <string name="welcome">欢迎，%s</string>
+
+    <string name="course_name">课程名称</string>
+    <string name="course_id">课程号</string>
+    <string name="course_name_english">课程英语名</string>
+    <string name="total_score">总成绩</string>
+    <string name="bupt_gpa">北邮算法GPA</string>
+    <string name="gpa_jwgl">加权GPA(教务)</string>
+    <string name="avg_gpa_jwgl">平均GPA(教务)</string>
+    <string name="rank_jwgl">排名(教务)</string>
+    <string name="all_average_jwgl">平均分(教务)</string>
+    <string name="weighted_avg_jwgl">加权平均分(教务)</string>
+    <string name="sum_points_jwgl">总学分(教务)</string>
+    <string name="course_type">课程性质</string>
+    <string name="course_category">课程类别</string>
+    <string name="mark">备注</string>
+    <string name="score_mark">成绩备注</string>
+    <string name="re_term">补考重修学期</string>
+    <string name="course_term">开课学期</string>
+    <string name="course_point">学分</string>
+    <string name="exam_type">成绩考试性质</string>
+    <string name="weighted_avg">加权平均分</string>
+    <string name="calcing">计算中……</string>
+
+    <string name="problem_on_display_score">在处理成绩详情时发生了错误！</string>
+    <string name="failed_to_create_log_dir">创建日志文件夹失败了！</string>
+
+    <string name="group_name">课组名称</string>
+    <string name="group_id">课组编号</string>
+    <string name="min_point">最低选修学分</string>
+
+    <string name="group_point">已修%.1f分，最少%.1f分</string>
+    <string name="public_group">公选课组%s已折叠，包含%d节课</string>
+    <string name="empty_train_mode">培养方案不见了！下拉刷新试试看？</string>
+    <string name="empty_train_group">课组消失了？下拉刷新试试看？</string>
+    <string name="conflict_train_group">有课组与已有数据冲突，上传未完成。</string>
+    <string name="developing_">功能完善中&gt; &lt;</string>
+
+    <string name="train_mode">培养方案</string>
+    <string name="fetched">获取成功</string>
+    <string name="uploaded">上传成功</string>
+    <string name="upload_failed">上传失败！</string>
+    <string name="upload_group">上传课组数据</string>
+    <string name="enter_course_pickup">进入选课模式</string>
+    <string name="refetch_group">重新获取数据</string>
+    <string name="show_this_term_only">只显示本学期课程</string>
+    <string name="exit_course_pickup">退出选课模式</string>
+
+    <string name="go_watch">查看</string>
+
+    <string name="developing">待开发功能</string>
+
+    <string name="school_bus">校车</string>
+    <string name="school_calendar">校历</string>
+
+    <string name="mark_passed">✔</string>
+    <string name="mark_failed">✖</string>
+    <string name="mark_banned">🚫</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+
 </resources>

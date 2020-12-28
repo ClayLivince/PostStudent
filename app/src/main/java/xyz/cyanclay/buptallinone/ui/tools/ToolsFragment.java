@@ -11,19 +11,24 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.navigation.Navigation;
 
 import xyz.cyanclay.buptallinone.R;
 
 public class ToolsFragment extends Fragment {
 
-    private ToolsViewModel toolsViewModel;
-
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        toolsViewModel =
-                ViewModelProviders.of(this).get(ToolsViewModel.class);
+        ToolsViewModel toolsViewModel = ViewModelProviders.of(this).get(ToolsViewModel.class);
         View root = inflater.inflate(R.layout.fragment_tools, container, false);
         final TextView textView = root.findViewById(R.id.text_tools);
+
+        root.findViewById(R.id.imageViewTrainMode).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                gotoTrainMode();
+            }
+        });
         toolsViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
@@ -31,5 +36,11 @@ public class ToolsFragment extends Fragment {
             }
         });
         return root;
+    }
+
+    void gotoTrainMode() {
+        Navigation.findNavController(this.requireActivity(), R.id.nav_host_fragment)
+                .navigate(R.id.action_to_nav_train_mode);
+        //navigationView.setCheckedItem(R.id.nav_send);
     }
 }

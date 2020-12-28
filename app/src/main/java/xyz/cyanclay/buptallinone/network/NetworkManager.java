@@ -5,6 +5,8 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.util.Log;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -44,6 +46,8 @@ public class NetworkManager {
     private static File networkCacheDir;
     private static File picDir;
 
+    private Logger logger = LogManager.getLogger(NetworkManager.class);
+
     public NetworkManager(Context appContext) throws IOException {
 
         context = appContext;
@@ -65,10 +69,27 @@ public class NetworkManager {
     public String name = "";
 
     private void init() throws IOException {
+
+        /*
+        httpClient = new OkHttpClient.Builder()
+                .writeTimeout(30000, TimeUnit.MILLISECONDS)
+                .callTimeout(5000, TimeUnit.MILLISECONDS)
+                .build();
+
+        httpClientNoRedirect = new OkHttpClient.Builder()
+                .writeTimeout(30000, TimeUnit.MILLISECONDS)
+                .callTimeout(5000, TimeUnit.MILLISECONDS)
+                .followRedirects(false)
+                .cookieJar(httpClient.cookieJar())
+                .build();
+
+         */
+
         isSchoolNet = checkNetwork();
         cacheDir = context.getApplicationContext().getCacheDir();
         networkCacheDir = new File(cacheDir, "network");
         picDir = new File(cacheDir, "pic");
+        checkCache("");
 
         dispatchPassword(passwordHelper.loadDecrypt(context.getFilesDir()));
     }
@@ -79,7 +100,7 @@ public class NetworkManager {
     }
 
     private void dispatchPassword(String[] details) {
-        this.user = details[0];
+        if (details[0] != null) this.user = details[0];
         vpnManager.setDetails(details[0], details[1]);
         if (details[2] != null) infoManager.setDetails(details[0], details[2]);
         if (details[3] != null) jwglManager.setDetails(details[0], details[3]);
@@ -97,7 +118,12 @@ public class NetworkManager {
 
     public Connection.Response get(String url, Map<String, String> cookies,
                                    boolean ignoreContent) throws IOException, LoginException {
-        return get(Jsoup.connect(url).ignoreContentType(ignoreContent), cookies);
+        try {
+            return get(Jsoup.connect(url).ignoreContentType(ignoreContent), cookies);
+        } catch (IllegalArgumentException e) {
+            logger.error("Error Happened while Constructing Connection to " + url, e);
+            throw new IOException(e);
+        }
     }
 
     public Connection.Response get(String url) throws IOException, LoginException {
@@ -105,6 +131,7 @@ public class NetworkManager {
     }
 
     public Connection.Response get(Connection conn, Map<String, String> cookies) throws IOException, LoginException {
+
         conn.userAgent(userAgent)
                 .method(Connection.Method.GET)
                 .timeout(10000);

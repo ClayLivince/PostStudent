@@ -4,6 +4,13 @@ import android.content.Context;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
+
+import xyz.cyanclay.buptallinone.MainActivity;
+import xyz.cyanclay.buptallinone.network.NetworkManager;
+
 public class Utils {
     // 根据手机的分辨率从 dp 的单位 转成为 px(像素)
     public static int dip2px(Context context, float dpValue) {
@@ -48,4 +55,38 @@ public class Utils {
         wm.getDefaultDisplay().getMetrics(dm);
         return dm.density; // 返回屏幕的像素密度数值
     }
+
+    public static Map<String, Object> objectToMap(Object obj) throws IllegalAccessException {
+        Map<String, Object> map = new HashMap<>();
+        Class<?> clazz = obj.getClass();
+        System.out.println(clazz);
+        for (Field field : clazz.getDeclaredFields()) {
+            field.setAccessible(true);
+            String fieldName = field.getName();
+            Object value = field.get(obj);
+            map.put(fieldName, value);
+        }
+        return map;
+    }
+
+    public static NetworkManager getNetworkManager(MainActivity activity) {
+
+        NetworkManager nm = null;
+        while (nm == null) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            try {
+                nm = activity.getNetworkManager();
+            } catch (NullPointerException e) {
+                return null;
+            }
+        }
+
+        return nm;
+
+    }
+
 }

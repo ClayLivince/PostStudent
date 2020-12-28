@@ -2,7 +2,6 @@ package xyz.cyanclay.buptallinone.network.info;
 
 import android.content.Context;
 import android.text.SpannableStringBuilder;
-import android.util.Pair;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -13,9 +12,7 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
-import xyz.cyanclay.buptallinone.network.AuthManager;
 import xyz.cyanclay.buptallinone.network.NetworkManager;
 import xyz.cyanclay.buptallinone.network.SiteManager;
 import xyz.cyanclay.buptallinone.network.login.LoginException;
@@ -24,32 +21,42 @@ import xyz.cyanclay.buptallinone.network.spanner.BuptSpanner;
 
 public class InfoManager extends SiteManager {
 
-    private static final String infoURL = "http://my.bupt.edu.cn/",
-            loginURL = "https://auth.bupt.edu.cn/authserver/login?service=http%3A%2F%2Fmy.bupt.edu.cn%2Flogin.portal";
+    private static final boolean useSSL = false;
+
+    private static final String domain = useSSL ? "http://my.bupt.edu.cn" : "https://my.bupt.edu.cn";
+    private static final String infoURL = "/index.jsp";
+    private String owner = "";
+    private String loginRedirect = "";
+    //loginURL = "https://auth.bupt.edu.cn/authserver/login?service=http%3A%2F%2Fmy.bupt.edu.cn%2Flogin.jsp";
 
     private Document cachedDocument;
-    private InfoAnnouncer announcer;
     private BuptSpanner buptSpanner = new BuptSpanner(this);
 
     public InfoManager(NetworkManager nm, Context context) {
         super(nm, context);
-        announcer = new InfoAnnouncer(context);
+        InfoCategory.init(context);
     }
 
-    public LoginStatus doLogin() throws IOException, LoginException {
+    public LoginStatus doLogin() throws Exception {
 
-        Connection.Response infoInit = nm.get(Jsoup.connect(infoURL)
+        Connection.Response infoInit = nm.get(Jsoup.connect(domain + infoURL)
                 .followRedirects(false), cookies);
-        cookies = infoInit.cookies();
+        cookies.putAll(infoInit.cookies());
 
-        Connection.Response init = nm.get(Jsoup.connect(infoURL), cookies);
+        String partMoved = infoInit.header("Location");
+        try {
+            owner = partMoved.split("owner=")[1];
+        } catch (ArrayIndexOutOfBoundsException aiobe) {
+            throw new IOException("Failed to parse owner.", aiobe);
+        }
+        loginRedirect = domain + partMoved;
+        Connection.Response init = nm.get(Jsoup.connect(loginRedirect), cookies);
         nm.authManager.setDetails(this.user, this.pass);
 
         String initUrl = init.url().toString();
         if (initUrl.contains("auth.bupt.edu.cn") |
-                initUrl.contains("77726476706e69737468656265737421f1e2559469327d406a468ca88d1b203b"))
-        {
-            return nm.authManager.login(infoURL + "login.portal");
+                initUrl.contains("77726476706e69737468656265737421f1e2559469327d406a468ca88d1b203b")) {
+            return nm.authManager.login(loginRedirect);
         } else {
             Document initDoc = init.parse();
             if (initDoc.title().contains("欢迎")) {
@@ -63,27 +70,28 @@ public class InfoManager extends SiteManager {
     }
 
     @Override
-    public LoginStatus doCaptchaLogin(String captcha) throws IOException, LoginException {
-        return nm.authManager.loginWithCaptcha(loginURL, captcha);
+    public LoginStatus doCaptchaLogin(String captcha) throws Exception {
+        return nm.authManager.loginWithCaptcha(loginRedirect, captcha);
     }
 
-    private Document getContent(String url, boolean refresh) throws IOException, LoginException {
+    private Document getContent(String url, boolean refresh) throws Exception {
         if (checkLogin()) {
             return nm.getContent(url, cookies, refresh);
         } else throw new IOException("Info Login Failed.");
     }
 
-    public byte[] getBytes(String url, boolean force) throws IOException, LoginException {
+    public byte[] getBytes(String url, boolean force) throws Exception {
         if (checkLogin()) {
             return nm.getByteStream(url, cookies, force);
         } else throw new IOException("Info Login Failed.");
     }
 
-    public InfoItems parseMainpage(InfoCategory category) throws IOException, LoginException {
+    public InfoItems parseMainpage(InfoCategory category) throws Exception {
         if (checkLogin()) {
             if (cachedDocument != null) {
                 InfoItems items = new InfoItems();
-                for (Element entry : cachedDocument.getElementsByClass("mainhome").first().getElementsByClass("listnotice").get(category.ordinal()).child(0).child(0).children()) {
+                Elements entries = cachedDocument.getElementsByClass("mainhome").first().getElementsByClass("listnotice").get(category.ordinal()).child(0).child(0).children();
+                for (Element entry : entries) {
                     if (entry.className().equals("more")) continue;
                     if (entry.tag().getName().equals("div")) continue;
                     String url = packageURL(entry.child(0).attr("href"));
@@ -100,20 +108,20 @@ public class InfoManager extends SiteManager {
         return null;
     }
 
-    public InfoItems parseNotice(InfoCategory category, boolean refresh) throws IOException, LoginException {
+    public InfoItems parseNotice(InfoCategory category, boolean refresh) throws Exception {
         return parseNotice(category, buildURL(category, -1, -1, 1), refresh);
     }
 
-    public InfoItems parseNotice(InfoCategory category, int cate, int id, int page, boolean refresh) throws IOException, LoginException {
+    public InfoItems parseNotice(InfoCategory category, int cate, int id, int page, boolean refresh) throws Exception {
         return parseNotice(category, buildURL(category, cate, id, page), refresh);
     }
 
     public InfoItems parseNotice(InfoCategory category, int cate, int id, int page,
-                                 String searchWord) throws IOException, LoginException {
+                                 String searchWord) throws Exception {
         return parseNotice(category, buildURL(category, cate, id, page), searchWord);
     }
 
-    private InfoItems parseNotice(InfoCategory category, String url, String searchWord) throws IOException, LoginException {
+    private InfoItems parseNotice(InfoCategory category, String url, String searchWord) throws Exception {
         if (checkLogin()) {
             Document document = nm.post(Jsoup.connect(url)
                     .data("v_title", searchWord)).parse();
@@ -122,7 +130,7 @@ public class InfoManager extends SiteManager {
         throw new LoginException(this, LoginStatus.UNKNOWN_ERROR);
     }
 
-    private InfoItems parseNotice(InfoCategory category, String url, boolean refresh) throws IOException, LoginException {
+    private InfoItems parseNotice(InfoCategory category, String url, boolean refresh) throws Exception {
         if (checkLogin()) {
             Document document = getContent(url, refresh);
             return parseNotice(category, document, url, false, null);
@@ -152,6 +160,11 @@ public class InfoManager extends SiteManager {
     private String buildURL(InfoCategory category, int cate, int id, int page) throws IOException {
 
         StringBuilder sb = new StringBuilder();
+
+        sb.append(domain);
+        sb.append()
+
+        /*
         sb.append("http://my.bupt.edu.cn/detach.portal?")
                 .append(InfoCategory.pens.get(category));
         if (cate >= 0 & id >= 0) {
@@ -162,10 +175,12 @@ public class InfoManager extends SiteManager {
         if (page > 1) {
             sb.append("&pageIndex=").append(page);
         }
+
+         */
         return sb.toString();
     }
 
-    private boolean refreshCachedDocument() throws IOException, LoginException {
+    private boolean refreshCachedDocument() throws Exception {
         if (checkLogin()) {
             cachedDocument = nm.getContent(infoURL, cookies, true);
             return cachedDocument.title().equals("欢迎访问信息服务门户");
@@ -208,13 +223,13 @@ public class InfoManager extends SiteManager {
         /**
          * 附件列表，Key为附件名称，Value为附件下载URL。
          */
-        public HashMap<String, String> attachments;
+        public HashMap<String, String> attachments = new HashMap<>();
 
-        private Document getContentDocument(boolean refresh) throws IOException, LoginException {
+        private Document getContentDocument(boolean refresh) throws Exception {
             return InfoManager.this.getContent(url, refresh);
         }
 
-        public void parseContentSpanned(int maxWidth, boolean force) throws IOException, LoginException {
+        public void parseContentSpanned(int maxWidth, boolean force) throws Exception {
             Document document = getContentDocument(force);
             titleFull = document.getElementsByClass("singlemainbox").first().getElementsByTag("h1").first().ownText();
             announcer = document.getElementsByClass("pdept").first().ownText().split("：")[1];
@@ -229,6 +244,21 @@ public class InfoManager extends SiteManager {
                 ssb.append(htmlSpanner.fromHtml(para.outerHtml()));
             }
             contentSpanned = ssb;
+            parseAttachment(document);
+        }
+
+        public void parseAttachment(Document document) {
+            Element attachmentE = document.getElementsByClass("battch").first();
+            if (attachmentE != null) {
+                for (Element linkItem : attachmentE.getElementsByTag("li")) {
+                    Element link = linkItem.getElementsByTag("a").first();
+                    if (nm.isSchoolNet)
+                        attachments.put(link.ownText(), packageURL(link.attr("href")));
+                    else
+                        attachments.put(link.ownText(), nm.vpnManager.analyseURL(
+                                packageURL(link.attr("href"))));
+                }
+            }
         }
     }
 
@@ -248,7 +278,7 @@ public class InfoManager extends SiteManager {
             this.searchWord = searchWord;
         }
 
-        public void getMore() throws IOException, LoginException {
+        public void getMore() throws Exception {
             if (url != null) {
                 page++;
                 InfoItems more;

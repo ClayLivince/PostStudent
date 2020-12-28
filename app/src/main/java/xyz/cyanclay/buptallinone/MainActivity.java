@@ -18,9 +18,11 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
+
+import org.json.JSONException;
 
 import java.io.IOException;
 
@@ -30,6 +32,7 @@ import xyz.cyanclay.buptallinone.network.SiteManager;
 import xyz.cyanclay.buptallinone.network.VPNManager;
 import xyz.cyanclay.buptallinone.network.info.InfoManager;
 import xyz.cyanclay.buptallinone.network.login.LoginTask;
+import xyz.cyanclay.buptallinone.ui.components.TryAsyncTask;
 import xyz.cyanclay.buptallinone.ui.userdetails.UserDetailsFragment;
 
 public class MainActivity extends AppCompatActivity {
@@ -48,14 +51,6 @@ public class MainActivity extends AppCompatActivity {
         toolbar.setSubtitle("厚德博学 敬业乐群");
         toolbar.setSubtitleTextColor(0xffffffff);
 
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         final NavigationView navigationView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
@@ -63,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
         mAppBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.nav_home, R.id.nav_info, R.id.nav_slideshow,
                 R.id.nav_tools, R.id.nav_share, R.id.nav_send)
-                .setDrawerLayout(drawer)
+                .setOpenableLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
@@ -72,7 +67,6 @@ public class MainActivity extends AppCompatActivity {
         new Thread() {
             @Override
             public void run() {
-                super.run();
                 try {
                     networkManager = new NetworkManager(getApplicationContext());
                 } catch (final IOException e) {
@@ -80,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Snackbar.make(navigationView, R.string.unknown_error, Snackbar.LENGTH_LONG)
+                            Snackbar.make(navigationView, R.string.init_failed, Snackbar.LENGTH_LONG)
                                     .setAction(e.getMessage(), null).show();
                         }
                     });
@@ -89,14 +83,17 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        setUser(networkManager.user, networkManager.name);
+                        if (networkManager != null) {
+                            setUser(networkManager.name);
+                            taskCheckUpdate(MainActivity.this, navigationView);
+                        }
                     }
                 });
             }
         }.start();
     }
 
-    public void setUser(String user, String name) {
+    public void setUser(String name) {
         NavigationView nv = findViewById(R.id.nav_view);
         ((TextView) nv.getHeaderView(0).findViewById(R.id.textViewNavName)).setText(getString(R.string.welcome, name));
     }
@@ -116,17 +113,17 @@ public class MainActivity extends AppCompatActivity {
         drawer.closeDrawers();
     }
 
-    public void popupCaptcha(final View from, Drawable image, final SiteManager who){
+    public void popupCaptcha(final View from, Drawable image, final SiteManager who) {
         AlertDialog.Builder captchaDialogBuilder = new AlertDialog.Builder(this);
         final View captchaView = LayoutInflater.from(this).inflate(R.layout.dialog_captcha_input_panel, null);
         captchaDialogBuilder.setTitle(R.string.input_captcha);
 
         String message;
-        if (who instanceof VPNManager){
+        if (who instanceof VPNManager) {
             message = getString(R.string.vpn_captcha);
-        } else if (who instanceof InfoManager){
+        } else if (who instanceof InfoManager) {
             message = getString(R.string.info_captcha);
-        } else if (who instanceof JwxtManager){
+        } else if (who instanceof JwxtManager) {
             message = getString(R.string.jwxt_captcha);
         } else message = getString(R.string.captcha);
         TextView tv = captchaView.findViewById(R.id.textViewDialogCaptcha);
@@ -150,5 +147,88 @@ public class MainActivity extends AppCompatActivity {
 
     public NetworkManager getNetworkManager() {
         return networkManager;
+    }
+
+    private static void taskCheckUpdate(final MainActivity activity, final View view) {
+        final String[] msg = new String[1];
+        new TryAsyncTask<Void, Void, Boolean>() {
+            @Override
+            protected Boolean doInBackground(Void... voids) {
+                try {
+                    return activity.networkManager.updateManager.checkForUpdates();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    cancel(true);
+                    msg[0] = "网络不给力！";
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    cancel(true);
+                    msg[0] = (String) activity.getResources().getText(R.string.update_problem);
+                }
+                return false;
+            }
+
+            @Override
+            protected void postExecute(Boolean result) {
+                if (result) {
+                    taskUpdateConfirm(activity, view);
+                }
+            }
+
+            @Override
+            protected void cancelled() throws Exception {
+                Snackbar.make(view, msg[0], Snackbar.LENGTH_LONG).show();
+            }
+        }.execute();
+    }
+
+    private static void taskUpdateConfirm(final MainActivity activity, final View view) {
+        final String[] msg = new String[1];
+        new TryAsyncTask<Void, Void, String[]>() {
+            @Override
+            protected String[] doInBackground(Void... voids) {
+                try {
+                    String[] infos = activity.networkManager.updateManager.getUpdateInfo();
+                    if (infos.length < 3) throw new IOException();
+                    return infos;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    cancel(true);
+                    msg[0] = "网络不给力！";
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    cancel(true);
+                    msg[0] = "发生问题！";
+                }
+                return null;
+            }
+
+            @Override
+            protected void postExecute(String[] infos) {
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
+                dialogBuilder.setTitle(infos[1]);
+                dialogBuilder.setMessage("Version :" + infos[0] + "\n" + infos[2]);
+                dialogBuilder.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        activity.networkManager.updateManager.update();
+                        Snackbar.make(view, R.string.start_update, BaseTransientBottomBar.LENGTH_LONG).show();
+                    }
+                });
+                dialogBuilder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+                dialogBuilder.setCancelable(true);
+                dialogBuilder.show();
+            }
+
+            @Override
+            protected void cancelled() {
+                Snackbar.make(view, msg[0], Snackbar.LENGTH_LONG).show();
+            }
+        }.execute();
     }
 }

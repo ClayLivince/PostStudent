@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 
 import xyz.cyanclay.buptallinone.R;
 
+@Deprecated
 public class InfoAnnouncer {
 
     //detach.portal?.pen=pe1142&groupid=183105000&groupname=宣传部&action=bulletinPageList&pageIndex=3

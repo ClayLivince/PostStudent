@@ -77,10 +77,10 @@ public class CategoryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                     .inflate(R.layout.fragment_info_recycler_header, parent, false));
         } else if (viewType == normalType) {
             return new ItemHolder(LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.fragment_info_item, parent, false));
+                    .inflate(R.layout.piece_info_item, parent, false));
         } else {
             return new FootHolder(LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.fragment_recycler_bottom, parent, false));
+                    .inflate(R.layout.piece_recycler_bottom, parent, false));
         }
     }
 
@@ -97,7 +97,7 @@ public class CategoryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             ((TextView) holder.itemView.findViewById(R.id.textViewItemTime)).setText(item.time);
             ((TextView) holder.itemView.findViewById(R.id.textViewItemAnnouncer)).setText(item.announcer);
             holder.itemView.findViewById(R.id.textViewItemAnnouncer).setVisibility(View.VISIBLE);
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
+            holder.itemView.findViewById(R.id.cardItem).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     ItemDetailViewModel vm = ViewModelProviders.of(activity).get(ItemDetailViewModel.class);
@@ -175,14 +175,14 @@ public class CategoryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 } else if (position == 1) {
                     spinnerAnnouncer.setVisibility(View.VISIBLE);
                     spinnerAnnouncer.setAdapter(new ArrayAdapter<>(activity,
-                            R.layout.fragment_dialog_dropdown,
+                            R.layout.piece_dialog_dropdown,
                             R.id.textViewDropdown,
                             activity.getResources().getStringArray(R.array.offices)));
 
                 } else if (position == 2) {
                     spinnerAnnouncer.setVisibility(View.VISIBLE);
                     spinnerAnnouncer.setAdapter(new ArrayAdapter<>(activity,
-                            R.layout.fragment_dialog_dropdown,
+                            R.layout.piece_dialog_dropdown,
                             R.id.textViewDropdown,
                             activity.getResources().getStringArray(R.array.schools)));
 
@@ -214,7 +214,7 @@ public class CategoryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             }
         });
 
-        ArrayAdapter<CharSequence> announcerAdapter = new ArrayAdapter<>(activity, R.layout.fragment_dialog_dropdown, R.id.textViewDropdown);
+        ArrayAdapter<CharSequence> announcerAdapter = new ArrayAdapter<>(activity, R.layout.piece_dialog_dropdown, R.id.textViewDropdown);
         announcerAdapter.addAll(activity.getResources().getStringArray(R.array.announcers));
         spinnerAnnouncer.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -248,13 +248,13 @@ public class CategoryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         return items;
     }
 
-    class HeaderHolder extends RecyclerView.ViewHolder {
+    static class HeaderHolder extends RecyclerView.ViewHolder {
         HeaderHolder(View itemView) {
             super(itemView);
         }
     }
 
-    class FootHolder extends RecyclerView.ViewHolder {
+    static class FootHolder extends RecyclerView.ViewHolder {
         private TextView tips;
         private ProgressBar pb;
 
@@ -265,7 +265,7 @@ public class CategoryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         }
     }
 
-    class ItemHolder extends RecyclerView.ViewHolder {
+    static class ItemHolder extends RecyclerView.ViewHolder {
 
         ItemHolder(@NonNull View itemView) {
             super(itemView);

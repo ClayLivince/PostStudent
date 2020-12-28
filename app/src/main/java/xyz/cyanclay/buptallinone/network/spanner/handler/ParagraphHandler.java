@@ -6,6 +6,7 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.AlignmentSpan;
 import android.text.style.LeadingMarginSpan;
+import android.util.Log;
 
 import net.nightwhistler.htmlspanner.spans.AlignNormalSpan;
 import net.nightwhistler.htmlspanner.spans.AlignOppositeSpan;
@@ -27,10 +28,15 @@ public class ParagraphHandler extends StyledHandler {
         String textAlign = styles.get("text-align");
 
         if (textIndent != null) {
-            LeadingMarginSpan.Standard marginSpan = new
-                    LeadingMarginSpan.Standard(Utils.dip2px(context, Integer.parseInt(
-                    textIndent.substring(0, textIndent.length() - 2).trim())), 0);
-            builder.setSpan(marginSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            try {
+                LeadingMarginSpan.Standard marginSpan = new
+                        LeadingMarginSpan.Standard(Utils.dip2px(context, Float.parseFloat(
+                        textIndent.substring(0, textIndent.length() - 2).trim())), 0);
+                builder.setSpan(marginSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            } catch (StringIndexOutOfBoundsException e) {
+                e.printStackTrace();
+                Log.e("textIndent", textIndent);
+            }
         }
 
         if (textAlign != null) {

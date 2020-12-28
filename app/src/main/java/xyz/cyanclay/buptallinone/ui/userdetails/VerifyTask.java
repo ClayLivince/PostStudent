@@ -1,12 +1,12 @@
 package xyz.cyanclay.buptallinone.ui.userdetails;
 
 import android.graphics.Color;
-import android.os.AsyncTask;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.IOException;
@@ -20,11 +20,12 @@ import xyz.cyanclay.buptallinone.network.info.InfoManager;
 import xyz.cyanclay.buptallinone.network.jwgl.JwglManager;
 import xyz.cyanclay.buptallinone.network.login.LoginException;
 import xyz.cyanclay.buptallinone.network.login.LoginStatus;
+import xyz.cyanclay.buptallinone.ui.components.TryAsyncTask;
 
 class VerifyTask {
 
     static void verify(final UserDetailsFragment udf,
-                       final SiteManager site){
+                       final SiteManager site) {
         verify(udf, site, null);
     }
 
@@ -33,19 +34,19 @@ class VerifyTask {
         final TextView verify;
         final EditText input;
         final ProgressBar progress;
-        if (site instanceof VPNManager){
+        if (site instanceof VPNManager) {
             verify = udf.root.findViewById(R.id.textViewVPNVerify);
             input = udf.root.findViewById(R.id.inpVPNPass);
             progress = udf.root.findViewById(R.id.progressBarVPN);
-        } else if (site instanceof InfoManager){
+        } else if (site instanceof InfoManager) {
             verify = udf.root.findViewById(R.id.textViewInfoVerify);
             input = udf.root.findViewById(R.id.inpInfoPass);
             progress = udf.root.findViewById(R.id.progressBarInfoPass);
-        } else if (site instanceof JwglManager){
+        } else if (site instanceof JwglManager) {
             verify = udf.root.findViewById(R.id.textViewJwglVerify);
             input = udf.root.findViewById(R.id.inpJwglPass);
             progress = udf.root.findViewById(R.id.progressBarJwglPass);
-        } else if (site instanceof JwxtManager){
+        } else if (site instanceof JwxtManager) {
             verify = udf.root.findViewById(R.id.textViewJwxtVerify);
             input = udf.root.findViewById(R.id.inpJwxtPass);
             progress = udf.root.findViewById(R.id.progressBarJwxtPass);
@@ -59,8 +60,9 @@ class VerifyTask {
         progress.setVisibility(View.VISIBLE);
         site.setDetails(udf.id, input.getText().toString());
 
-        new AsyncTask<Void, Void, LoginStatus>() {
+        new TryAsyncTask<Void, Void, LoginStatus>() {
             LoginException exception;
+
             @Override
             protected LoginStatus doInBackground(Void... voids) {
                 try {
@@ -72,20 +74,22 @@ class VerifyTask {
                     LoginStatus error = LoginStatus.UNKNOWN_ERROR;
                     error.errorMsg = e.toString();
                     return error;
-                } catch (LoginException e){
+                } catch (LoginException e) {
                     exception = e;
                     return e.status;
                 }
             }
 
             @Override
-            protected void onPostExecute(LoginStatus loginStatus) {
+            protected void postExecute(LoginStatus loginStatus) {
                 progress.setVisibility(View.INVISIBLE);
                 switch (loginStatus) {
                     case LOGIN_SUCCESS: {
                         verifySuccess(verify);
                         break;
                     }
+                    case EMPTY_USERNAME:
+                    case EMPTY_PASSWORD:
                     case INCORRECT_DETAIL: {
                         verifyFailed(verify, input);
                         Snackbar.make(udf.root, R.string.incorrect_password, Snackbar.LENGTH_LONG).show();
@@ -96,15 +100,20 @@ class VerifyTask {
                         Snackbar.make(udf.root, R.string.timed_out, Snackbar.LENGTH_LONG).show();
                         break;
                     }
-                    case CAPTCHA_REQUIRED:{
+                    case CAPTCHA_REQUIRED: {
                         if (exception != null)
                             udf.popupCaptcha(loginStatus.captchaImage
                                     , exception.site);
                         else udf.popupCaptcha(loginStatus.captchaImage, loginStatus.site);
                         break;
                     }
-                    case INCORRECT_CAPTCHA:{
+                    case EMPTY_CAPTCHA:
+                    case INCORRECT_CAPTCHA: {
                         Snackbar.make(udf.root, R.string.incorrect_captcha, Snackbar.LENGTH_LONG).show();
+                        break;
+                    }
+                    case TOO_MANY_ERRORS: {
+                        Snackbar.make(udf.root, R.string.vpn_too_many_errors, BaseTransientBottomBar.LENGTH_LONG).show();
                         break;
                     }
                     case UNKNOWN_ERROR: {

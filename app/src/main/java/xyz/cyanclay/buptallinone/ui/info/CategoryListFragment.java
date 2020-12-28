@@ -1,7 +1,6 @@
 package xyz.cyanclay.buptallinone.ui.info;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,6 +24,7 @@ import xyz.cyanclay.buptallinone.network.NetworkManager;
 import xyz.cyanclay.buptallinone.network.info.InfoCategory;
 import xyz.cyanclay.buptallinone.network.info.InfoManager.InfoItems;
 import xyz.cyanclay.buptallinone.network.login.LoginException;
+import xyz.cyanclay.buptallinone.ui.components.TryAsyncTask;
 
 public class CategoryListFragment extends Fragment {
 
@@ -86,7 +86,7 @@ public class CategoryListFragment extends Fragment {
         RecyclerView rv = root.findViewById(R.id.recyclerInfo);
 
         if (adapter == null)
-            adapter = new CategoryListAdapter(this, (MainActivity) getActivity());
+            adapter = new CategoryListAdapter(this, (MainActivity) requireActivity());
 
         layoutManager = new LinearLayoutManager(context);
         rv.setAdapter(adapter);
@@ -100,12 +100,12 @@ public class CategoryListFragment extends Fragment {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                     // 如果没有隐藏footView，那么最后一个条目的位置就比我们的getItemCount少1，自己可以算一下
-                    if (adapter.isFadeTips() == false && lastVisibleItem + 1 == adapter.getItemCount()) {
+                    if (!adapter.isFadeTips() && lastVisibleItem + 1 == adapter.getItemCount()) {
                         updateRecyclerView(adapter, root);
                     }
 
                     // 如果隐藏了提示条，我们又上拉加载时，那么最后一个条目就要比getItemCount要少2
-                    if (adapter.isFadeTips() == true && lastVisibleItem + 2 == adapter.getItemCount()) {
+                    if (adapter.isFadeTips() && lastVisibleItem + 2 == adapter.getItemCount()) {
                         updateRecyclerView(adapter, root);
                     }
                 }
@@ -125,7 +125,7 @@ public class CategoryListFragment extends Fragment {
 
     private static void updateRecyclerView(final CategoryListAdapter adapter, final View root) {
         final String[] message = new String[2];
-        new AsyncTask<Void, Void, Void>() {
+        new TryAsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... voids) {
                 try {
@@ -135,21 +135,21 @@ public class CategoryListFragment extends Fragment {
                     cancel(true);
                     message[0] = e.getMessage();
                     message[1] = e.toString();
-                } catch (LoginException e){
+                } catch (LoginException e) {
+
+                } catch (Exception e) {
 
                 }
                 return null;
             }
 
             @Override
-            protected void onCancelled() {
-                super.onCancelled();
+            protected void cancelled() {
                 Snackbar.make(root, "发生了错误。" + message[0] + "///" + message[1], Snackbar.LENGTH_LONG);
             }
 
             @Override
-            protected void onPostExecute(Void aVoid) {
-                super.onPostExecute(aVoid);
+            protected void postExecute(Void aVoid) {
                 adapter.notifyDataSetChanged();
             }
         }.execute();
@@ -161,7 +161,7 @@ public class CategoryListFragment extends Fragment {
                            final NetworkManager nm) {
         final boolean refresh = fragment.srl.isRefreshing();
         final String[] message = new String[2];
-        new AsyncTask<Void, Void, InfoItems>() {
+        new TryAsyncTask<Void, Void, InfoItems>() {
             @Override
             protected InfoItems doInBackground(Void... voids) {
                 try {
@@ -175,15 +175,14 @@ public class CategoryListFragment extends Fragment {
                     }
                 } catch (IOException e) {
                     solveException(e);
-                } catch (LoginException e){
+                } catch (LoginException e) {
 
                 }
                 return null;
             }
 
             @Override
-            protected void onPostExecute(InfoItems infoItems) {
-                super.onPostExecute(infoItems);
+            protected void postExecute(InfoItems infoItems) {
                 if (fragment.srl.isRefreshing()) {
                     fragment.srl.setRefreshing(false);
                     Snackbar.make(fragment.root, R.string.refreshed, Snackbar.LENGTH_SHORT).show();
@@ -193,8 +192,7 @@ public class CategoryListFragment extends Fragment {
             }
 
             @Override
-            protected void onCancelled() {
-                super.onCancelled();
+            protected void cancelled() {
                 Snackbar.make(fragment.root, "发生了错误。" + message[0] + "///" + message[1], Snackbar.LENGTH_LONG);
             }
 

@@ -1,7 +1,6 @@
 package xyz.cyanclay.buptallinone.ui.info;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +29,8 @@ import xyz.cyanclay.buptallinone.network.info.InfoManager.InfoItem;
 import xyz.cyanclay.buptallinone.network.info.InfoManager.InfoItems;
 import xyz.cyanclay.buptallinone.network.login.LoginException;
 import xyz.cyanclay.buptallinone.network.login.LoginTask;
+import xyz.cyanclay.buptallinone.ui.components.TryAsyncTask;
+import xyz.cyanclay.buptallinone.util.Utils;
 
 import static xyz.cyanclay.buptallinone.network.info.InfoCategory.INNER_CONTROL_OVERTNESS;
 import static xyz.cyanclay.buptallinone.network.info.InfoCategory.NOTICE_OVERTNESS;
@@ -60,7 +61,7 @@ public class ItemListFragment extends Fragment {
     private static void loadInfo(final View root, final ItemListFragment fragment, final boolean isRefresh) {
 
         final Context context = fragment.getContext();
-        final MainActivity activity = (MainActivity) fragment.getActivity();
+        final MainActivity activity = (MainActivity) fragment.requireActivity();
         final Map<InfoCategory, LinearLayout> ref = new HashMap<InfoCategory, LinearLayout>() {{
             put(SCHOOL_NOTICE, (LinearLayout) root.findViewById(R.id.NoticeContainer));
             put(SCHOOL_NEWS, (LinearLayout) root.findViewById(R.id.NewsContainer));
@@ -70,18 +71,16 @@ public class ItemListFragment extends Fragment {
             put(NOTICE_OVERTNESS, (LinearLayout) root.findViewById(R.id.OvertnessContainer));
         }};
 
-        new AsyncTask<Void, Void, InfoItems[]>() {
+        new TryAsyncTask<Void, Void, InfoItems[]>() {
             LoginException exception = null;
+            String name = "";
+
             @Override
             protected InfoItems[] doInBackground(Void... voids) {
-                NetworkManager nm = null;
-                while (nm == null){
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    nm = activity.getNetworkManager();
+                NetworkManager nm = Utils.getNetworkManager(activity);
+                if (nm == null) {
+                    cancel(true);
+                    return null;
                 }
                 InfoItems[] items = new InfoItems[6];
                 for (InfoCategory cate : InfoCategory.values()) {
@@ -101,24 +100,24 @@ public class ItemListFragment extends Fragment {
                     }
                 }
 
+                name = nm.name;
                 return items;
             }
 
             @Override
-            protected void onPostExecute(final InfoItems[] infoItems) {
-                super.onPostExecute(infoItems);
+            protected void postExecute(final InfoItems[] infoItems) {
                 for (InfoCategory cate : InfoCategory.values()) {
 
                     Objects.requireNonNull(ref.get(cate)).removeAllViews();
 
                     for (int i = 0; i <= 5; i++) {
-                        final View itemView = View.inflate(context, R.layout.fragment_info_item, null);
+                        final View itemView = View.inflate(context, R.layout.piece_info_item, null);
                         final InfoItem item = infoItems[cate.ordinal()].get(i);
                         itemView.setTag(item);
                         ((TextView) itemView.findViewById(R.id.textViewItemTitle)).setText(item.title);
                         ((TextView) itemView.findViewById(R.id.textViewItemTime)).setText(item.time);
 
-                        itemView.setOnClickListener(new View.OnClickListener() {
+                        itemView.findViewById(R.id.cardItem).setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 ItemDetailViewModel vm = ViewModelProviders.of(activity).get(ItemDetailViewModel.class);
@@ -135,12 +134,13 @@ public class ItemListFragment extends Fragment {
                     Snackbar.make(root, R.string.refreshed, Snackbar.LENGTH_SHORT).show();
                 }
 
+                activity.setUser(name);
                 root.findViewById(R.id.layoutItemLists).setVisibility(View.VISIBLE);
                 fragment.infoLoaded = true;
             }
 
             @Override
-            protected void onCancelled() {
+            protected void cancelled() throws Exception {
                 root.findViewById(R.id.layoutItemLists).setVisibility(View.GONE);
                 if (exception == null)
                     Snackbar.make(root, R.string.load_failed, Snackbar.LENGTH_LONG).show();

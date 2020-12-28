@@ -1,43 +1,126 @@
 package xyz.cyanclay.buptallinone.network.jwgl;
 
-import com.google.gson.Gson;
+import android.util.Log;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Date;
+import java.util.Calendar;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
-class JwglData {
+import xyz.cyanclay.buptallinone.network.jwgl.trainmode.TrainModeCourseGroup;
+import xyz.cyanclay.buptallinone.network.login.LoginException;
 
-    private JwglManager jwgl;
+public class JwglData {
+    private final JwglManager jwgl;
 
     String currentTerm;
+    Map<String, String> terms = new HashMap<>();
     int currentWeek;
+    int totalWeeks;
+    String profession = "";
+    String school = "";
+    String classID = "";
 
-    Date today;
+    Calendar today;
+    int year;
     int weekday;
 
     File jwglDir;
 
-    List<Course> courseWeek = new LinkedList<>();
+    Courses courses = new Courses();
 
     JwglData(JwglManager jwgl) {
         this.jwgl = jwgl;
     }
 
-    List<Course> loadCourse(int week) throws IOException {
+    Courses getCourses(boolean refresh) throws IOException, LoginException {
+        if (courses.isEmpty() && !refresh) {
+            courses = loadCourse();
+        }
+        if (courses.isEmpty() || refresh) {
+            courses = jwgl.getCourses();
+            saveCourse();
+        }
+        return courses;
+    }
+
+    public Map<String, String> getTerms() throws IOException, LoginException {
+        if (terms.isEmpty()) {
+            terms = jwgl.getTerms();
+        }
+        return terms;
+    }
+
+    public String getCurrentTerm() throws IOException, LoginException {
+        if (currentTerm == null) {
+            getTerms();
+        }
+        return currentTerm;
+    }
+
+    List<TrainModeCourseGroup> loadTrainMode() throws IOException, LoginException {
         File fileDir = jwgl.context.getFilesDir();
         verifyDir(fileDir);
-        File classFile = new File(jwglDir, "Week" + week + ".json");
-        List<Course> courses = new LinkedList<>();
+
+        String fileName = "TrainMode" + ".json";
+        Log.i("JwglData", "Loading TrainMode from " + fileName);
+        File trainFile = new File(jwglDir, fileName);
+
+        LinkedList<TrainModeCourseGroup> list = new LinkedList<>();
+        if (trainFile.exists()) {
+            BufferedReader reader = new BufferedReader(new FileReader(trainFile));
+
+            String line;
+            StringBuilder sb = new StringBuilder();
+            try {
+                while ((line = reader.readLine()) != null) {
+                    sb.append(line);
+                }
+
+                Gson gson = new Gson();
+                list.addAll((List<TrainModeCourseGroup>) gson.fromJson(sb.toString(), new TypeToken<List<TrainModeCourseGroup>>() {
+                }.getType()));
+            } catch (IOException | JsonSyntaxException e) {
+                e.printStackTrace();
+            }
+        }
+        return list;
+    }
+
+    void saveTrainMode(List<TrainModeCourseGroup> list) throws IOException, LoginException {
+        File fileDir = jwgl.context.getFilesDir();
+        verifyDir(fileDir);
+        String fileName = "TrainMode" + ".json";
+        Log.i("JwglData", "Saving TrainMode to " + fileName);
+        File trainFile = new File(jwglDir, fileName);
+        if (trainFile.exists()) {
+            if (!trainFile.delete()) throw new IOException();
+        }
+        FileOutputStream fos = new FileOutputStream(trainFile);
+        Gson gson = new Gson();
+        fos.write(gson.toJson(list).getBytes());
+        fos.flush();
+        fos.close();
+    }
+
+    Courses loadCourse() throws IOException {
+        File fileDir = jwgl.context.getFilesDir();
+        verifyDir(fileDir);
+
+        String fileName = "Course" + ".json";
+        Log.i("JwglData", "Loading Course from " + fileName);
+        File classFile = new File(jwglDir, fileName);
+        Courses courses = new Courses();
         if (classFile.exists()) {
             BufferedReader reader = new BufferedReader(new FileReader(classFile));
 
@@ -48,42 +131,43 @@ class JwglData {
                     sb.append(line);
                 }
 
-                JSONArray array = new JSONArray(sb.toString());
-                for (int i = 0; i < array.length(); i++) {
-                    JSONObject object = array.getJSONObject(i);
-                    courses.add(new Course(object));
-                }
-                courseWeek = courses;
-            } catch (IOException | JSONException e) {
+                Gson gson = new Gson();
+                courses.addAll((Courses) gson.fromJson(sb.toString(), new TypeToken<Courses>() {
+                }.getType()));
+                this.courses = courses;
+            } catch (IOException | JsonSyntaxException e) {
                 e.printStackTrace();
             }
         }
         return courses;
     }
 
-    void saveCourse(int week) throws IOException {
+    void saveCourse() throws IOException {
         File fileDir = jwgl.context.getFilesDir();
         verifyDir(fileDir);
-        File classFile = new File(jwglDir, "Week" + week + ".json");
+        String fileName = "Course" + ".json";
+        Log.i("JwglData", "Saving Course to " + fileName);
+        File classFile = new File(jwglDir, fileName);
         if (classFile.exists()) {
             if (!classFile.delete()) throw new IOException();
         }
         FileOutputStream fos = new FileOutputStream(classFile);
         Gson gson = new Gson();
-        fos.write(gson.toJson(courseWeek).getBytes());
+        fos.write(gson.toJson(this.courses).getBytes());
         fos.flush();
         fos.close();
     }
 
-    private boolean verifyDir(File fileDir) throws IOException {
+    private void verifyDir(File fileDir) throws IOException {
         jwglDir = new File(fileDir, "jwgl");
         if (jwglDir.exists()) {
             if (jwglDir.isDirectory()) {
-                return true;
+                return;
             } else {
                 if (!jwglDir.delete()) throw new IOException("Failed to delete file jwgl.");
             }
         }
-        return jwglDir.mkdir();
+        if (!jwglDir.mkdir())
+            throw new IOException("Failed to create jwglDir.");
     }
 }
