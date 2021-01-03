@@ -1,5 +1,7 @@
 {
-  "category": [
+  "name": "Root",
+  "id": "0",
+  "subCategory": [
     {
       "name": "校内通知",
       "id": "1154",
@@ -690,7 +692,7 @@
     },
     {
       "name": "公示公告",
-      "id": "1302",
+      "id": "1305",
       "subCategory": [
         {
           "name": "科研",

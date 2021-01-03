@@ -9,12 +9,30 @@
     android:focusable="true">
 
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerInfo"
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nslCategoryList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:itemCount="1"
-        tools:listitem="@layout/piece_info_item" />
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <include
+                layout="@layout/fragment_info_recycler_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerInfo"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:itemCount="1"
+                tools:listitem="@layout/piece_info_item" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
 
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

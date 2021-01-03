@@ -46,13 +46,27 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        final NavigationView navigationView = findViewById(R.id.nav_view);
+        try {
+            networkManager = new NetworkManager(getApplicationContext());
+        } catch (final IOException e) {
+            e.printStackTrace();
+            Snackbar.make(navigationView, R.string.init_failed, Snackbar.LENGTH_LONG)
+                    .setAction(e.getMessage(), null).show();
+        }
+
+        if (networkManager != null) {
+            taskCheckUpdate(MainActivity.this, navigationView);
+        }
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setSubtitle("厚德博学 敬业乐群");
         toolbar.setSubtitleTextColor(0xffffffff);
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        final NavigationView navigationView = findViewById(R.id.nav_view);
+
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
@@ -63,34 +77,6 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
-
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    networkManager = new NetworkManager(getApplicationContext());
-                } catch (final IOException e) {
-                    e.printStackTrace();
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Snackbar.make(navigationView, R.string.init_failed, Snackbar.LENGTH_LONG)
-                                    .setAction(e.getMessage(), null).show();
-                        }
-                    });
-                }
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (networkManager != null) {
-                            setUser(networkManager.name);
-                            taskCheckUpdate(MainActivity.this, navigationView);
-                        }
-                    }
-                });
-            }
-        }.start();
     }
 
     public void setUser(String name) {
@@ -156,14 +142,14 @@ public class MainActivity extends AppCompatActivity {
             protected Boolean doInBackground(Void... voids) {
                 try {
                     return activity.networkManager.updateManager.checkForUpdates();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    cancel(true);
-                    msg[0] = "网络不给力！";
                 } catch (JSONException e) {
                     e.printStackTrace();
                     cancel(true);
                     msg[0] = (String) activity.getResources().getText(R.string.update_problem);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    cancel(true);
+                    msg[0] = "网络不给力！";
                 }
                 return false;
             }
@@ -191,14 +177,14 @@ public class MainActivity extends AppCompatActivity {
                     String[] infos = activity.networkManager.updateManager.getUpdateInfo();
                     if (infos.length < 3) throw new IOException();
                     return infos;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    cancel(true);
-                    msg[0] = "网络不给力！";
                 } catch (JSONException e) {
                     e.printStackTrace();
                     cancel(true);
                     msg[0] = "发生问题！";
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    cancel(true);
+                    msg[0] = "网络不给力！";
                 }
                 return null;
             }

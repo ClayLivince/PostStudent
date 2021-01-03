@@ -18,10 +18,10 @@
         style="@style/Platform.Widget.AppCompat.Spinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:entries="@array/categories"
-        android:popupBackground="#FFFFFF"
+        android:clickable="true"
         android:focusable="true"
-        android:focusableInTouchMode="true" />
+        android:focusableInTouchMode="true"
+        android:popupBackground="#FFFFFF" />
 
     <TextView
         android:layout_width="match_parent"
@@ -39,11 +39,10 @@
             android:layout_width="250dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:entries="@array/announcers"
-            android:spinnerMode="dropdown"
-            android:popupBackground="#FFFFFF"
             android:focusable="true"
-            android:focusableInTouchMode="true" />
+            android:focusableInTouchMode="true"
+            android:popupBackground="#FFFFFF"
+            android:spinnerMode="dropdown" />
 
         <Spinner
             android:id="@+id/spinnerAnnouncer"
@@ -51,9 +50,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:spinnerMode="dialog"
             android:focusable="true"
-            android:focusableInTouchMode="true" />
+            android:focusableInTouchMode="true"
+            android:spinnerMode="dialog" />
 
     </LinearLayout>
 

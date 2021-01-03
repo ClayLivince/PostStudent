@@ -247,7 +247,7 @@ public class TrainModeFragment extends Fragment implements SwipeRefreshLayout.On
                     this.e = e;
                     e.printStackTrace();
                     cancel(true);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                     cancel(true);
                 }

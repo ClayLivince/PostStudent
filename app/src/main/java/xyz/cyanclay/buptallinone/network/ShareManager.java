@@ -36,11 +36,10 @@ public class ShareManager {
     }
 
     private String getClassifyID(InfoCategory category) {
-        switch (category) {
-            case SCHOOL_NOTICE:
-                return "tzgg";
-            case SCHOOL_NEWS:
-                return "xnxw";
+        if (InfoCategory.getRootCategory().getSubCategory(0).id.equals(category.id)) {
+            return "tzgg";
+        } else if (InfoCategory.getRootCategory().getSubCategory(1).id.equals(category.id)) {
+            return "xnxw";
         }
         return "";
     }

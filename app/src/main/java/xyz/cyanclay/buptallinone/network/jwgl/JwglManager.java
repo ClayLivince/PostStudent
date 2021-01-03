@@ -63,12 +63,12 @@ public class JwglManager extends SiteManager {
         data = new JwglData(this);
     }
 
-    public int getWeek() throws IOException, LoginException {
+    public int getWeek() throws Exception {
         if (data.currentWeek == 0) getTime();
         return data.currentWeek;
     }
 
-    public List<TrainModeCourseGroup> getTrainMode(boolean force) throws IOException, LoginException {
+    public List<TrainModeCourseGroup> getTrainMode(boolean force) throws Exception {
 
         if (!force) {
             try {
@@ -196,7 +196,7 @@ public class JwglManager extends SiteManager {
         return list;
     }
 
-    public Map<String, String> getTerms() throws IOException, LoginException {
+    public Map<String, String> getTerms() throws Exception {
         //get(jwglURL + "kscj/cjcx_frm");
         Document scoreTabDom = get(jwglURL + "kscj/cjcx_query").parse();
 
@@ -238,7 +238,7 @@ public class JwglManager extends SiteManager {
         return terms;
     }
 
-    public Scores getScore(String termName) throws IOException, LoginException {
+    public Scores getScore(String termName) throws Exception {
         if (termName == null)
             termName = "全部";
 
@@ -256,7 +256,7 @@ public class JwglManager extends SiteManager {
         return getScore(termID, 0);
     }
 
-    private Scores getScore(final String termID, int dummy) throws IOException, LoginException {
+    private Scores getScore(final String termID, int dummy) throws Exception {
 
         Map<String, String> data = new HashMap<String, String>() {{
             put("kksj", termID);
@@ -288,12 +288,18 @@ public class JwglManager extends SiteManager {
                 score.scoreMark = scoreItem.child(6).ownText().trim();
                 score.point = Float.parseFloat(scoreItem.child(7).ownText().trim());
                 score.pointHour = Integer.parseInt(scoreItem.child(8).ownText().trim());
-                score.gpa = Double.parseDouble(scoreItem.child(9).ownText().trim());
+                score.gpaString = scoreItem.child(9).ownText().trim();
                 score.reTermID = scoreItem.child(10).ownText().trim();
                 score.examType = scoreItem.child(11).ownText().trim();
                 score.courseType = scoreItem.child(12).ownText().trim();
                 score.courseCategory = scoreItem.child(13).ownText().trim();
                 score.commonType = scoreItem.child(14).ownText().trim();
+
+                try {
+                    score.gpa = Double.parseDouble(score.gpaString);
+                } catch (NumberFormatException ignored) {
+
+                }
 
                 scores.add(score);
             } catch (Exception e) {
@@ -338,7 +344,7 @@ public class JwglManager extends SiteManager {
         data.year = calendar.get(Calendar.YEAR);
     }
 
-    public Courses getClassToday(boolean force) throws IOException, LoginException {
+    public Courses getClassToday(boolean force) throws Exception {
         if (data.weekday == -1) initWeekday();
 
         Courses courses = new Courses();
@@ -351,7 +357,7 @@ public class JwglManager extends SiteManager {
         return courses;
     }
 
-    public Courses getClassWeek(int week, boolean forceRefresh) throws IOException, LoginException {
+    public Courses getClassWeek(int week, boolean forceRefresh) throws Exception {
 
         if (week == -1) {
             week = getWeek();
@@ -395,7 +401,7 @@ public class JwglManager extends SiteManager {
         return courses;
     }
 
-    Courses getCourses() throws IOException, LoginException {
+    Courses getCourses() throws Exception {
         Courses courses = new Courses();
         Connection.Response courseRes = get(jwglURL + coursePart);
         Document courseDom = courseRes.parse();
@@ -508,7 +514,7 @@ public class JwglManager extends SiteManager {
 
     }
 
-    private void getTime() throws IOException, LoginException {
+    private void getTime() throws Exception {
         if (cachedDocument == null)
             initCache();
 
@@ -535,7 +541,7 @@ public class JwglManager extends SiteManager {
         }
     }
 
-    public void initData() throws IOException, LoginException {
+    public void initData() throws Exception {
         if (cachedDocument != null) {
             getTime();
             getDept();
@@ -545,12 +551,12 @@ public class JwglManager extends SiteManager {
         }
     }
 
-    private void initCache() throws IOException, LoginException {
+    private void initCache() throws Exception {
         cachedDocument = get(jwglURL + mainPart).parse();
     }
 
     @Override
-    protected LoginStatus doLogin() throws IOException, LoginException {
+    protected LoginStatus doLogin() throws Exception {
 
         if (cookies.isEmpty()) {
             Connection.Response init = nm.get(jwglURL);
@@ -631,14 +637,14 @@ public class JwglManager extends SiteManager {
         }
     }
 
-    private Connection.Response get(String url) throws IOException, LoginException {
+    private Connection.Response get(String url) throws Exception {
         if (checkLogin()) {
             return nm.get(url, cookies);
         }
         throw new LoginException(this, LoginStatus.UNKNOWN_ERROR);
     }
 
-    private Connection.Response post(Connection conn) throws IOException, LoginException {
+    private Connection.Response post(Connection conn) throws Exception {
         if (checkLogin()) {
             return nm.post(conn.cookies(cookies));
         }

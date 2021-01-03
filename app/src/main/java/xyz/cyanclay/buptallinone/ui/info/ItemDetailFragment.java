@@ -23,7 +23,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.snackbar.Snackbar;
 
-import java.io.IOException;
 import java.util.Objects;
 
 import xyz.cyanclay.buptallinone.MainActivity;
@@ -86,7 +85,8 @@ public class ItemDetailFragment extends Fragment {
     }
 
     private void shareItem() {
-        if (item.category == InfoCategory.SCHOOL_NOTICE | item.category == InfoCategory.SCHOOL_NEWS) {
+        if (item.category.id.equals(InfoCategory.getRootCategory().getSubCategory(0).id) |
+                item.category.id.equals(InfoCategory.getRootCategory().getSubCategory(1).id)) {
             MainActivity activity = (MainActivity) requireActivity();
             activity.getNetworkManager().shareManager.share(item, activity);
         } else {
@@ -139,11 +139,11 @@ public class ItemDetailFragment extends Fragment {
             protected InfoItem doInBackground(Void... voids) {
                 try {
                     item.parseContentSpanned(mWidth, isRefresh);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    cancel(true);
                 } catch (LoginException e) {
                     exception = e;
+                    cancel(true);
+                } catch (Exception e) {
+                    e.printStackTrace();
                     cancel(true);
                 }
                 return item;

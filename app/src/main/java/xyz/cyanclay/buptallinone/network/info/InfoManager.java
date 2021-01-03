@@ -15,6 +15,7 @@ import java.util.HashMap;
 
 import xyz.cyanclay.buptallinone.network.NetworkManager;
 import xyz.cyanclay.buptallinone.network.SiteManager;
+import xyz.cyanclay.buptallinone.network.VPNManager;
 import xyz.cyanclay.buptallinone.network.login.LoginException;
 import xyz.cyanclay.buptallinone.network.login.LoginStatus;
 import xyz.cyanclay.buptallinone.network.spanner.BuptSpanner;
@@ -23,8 +24,9 @@ public class InfoManager extends SiteManager {
 
     private static final boolean useSSL = false;
 
-    private static final String domain = useSSL ? "http://my.bupt.edu.cn" : "https://my.bupt.edu.cn";
+    private static final String domain = useSSL ? "https://my.bupt.edu.cn" : "http://my.bupt.edu.cn";
     private static final String infoURL = "/index.jsp";
+    private static final String indexURL = "/xs_index.jsp?urltype=tree.TreeTempUrl&wbtreeid=1541";
     private String owner = "";
     private String loginRedirect = "";
     //loginURL = "https://auth.bupt.edu.cn/authserver/login?service=http%3A%2F%2Fmy.bupt.edu.cn%2Flogin.jsp";
@@ -34,6 +36,7 @@ public class InfoManager extends SiteManager {
 
     public InfoManager(NetworkManager nm, Context context) {
         super(nm, context);
+
         InfoCategory.init(context);
     }
 
@@ -49,6 +52,7 @@ public class InfoManager extends SiteManager {
         } catch (ArrayIndexOutOfBoundsException aiobe) {
             throw new IOException("Failed to parse owner.", aiobe);
         }
+        partMoved = partMoved.replace("http/77726476706e69737468656265737421fdee0f9e32207c1e7b0c9ce29b5b/", "");
         loginRedirect = domain + partMoved;
         Connection.Response init = nm.get(Jsoup.connect(loginRedirect), cookies);
         nm.authManager.setDetails(this.user, this.pass);
@@ -90,7 +94,8 @@ public class InfoManager extends SiteManager {
         if (checkLogin()) {
             if (cachedDocument != null) {
                 InfoItems items = new InfoItems();
-                Elements entries = cachedDocument.getElementsByClass("mainhome").first().getElementsByClass("listnotice").get(category.ordinal()).child(0).child(0).children();
+                Elements entries = cachedDocument.getElementsByClass("mainhome").first()
+                        .getElementsByClass("listnotice").get(category.getOrdinal()).getElementsByTag("dd");
                 for (Element entry : entries) {
                     if (entry.className().equals("more")) continue;
                     if (entry.tag().getName().equals("div")) continue;
@@ -109,16 +114,15 @@ public class InfoManager extends SiteManager {
     }
 
     public InfoItems parseNotice(InfoCategory category, boolean refresh) throws Exception {
-        return parseNotice(category, buildURL(category, -1, -1, 1), refresh);
+        return parseNotice(category, buildURL(category, -1), refresh);
     }
 
-    public InfoItems parseNotice(InfoCategory category, int cate, int id, int page, boolean refresh) throws Exception {
-        return parseNotice(category, buildURL(category, cate, id, page), refresh);
+    public InfoItems parseNotice(InfoCategory category, int page, boolean refresh) throws Exception {
+        return parseNotice(category, buildURL(category, page), refresh);
     }
 
-    public InfoItems parseNotice(InfoCategory category, int cate, int id, int page,
-                                 String searchWord) throws Exception {
-        return parseNotice(category, buildURL(category, cate, id, page), searchWord);
+    public InfoItems parseNotice(InfoCategory category, int page, String searchWord) throws Exception {
+        return parseNotice(category, buildURL(category, page), searchWord);
     }
 
     private InfoItems parseNotice(InfoCategory category, String url, String searchWord) throws Exception {
@@ -153,16 +157,21 @@ public class InfoManager extends SiteManager {
             item.time = entry.child(2).ownText().trim();
             items.add(item);
         }
-        if (items.size() < 30) items.bottom = true;
+        if (items.size() < 20) items.bottom = true;
         return items;
     }
 
-    private String buildURL(InfoCategory category, int cate, int id, int page) throws IOException {
+    private String buildURL(InfoCategory category, int page) throws IOException {
 
         StringBuilder sb = new StringBuilder();
 
         sb.append(domain);
-        sb.append()
+        sb.append("/list.jsp?urltype=tree.TreeTempUrl&wbtreeid=");
+        sb.append(category.id);
+        if (page > 0) {
+            sb.append("&PAGENUM=");
+            sb.append(page);
+        }
 
         /*
         sb.append("http://my.bupt.edu.cn/detach.portal?")
@@ -182,16 +191,19 @@ public class InfoManager extends SiteManager {
 
     private boolean refreshCachedDocument() throws Exception {
         if (checkLogin()) {
-            cachedDocument = nm.getContent(infoURL, cookies, true);
-            return cachedDocument.title().equals("欢迎访问信息服务门户");
+            cachedDocument = nm.getContent(domain + indexURL, cookies, true);
+            return cachedDocument.title().contains("欢迎访问信息服务门户");
         }
         return false;
     }
 
-    private static String packageURL(String href) {
-        return infoURL + href;
+    public static String packageURL(String href) {
+        if (href.charAt(0) == '/')
+            href = href.substring(1);
+        return domain + '/' + href;
     }
 
+    @Deprecated
     static String detachURL(String href) {
         return "http://my.bupt.edu.cn/detach.portal?" + href;
     }
@@ -255,8 +267,7 @@ public class InfoManager extends SiteManager {
                     if (nm.isSchoolNet)
                         attachments.put(link.ownText(), packageURL(link.attr("href")));
                     else
-                        attachments.put(link.ownText(), nm.vpnManager.analyseURL(
-                                packageURL(link.attr("href"))));
+                        attachments.put(link.ownText(), VPNManager.packageURL(link.attr("href")));
                 }
             }
         }
@@ -283,9 +294,9 @@ public class InfoManager extends SiteManager {
                 page++;
                 InfoItems more;
                 if (isSearch) {
-                    more = InfoManager.this.parseNotice(this.get(0).category, url.concat("&pageIndex=" + page), searchWord);
+                    more = InfoManager.this.parseNotice(this.get(0).category, buildURL(this.get(0).category, page), searchWord);
                 } else {
-                    more = InfoManager.this.parseNotice(this.get(0).category, url.concat("&pageIndex=" + page), false);
+                    more = InfoManager.this.parseNotice(this.get(0).category, buildURL(this.get(0).category, page), false);
                 }
                 this.addAll(more);
                 this.bottom = more.bottom;

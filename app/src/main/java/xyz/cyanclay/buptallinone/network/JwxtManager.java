@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import xyz.cyanclay.buptallinone.network.login.LoginException;
 import xyz.cyanclay.buptallinone.network.login.LoginStatus;
 
 public class JwxtManager extends SiteManager {
@@ -44,7 +43,7 @@ public class JwxtManager extends SiteManager {
         }
     }
 
-    public Drawable getCapImage() throws IOException, LoginException {
+    public Drawable getCapImage() throws Exception {
         Drawable capImageDrawable = null;
         if (checkLogin()) {
             try {
@@ -61,7 +60,7 @@ public class JwxtManager extends SiteManager {
     }
 
     @Override
-    public LoginStatus doLogin() throws IOException, LoginException {
+    public LoginStatus doLogin() throws Exception {
 
         Map<String, String> loginData = new HashMap<String, String>() {{
             put("type", "sso");
@@ -100,7 +99,7 @@ public class JwxtManager extends SiteManager {
         return null;
     }
 
-    public Document checkScore() throws IOException, LoginException {
+    public Document checkScore() throws Exception {
 
         Document score = nm.get("https://jwxt.bupt.edu.cn/gradeLnAllAction.do?type=ln&oper=qbinfo&lnxndm=",
                 cookies).parse();

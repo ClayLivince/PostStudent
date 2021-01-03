@@ -65,14 +65,14 @@ public class SettingFragment extends Fragment {
             protected Boolean doInBackground(Void... voids) {
                 try {
                     return fragment.updateManager.checkForUpdates();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    cancel(true);
-                    msg[0] = "网络不给力！";
                 } catch (JSONException e) {
                     e.printStackTrace();
                     cancel(true);
                     msg[0] = "发生问题！";
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    cancel(true);
+                    msg[0] = "网络不给力！";
                 }
                 return false;
             }
@@ -102,14 +102,14 @@ public class SettingFragment extends Fragment {
                     String[] infos = fragment.updateManager.getUpdateInfo();
                     if (infos.length < 3) throw new IOException();
                     return infos;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    cancel(true);
-                    msg[0] = "网络不给力！";
                 } catch (JSONException e) {
                     e.printStackTrace();
                     cancel(true);
                     msg[0] = "发生问题！";
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    cancel(true);
+                    msg[0] = "网络不给力！";
                 }
                 return null;
             }

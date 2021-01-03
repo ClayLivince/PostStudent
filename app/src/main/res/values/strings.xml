@@ -63,6 +63,7 @@
     <string name="inner_control_overtness">内控信息公开</string>
     <string name="notice_overtness">公开公示</string>
     <string name="academic_lecture">学术讲座</string>
+    <string name="all">全部</string>
 
     <string name="load_failed_sim">加载失败了TAT</string>
     <string name="empty_courses">没课喔~好好休息~</string>

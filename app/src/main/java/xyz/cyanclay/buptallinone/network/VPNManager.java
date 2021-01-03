@@ -32,19 +32,14 @@ public class VPNManager extends SiteManager {
 
     VPNManager(NetworkManager nm, Context context) throws IOException {
         super(nm, context);
-
-        init();
-    }
-
-    private void init() throws IOException {
-        Connection.Response init = Jsoup.connect(vpnURL)
-                .userAgent(NetworkManager.userAgent)
-                .method(Connection.Method.GET)
-                .execute();
-        cookies = init.cookies();
     }
 
     public LoginStatus doLogin() throws IOException {
+        Connection.Response initCookie = Jsoup.connect(vpnURL)
+                .userAgent(NetworkManager.userAgent)
+                .method(Connection.Method.GET)
+                .execute();
+        cookies = initCookie.cookies();
 
         Connection.Response init = Jsoup.connect(vpnURL + "/login")
                 .userAgent(NetworkManager.userAgent)
@@ -255,6 +250,12 @@ public class VPNManager extends SiteManager {
             e.printStackTrace();
         }
         return "";
+    }
+
+    public static String packageURL(String href) {
+        if (href.charAt(0) == '/')
+            href = href.substring(1);
+        return vpnURL + '/' + href;
     }
 
 }

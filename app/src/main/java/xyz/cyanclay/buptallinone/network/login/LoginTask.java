@@ -9,7 +9,6 @@ import androidx.navigation.Navigation;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.io.IOException;
 import java.net.SocketTimeoutException;
 
 import xyz.cyanclay.buptallinone.MainActivity;
@@ -28,13 +27,13 @@ public class LoginTask {
             protected LoginStatus doInBackground(Void... voids) {
                 try {
                     return site.login(captcha);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    if (e instanceof SocketTimeoutException) return LoginStatus.TIMED_OUT;
-                    else cancel(true);
                 } catch (LoginException e) {
                     exception = e;
                     cancel(true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    if (e instanceof SocketTimeoutException) return LoginStatus.TIMED_OUT;
+                    else cancel(true);
                 }
                 return LoginStatus.UNKNOWN_ERROR;
             }

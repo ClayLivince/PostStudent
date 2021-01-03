@@ -43,7 +43,7 @@ public class JwglData {
         this.jwgl = jwgl;
     }
 
-    Courses getCourses(boolean refresh) throws IOException, LoginException {
+    Courses getCourses(boolean refresh) throws Exception {
         if (courses.isEmpty() && !refresh) {
             courses = loadCourse();
         }
@@ -54,14 +54,14 @@ public class JwglData {
         return courses;
     }
 
-    public Map<String, String> getTerms() throws IOException, LoginException {
+    public Map<String, String> getTerms() throws Exception {
         if (terms.isEmpty()) {
             terms = jwgl.getTerms();
         }
         return terms;
     }
 
-    public String getCurrentTerm() throws IOException, LoginException {
+    public String getCurrentTerm() throws Exception {
         if (currentTerm == null) {
             getTerms();
         }

@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.snackbar.Snackbar;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -111,10 +110,10 @@ public class CourseTodayFragment extends Fragment {
                     ArrayList<Course> list = new ArrayList<>(courses);
                     Collections.sort(list);
                     return list;
-                } catch (IOException e) {
-                    e.printStackTrace();
                 } catch (LoginException e) {
                     exception = e;
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
                 cancel(true);
                 return null;

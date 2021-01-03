@@ -53,6 +53,8 @@ public class Score {
     //@SerializedName("zcj")
     public String score;
 
+    public String gpaString;
+
     public double gpa;
 
     //Mandatory Empty Constructor for GSON

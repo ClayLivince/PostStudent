@@ -16,7 +16,7 @@ public abstract class SiteManager {
     public Context context;
     protected Map<String, String> cookies = new HashMap<>();
     private boolean isLoggedIn;
-    protected NetworkManager nm;
+    public NetworkManager nm;
 
     public SiteManager(NetworkManager nm, Context context) {
         this.nm = nm;

@@ -1,13 +1,20 @@
 package xyz.cyanclay.buptallinone.ui.info;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.SearchView;
+import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -17,6 +24,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.IOException;
+import java.util.List;
 
 import xyz.cyanclay.buptallinone.MainActivity;
 import xyz.cyanclay.buptallinone.R;
@@ -26,7 +34,7 @@ import xyz.cyanclay.buptallinone.network.info.InfoManager.InfoItems;
 import xyz.cyanclay.buptallinone.network.login.LoginException;
 import xyz.cyanclay.buptallinone.ui.components.TryAsyncTask;
 
-public class CategoryListFragment extends Fragment {
+public class CategoryListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
     private View root;
     private Context context;
@@ -35,6 +43,15 @@ public class CategoryListFragment extends Fragment {
     private SwipeRefreshLayout srl;
     private int lastVisibleItem = 0;
     private boolean inited = false;
+
+    private String lastSearchWord;
+    private boolean isLastSearch = false;
+
+    Spinner spinnerCategory;
+    Spinner spinnerAnnouncerCate;
+    Spinner spinnerAnnouncer;
+
+    private NetworkManager nm;
 
     public CategoryListFragment() {
         // Required empty public constructor
@@ -51,6 +68,7 @@ public class CategoryListFragment extends Fragment {
         // Inflate the layout for this fragment
         if (root == null)
             root = inflater.inflate(R.layout.fragment_category_list, container, false);
+        nm = ((MainActivity) requireActivity()).getNetworkManager();
         return root;
     }
 
@@ -67,10 +85,15 @@ public class CategoryListFragment extends Fragment {
             srl.setColorSchemeResources(R.color.colorPrimary, R.color.colorPrimaryDark);
             srl.setRefreshing(true);
 
-            initRecycler();
+            spinnerCategory = view.findViewById(R.id.spinnerCategory);
+            spinnerAnnouncerCate = view.findViewById(R.id.spinnerAnnouncerCate);
+            spinnerAnnouncer = view.findViewById(R.id.spinnerAnnouncer);
 
-            fetchItems(this, InfoCategory.SCHOOL_NOTICE,
-                    -1, -1,
+            initRecycler();
+            initSearch(view);
+            initSpinners(view);
+
+            fetchItems(this, InfoCategory.getRootCategory().subCategory.get(0),
                     false, null, nm);
 
             inited = true;
@@ -82,18 +105,37 @@ public class CategoryListFragment extends Fragment {
         adapter.notifyDataSetChanged();
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void initRecycler() {
         RecyclerView rv = root.findViewById(R.id.recyclerInfo);
 
         if (adapter == null)
-            adapter = new CategoryListAdapter(this, (MainActivity) requireActivity());
+            adapter = new CategoryListAdapter((MainActivity) requireActivity());
 
         layoutManager = new LinearLayoutManager(context);
         rv.setAdapter(adapter);
+        rv.setNestedScrollingEnabled(false);
         rv.setLayoutManager(layoutManager);
         rv.setItemAnimator(new DefaultItemAnimator());
-        srl.setOnRefreshListener(adapter);
+        srl.setOnRefreshListener(this);
+        final NestedScrollView sl = root.findViewById(R.id.nslCategoryList);
 
+
+        sl.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                View childView = sl.getChildAt(0);
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    if (childView != null && childView.getMeasuredHeight() <= sl.getScrollY() + sl.getHeight()) {
+                        updateRecyclerView(adapter, root);
+                    } else if (sl.getScrollY() == 0) {
+
+                    }
+                }
+
+                return false;
+            }
+        });
         rv.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
@@ -118,9 +160,126 @@ public class CategoryListFragment extends Fragment {
                 int topRowVerticalPosition =
                         recyclerView.getChildCount() == 0 ? 0 : recyclerView.getChildAt(0).getTop();
                 srl.setEnabled(topRowVerticalPosition >= 0);
-                ;
             }
         });
+    }
+
+    private InfoCategory collectCategory() {
+        InfoCategory category = InfoCategory.getRootCategory().getSubCategory(spinnerCategory.getSelectedItemPosition());
+        int announcerCate = spinnerAnnouncerCate.getSelectedItemPosition();
+        if (announcerCate > 0) {
+            category = category.getSubCategory(announcerCate - 1);
+
+            int announcer = spinnerAnnouncer.getSelectedItemPosition();
+            if (announcer > 0) {
+                category = category.getSubCategory(announcer);
+            }
+        }
+        return category;
+    }
+
+    private void initSearch(final View root) {
+        SearchView searchView = root.findViewById(R.id.searchInfo);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+
+                CategoryListFragment.fetchItems(CategoryListFragment.this, collectCategory(),
+                        true, query, nm);
+                isLastSearch = true;
+                lastSearchWord = query;
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if (newText.equals(""))
+                    CategoryListFragment.fetchItems(CategoryListFragment.this, collectCategory(),
+                            false, null, nm);
+                //clearSearch(root);
+                return true;
+            }
+        });
+    }
+
+    private void clearSearch(View root) {
+        isLastSearch = false;
+        SearchView searchView = root.findViewById(R.id.searchInfo);
+        searchView.setQuery("", false);
+    }
+
+    private void initSpinners(final View root) {
+        spinnerCategory.setAdapter(new ArrayAdapter<>(requireContext(), R.layout.piece_dialog_dropdown,
+                R.id.textViewDropdown, InfoCategory.getRootCategory().getSubNames()));
+
+        spinnerAnnouncerCate.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position == 0) {
+                    spinnerAnnouncer.setVisibility(View.GONE);
+                    CategoryListFragment.fetchItems(CategoryListFragment.this,
+                            collectCategory(), false, null, nm);
+                    clearSearch(root);
+                } else {
+                    if (!collectCategory().subCategory.isEmpty()) {
+                        spinnerAnnouncer.setVisibility(View.VISIBLE);
+                        spinnerAnnouncer.setAdapter(new ArrayAdapter<>(requireContext(),
+                                R.layout.piece_dialog_dropdown,
+                                R.id.textViewDropdown,
+                                InfoCategory.getRootCategory().getSubCategory(spinnerCategory.getSelectedItemPosition())
+                                        .getSubCategory(spinnerAnnouncerCate.getSelectedItemPosition() - 1).getSubNames()));
+                    }
+                }
+                spinnerAnnouncer.setSelection(0);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
+        spinnerCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                InfoCategory sCategory = InfoCategory.getRootCategory().getSubCategory(position);
+                List<String> names = sCategory.getSubNames();
+                names.add(0, requireContext().getString(R.string.all));
+                if (position >= 2 & position <= 4) {
+                    spinnerAnnouncer.setAdapter(new ArrayAdapter<>(requireContext(), R.layout.piece_dialog_dropdown,
+                            R.id.textViewDropdown, names));
+                    spinnerAnnouncer.setVisibility(View.VISIBLE);
+                    spinnerAnnouncerCate.setVisibility(View.GONE);
+                } else {
+                    spinnerAnnouncerCate.setAdapter(new ArrayAdapter<>(requireContext(), R.layout.piece_dialog_dropdown,
+                            R.id.textViewDropdown, names));
+                }
+                spinnerAnnouncerCate.setSelection(0);
+            }
+
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
+        spinnerAnnouncer.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                CategoryListFragment.fetchItems(CategoryListFragment.this, collectCategory(),
+                        false, null, nm);
+                clearSearch(root);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+    }
+
+    @Override
+    public void onRefresh() {
+        CategoryListFragment.fetchItems(this, collectCategory(), isLastSearch, lastSearchWord, nm);
     }
 
     private static void updateRecyclerView(final CategoryListAdapter adapter, final View root) {
@@ -136,9 +295,9 @@ public class CategoryListFragment extends Fragment {
                     message[0] = e.getMessage();
                     message[1] = e.toString();
                 } catch (LoginException e) {
-
+                    //TODO: Popup Handler Dialog
                 } catch (Exception e) {
-
+                    e.printStackTrace();
                 }
                 return null;
             }
@@ -155,10 +314,8 @@ public class CategoryListFragment extends Fragment {
         }.execute();
     }
 
-    static void fetchItems(final CategoryListFragment fragment,
-                           final InfoCategory cate, final int announcerCate, final int announcerID,
-                           final boolean isSearch, final String searchWord,
-                           final NetworkManager nm) {
+    static void fetchItems(final CategoryListFragment fragment, final InfoCategory cate,
+                           final boolean isSearch, final String searchWord, final NetworkManager nm) {
         final boolean refresh = fragment.srl.isRefreshing();
         final String[] message = new String[2];
         new TryAsyncTask<Void, Void, InfoItems>() {
@@ -166,17 +323,17 @@ public class CategoryListFragment extends Fragment {
             protected InfoItems doInBackground(Void... voids) {
                 try {
                     if (cate == null) {
-                        return nm.infoManager.parseMainpage(InfoCategory.SCHOOL_NOTICE);
+                        return nm.infoManager.parseMainpage(InfoCategory.getRootCategory().subCategory.get(0));
                     } else {
                         if (isSearch) {
-                            return nm.infoManager.parseNotice(cate, announcerCate, announcerID, 1, searchWord);
+                            return nm.infoManager.parseNotice(cate, 1, searchWord);
                         } else
-                            return nm.infoManager.parseNotice(cate, announcerCate - 1, announcerID, 1, refresh);
+                            return nm.infoManager.parseNotice(cate, 1, refresh);
                     }
-                } catch (IOException e) {
-                    solveException(e);
                 } catch (LoginException e) {
-
+                    //TODO: Popup Handler Dialog
+                } catch (Exception e) {
+                    solveException(e);
                 }
                 return null;
             }

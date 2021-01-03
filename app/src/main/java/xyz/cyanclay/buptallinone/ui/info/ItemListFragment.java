@@ -16,7 +16,6 @@ import androidx.navigation.Navigation;
 
 import com.google.android.material.snackbar.Snackbar;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -31,13 +30,6 @@ import xyz.cyanclay.buptallinone.network.login.LoginException;
 import xyz.cyanclay.buptallinone.network.login.LoginTask;
 import xyz.cyanclay.buptallinone.ui.components.TryAsyncTask;
 import xyz.cyanclay.buptallinone.util.Utils;
-
-import static xyz.cyanclay.buptallinone.network.info.InfoCategory.INNER_CONTROL_OVERTNESS;
-import static xyz.cyanclay.buptallinone.network.info.InfoCategory.NOTICE_OVERTNESS;
-import static xyz.cyanclay.buptallinone.network.info.InfoCategory.PARTY_OVERTNESS;
-import static xyz.cyanclay.buptallinone.network.info.InfoCategory.SCHOOL_NEWS;
-import static xyz.cyanclay.buptallinone.network.info.InfoCategory.SCHOOL_NOTICE;
-import static xyz.cyanclay.buptallinone.network.info.InfoCategory.SCHOOL_OVERTNESS;
 
 public class ItemListFragment extends Fragment {
     private boolean infoLoaded = false;
@@ -59,16 +51,16 @@ public class ItemListFragment extends Fragment {
     }
 
     private static void loadInfo(final View root, final ItemListFragment fragment, final boolean isRefresh) {
-
+        final InfoCategory rootCategory = InfoCategory.getRootCategory();
         final Context context = fragment.getContext();
         final MainActivity activity = (MainActivity) fragment.requireActivity();
         final Map<InfoCategory, LinearLayout> ref = new HashMap<InfoCategory, LinearLayout>() {{
-            put(SCHOOL_NOTICE, (LinearLayout) root.findViewById(R.id.NoticeContainer));
-            put(SCHOOL_NEWS, (LinearLayout) root.findViewById(R.id.NewsContainer));
-            put(PARTY_OVERTNESS, (LinearLayout) root.findViewById(R.id.PartyContainer));
-            put(SCHOOL_OVERTNESS, (LinearLayout) root.findViewById(R.id.SchoolOvertContainer));
-            put(INNER_CONTROL_OVERTNESS, (LinearLayout) root.findViewById(R.id.InnerControlContainer));
-            put(NOTICE_OVERTNESS, (LinearLayout) root.findViewById(R.id.OvertnessContainer));
+            put(rootCategory.getSubCategory(0), (LinearLayout) root.findViewById(R.id.NoticeContainer));
+            put(rootCategory.getSubCategory(1), (LinearLayout) root.findViewById(R.id.NewsContainer));
+            put(rootCategory.getSubCategory(2), (LinearLayout) root.findViewById(R.id.PartyContainer));
+            put(rootCategory.getSubCategory(3), (LinearLayout) root.findViewById(R.id.SchoolOvertContainer));
+            put(rootCategory.getSubCategory(4), (LinearLayout) root.findViewById(R.id.InnerControlContainer));
+            put(rootCategory.getSubCategory(5), (LinearLayout) root.findViewById(R.id.OvertnessContainer));
         }};
 
         new TryAsyncTask<Void, Void, InfoItems[]>() {
@@ -83,15 +75,16 @@ public class ItemListFragment extends Fragment {
                     return null;
                 }
                 InfoItems[] items = new InfoItems[6];
-                for (InfoCategory cate : InfoCategory.values()) {
+                for (InfoCategory cate : rootCategory.subCategory) {
                     try {
-                        items[cate.ordinal()] = nm.infoManager.parseMainpage(cate);
-                    } catch (IOException e) {
-                        cancel(true);
-                        e.printStackTrace();
+                        items[cate.getOrdinal()] = nm.infoManager.parseMainpage(cate);
                     } catch (LoginException e) {
                         cancel(true);
                         exception = e;
+                        e.printStackTrace();
+                    } catch (Exception e) {
+                        cancel(true);
+                        e.printStackTrace();
                     }
                 }
                 for (InfoItems itemList : items) {
@@ -106,13 +99,13 @@ public class ItemListFragment extends Fragment {
 
             @Override
             protected void postExecute(final InfoItems[] infoItems) {
-                for (InfoCategory cate : InfoCategory.values()) {
+                for (InfoCategory cate : InfoCategory.getRootCategory().subCategory) {
 
                     Objects.requireNonNull(ref.get(cate)).removeAllViews();
 
                     for (int i = 0; i <= 5; i++) {
                         final View itemView = View.inflate(context, R.layout.piece_info_item, null);
-                        final InfoItem item = infoItems[cate.ordinal()].get(i);
+                        final InfoItem item = infoItems[cate.getOrdinal()].get(i);
                         itemView.setTag(item);
                         ((TextView) itemView.findViewById(R.id.textViewItemTitle)).setText(item.title);
                         ((TextView) itemView.findViewById(R.id.textViewItemTime)).setText(item.time);

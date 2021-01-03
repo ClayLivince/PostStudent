@@ -8,6 +8,8 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 import xyz.cyanclay.buptallinone.R;
 
@@ -32,15 +34,38 @@ public class InfoCategory {
 
         Gson gson = new Gson();
         category = gson.fromJson(reader, InfoCategory.class);
+        //Log.e("InfoCategory", category.toString());
     }
 
-    public ArrayList<String> getSubNames() {
-        ArrayList<String> list = new ArrayList<>();
+    public InfoCategory getSubCategory(int index) {
+        return subCategory.get(index);
+    }
+
+    public List<String> getSubNames() {
+        LinkedList<String> list = new LinkedList<>();
         if (subCategory != null) {
             for (InfoCategory subCate : subCategory) {
                 list.add(subCate.name);
             }
         }
         return list;
+    }
+
+    public int getOrdinal() {
+        switch (id) {
+            case "1154":
+                return 0;
+            case "1221":
+                return 1;
+            case "1302":
+                return 2;
+            case "1303":
+                return 3;
+            case "1304":
+                return 4;
+            case "1305":
+                return 5;
+        }
+        return -1;
     }
 }

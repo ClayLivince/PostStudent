@@ -24,8 +24,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.snackbar.Snackbar;
 
-import java.io.IOException;
-
 import xyz.cyanclay.buptallinone.MainActivity;
 import xyz.cyanclay.buptallinone.R;
 import xyz.cyanclay.buptallinone.network.NetworkManager;
@@ -335,11 +333,11 @@ public class ClassScheduleFragment extends Fragment implements SwipeRefreshLayou
                 try {
                     currentWeek[0] = csf.nm.jwglManager.getWeek();
                     return csf.nm.jwglManager.getClassWeek(week, forceRefresh);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    cancel(true);
                 } catch (LoginException e) {
                     exception = e;
+                    cancel(true);
+                } catch (Exception e) {
+                    e.printStackTrace();
                     cancel(true);
                 }
                 return null;

@@ -8,14 +8,12 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
-import xyz.cyanclay.buptallinone.network.login.LoginException;
 import xyz.cyanclay.buptallinone.network.login.LoginStatus;
 
 public class AuthManager extends SiteManager {
@@ -27,11 +25,11 @@ public class AuthManager extends SiteManager {
         super(nm, context);
     }
 
-    public LoginStatus login(String service) throws IOException, LoginException {
+    public LoginStatus login(String service) throws Exception {
         return login(service, null);
     }
 
-    public LoginStatus login(String service, String captcha) throws IOException, LoginException {
+    public LoginStatus login(String service, String captcha) throws Exception {
         String url = loginURL + "?service=" + getEncodedURL(service);
         Connection.Response authInit = nm.get(url);
         String authInitURL = authInit.url().toString();
@@ -49,7 +47,7 @@ public class AuthManager extends SiteManager {
         else return loginWithMap(cachedDetails, service);
     }
 
-    private LoginStatus judgeCaptcha(final Document target, String sCaptcha) throws IOException, LoginException {
+    private LoginStatus judgeCaptcha(final Document target, String sCaptcha) throws Exception {
         Map<String, String> details = new HashMap<String, String>() {{
             put("username", user);
             put("password", pass);
@@ -76,7 +74,7 @@ public class AuthManager extends SiteManager {
         return null;
     }
 
-    public LoginStatus loginWithCaptcha(String service, String captcha) throws IOException, LoginException {
+    public LoginStatus loginWithCaptcha(String service, String captcha) throws Exception {
         if (cachedDetails != null) {
             cachedDetails.put("captchaResponse", captcha);
             return loginWithMap(cachedDetails, service);
@@ -85,7 +83,7 @@ public class AuthManager extends SiteManager {
         }
     }
 
-    private LoginStatus loginWithMap(Map<String, String> details, String service) throws IOException, LoginException {
+    private LoginStatus loginWithMap(Map<String, String> details, String service) throws Exception {
         String url = loginURL + "?service=" + getEncodedURL(service);
         Connection.Response authLogin = nm.post(Jsoup.connect(url)
                 .cookies(cookies)

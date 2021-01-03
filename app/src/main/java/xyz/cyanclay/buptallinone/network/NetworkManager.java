@@ -26,7 +26,6 @@ import java.util.Objects;
 
 import xyz.cyanclay.buptallinone.network.info.InfoManager;
 import xyz.cyanclay.buptallinone.network.jwgl.JwglManager;
-import xyz.cyanclay.buptallinone.network.login.LoginException;
 import xyz.cyanclay.buptallinone.network.login.PasswordHelper;
 
 public class NetworkManager {
@@ -117,7 +116,7 @@ public class NetworkManager {
     }
 
     public Connection.Response get(String url, Map<String, String> cookies,
-                                   boolean ignoreContent) throws IOException, LoginException {
+                                   boolean ignoreContent) throws Exception {
         try {
             return get(Jsoup.connect(url).ignoreContentType(ignoreContent), cookies);
         } catch (IllegalArgumentException e) {
@@ -126,11 +125,11 @@ public class NetworkManager {
         }
     }
 
-    public Connection.Response get(String url) throws IOException, LoginException {
+    public Connection.Response get(String url) throws Exception {
         return get(Jsoup.connect(url), null);
     }
 
-    public Connection.Response get(Connection conn, Map<String, String> cookies) throws IOException, LoginException {
+    public Connection.Response get(Connection conn, Map<String, String> cookies) throws Exception {
 
         conn.userAgent(userAgent)
                 .method(Connection.Method.GET)
@@ -148,7 +147,7 @@ public class NetworkManager {
         }
     }
 
-    public Connection.Response post(Connection conn) throws IOException, LoginException {
+    public Connection.Response post(Connection conn) throws Exception {
         conn.userAgent(userAgent)
                 .method(Connection.Method.POST)
                 .timeout(10000);
@@ -159,7 +158,7 @@ public class NetworkManager {
         }
     }
 
-    public Connection.Response get(String url, Map<String, String> cookies) throws IOException, LoginException {
+    public Connection.Response get(String url, Map<String, String> cookies) throws Exception {
         return get(Jsoup.connect(url), cookies);
     }
 
@@ -174,11 +173,11 @@ public class NetworkManager {
      * @param cookies 需要携带的cookies
      * @return {@link Document} parse过的html document对象
      */
-    public Document getContent(String url, Map<String, String> cookies) throws IOException, LoginException {
+    public Document getContent(String url, Map<String, String> cookies) throws Exception {
         return getContent(url, cookies, false);
     }
 
-    public byte[] getByteStream(String url, Map<String, String> cookies, boolean forceRefresh) throws IOException, LoginException {
+    public byte[] getByteStream(String url, Map<String, String> cookies, boolean forceRefresh) throws Exception {
         if (!forceRefresh && checkCache(url)) {
             File resFile = new File(picDir, String.valueOf(url.hashCode()));
             InputStream in = new FileInputStream(resFile);
@@ -204,7 +203,7 @@ public class NetworkManager {
      * @param forceRefresh 是否强制刷新缓存
      * @return {@link Document} parse过的html document对象
      */
-    public Document getContent(String url, Map<String, String> cookies, boolean forceRefresh) throws IOException, LoginException {
+    public Document getContent(String url, Map<String, String> cookies, boolean forceRefresh) throws Exception {
 
         if (!forceRefresh && checkCache(url)) {
             File docFile = new File(networkCacheDir, String.valueOf(url.hashCode()));
@@ -236,10 +235,9 @@ public class NetworkManager {
         }
         return refreshContent(url, cookies);
 
-
     }
 
-    private byte[] refreshResponse(String url, Map<String, String> cookies) throws IOException, LoginException {
+    private byte[] refreshResponse(String url, Map<String, String> cookies) throws Exception {
 
         FileOutputStream outStream = null;
         Connection.Response response = get(url, cookies, true);
@@ -268,7 +266,7 @@ public class NetworkManager {
 
     }
 
-    private Document refreshContent(String url, Map<String, String> cookies) throws IOException, LoginException {
+    private Document refreshContent(String url, Map<String, String> cookies) throws Exception {
         FileOutputStream outStream = null;
 
         Connection.Response response = get(url, cookies);

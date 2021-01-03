@@ -12,12 +12,10 @@ import android.net.Uri;
 import android.util.Log;
 import android.widget.Toast;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 
-import java.io.IOException;
 import java.util.HashMap;
 
 import xyz.cyanclay.buptallinone.R;
@@ -119,7 +117,7 @@ public class UpdateManager {
     };
 
 
-    public boolean checkForUpdates() throws IOException, JSONException {
+    public boolean checkForUpdates() throws Exception {
         Connection.Response res = nm.getNoVPN(Jsoup.connect(versionURL)
                 .ignoreContentType(true));
         json = new JSONObject(res.body());
@@ -133,7 +131,7 @@ public class UpdateManager {
      * 1: infoTitle
      * 2: infoDetail
      */
-    public String[] getUpdateInfo() throws IOException, JSONException {
+    public String[] getUpdateInfo() throws Exception {
         String[] info = {"", "", ""};
 
         if (json == null) checkForUpdates();

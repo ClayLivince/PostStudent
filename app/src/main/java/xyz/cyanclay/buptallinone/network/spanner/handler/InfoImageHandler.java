@@ -17,24 +17,26 @@ import org.apache.log4j.Logger;
 import org.htmlcleaner.TagNode;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import xyz.cyanclay.buptallinone.R;
 import xyz.cyanclay.buptallinone.network.NetworkManager;
+import xyz.cyanclay.buptallinone.network.VPNManager;
 import xyz.cyanclay.buptallinone.network.info.InfoManager;
-import xyz.cyanclay.buptallinone.network.login.LoginException;
 
 public class InfoImageHandler extends ImageHandler {
 
     private int maxWidth;
     private boolean forceRefresh;
     private InfoManager infoManager;
+    private Bitmap failed;
 
     private static Logger logger = LogManager.getLogger(NetworkManager.class);
 
     public InfoImageHandler(InfoManager mgr) {
         this.infoManager = mgr;
+        failed = BitmapFactory.decodeResource(infoManager.context.getResources(), R.drawable.empty);
     }
 
     public InfoImageHandler(InfoManager mgr, int maxWidth, boolean force) {
@@ -67,20 +69,35 @@ public class InfoImageHandler extends ImageHandler {
     }
 
     private Bitmap getBitmap(String url) {
+        if (url == null)
+            return null;
         Bitmap bitmap = null;
+        URL packed;
         try {
-            URL packed = new URL(url);
-            bitmap = BitmapFactory.decodeStream(new ByteArrayInputStream(
-                    infoManager.getBytes(url, forceRefresh)));
-        } catch (IOException | LoginException e) {
-            if (e instanceof MalformedURLException) {
+            packed = new URL(url);
+        } catch (MalformedURLException e) {
+            if (!infoManager.nm.isSchoolNet) {
                 try {
-                    String[] pieces = url.split("://");
-                    return getBitmap("http://" + pieces[1]);
-                } catch (ArrayIndexOutOfBoundsException outBound) {
-                    logger.error("Malformed URL:" + url, e);
+                    packed = new URL(VPNManager.packageURL(url));
+                } catch (MalformedURLException ee) {
+                    try {
+                        String[] pieces = url.split("://");
+                        packed = new URL("http://" + pieces[1]);
+                    } catch (MalformedURLException eee) {
+                        logger.error("Malformed URL:" + url, eee);
+                        return failed;
+                    }
                 }
-            } else e.printStackTrace();
+            } else {
+                logger.error("Malformed URL:" + url, e);
+                return failed;
+            }
+        }
+        try {
+            bitmap = BitmapFactory.decodeStream(new ByteArrayInputStream(
+                    infoManager.getBytes(packed.toString(), forceRefresh)));
+        } catch (Exception ee) {
+            ee.printStackTrace();
         }
         if (bitmap != null) {
             if (bitmap.getWidth() > maxWidth) {

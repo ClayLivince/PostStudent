@@ -23,7 +23,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.snackbar.Snackbar;
 
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.HashSet;
 import java.util.List;
@@ -208,11 +207,11 @@ public class CheckScoreFragment extends Fragment implements SwipeRefreshLayout.O
 
                 try {
                     return nm.jwglManager.getData().getTerms().keySet();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    cancel(true);
                 } catch (LoginException e) {
                     exception = e;
+                    cancel(true);
+                } catch (Exception e) {
+                    e.printStackTrace();
                     cancel(true);
                 }
 
@@ -251,11 +250,11 @@ public class CheckScoreFragment extends Fragment implements SwipeRefreshLayout.O
 
                 try {
                     return nm.jwglManager.getScore(termName);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    cancel(true);
                 } catch (LoginException e) {
                     exception = e;
+                    cancel(true);
+                } catch (Exception e) {
+                    e.printStackTrace();
                     cancel(true);
                 }
 

@@ -9,7 +9,6 @@ import android.widget.TextView;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.io.IOException;
 import java.net.SocketTimeoutException;
 
 import xyz.cyanclay.buptallinone.R;
@@ -68,15 +67,15 @@ class VerifyTask {
                 try {
                     if (captcha != null) return site.login(captcha);
                     return site.login();
-                } catch (IOException e) {
+                } catch (LoginException e) {
+                    exception = e;
+                    return e.status;
+                } catch (Exception e) {
                     e.printStackTrace();
                     if (e instanceof SocketTimeoutException) return LoginStatus.TIMED_OUT;
                     LoginStatus error = LoginStatus.UNKNOWN_ERROR;
                     error.errorMsg = e.toString();
                     return error;
-                } catch (LoginException e) {
-                    exception = e;
-                    return e.status;
                 }
             }
 
