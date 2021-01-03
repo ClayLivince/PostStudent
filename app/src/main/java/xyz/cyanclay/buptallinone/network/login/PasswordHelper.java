@@ -20,6 +20,7 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+//Mark as ignored
 public class PasswordHelper {
 
     private IvParameterSpec IV;
