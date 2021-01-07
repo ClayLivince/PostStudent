@@ -224,7 +224,7 @@ public class CheckScoreFragment extends Fragment implements SwipeRefreshLayout.O
             }
 
             @Override
-            protected void cancelled() throws Exception {
+            protected void cancelled(Set<String> set) throws Exception {
                 fragment.rv.setVisibility(View.GONE);
                 if (exception == null)
                     Snackbar.make(fragment.root, "加载学期列表失败！", Snackbar.LENGTH_LONG).show();
@@ -268,7 +268,7 @@ public class CheckScoreFragment extends Fragment implements SwipeRefreshLayout.O
             }
 
             @Override
-            protected void cancelled() throws Exception {
+            protected void cancelled(Scores list) throws Exception {
                 fragment.srl.setRefreshing(false);
                 if (exception == null)
                     Snackbar.make(fragment.root, "加载成绩失败！", Snackbar.LENGTH_LONG).show();

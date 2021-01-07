@@ -303,7 +303,7 @@ public class CategoryListFragment extends Fragment implements SwipeRefreshLayout
             }
 
             @Override
-            protected void cancelled() {
+            protected void cancelled(Void a) {
                 Snackbar.make(root, "发生了错误。" + message[0] + "///" + message[1], Snackbar.LENGTH_LONG);
             }
 
@@ -349,7 +349,7 @@ public class CategoryListFragment extends Fragment implements SwipeRefreshLayout
             }
 
             @Override
-            protected void cancelled() {
+            protected void cancelled(InfoItems infoItems) {
                 Snackbar.make(fragment.root, "发生了错误。" + message[0] + "///" + message[1], Snackbar.LENGTH_LONG);
             }
 

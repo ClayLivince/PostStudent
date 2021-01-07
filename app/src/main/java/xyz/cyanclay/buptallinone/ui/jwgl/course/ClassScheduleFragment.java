@@ -358,7 +358,7 @@ public class ClassScheduleFragment extends Fragment implements SwipeRefreshLayou
             }
 
             @Override
-            protected void cancelled() throws Exception {
+            protected void cancelled(Courses courses) throws Exception {
                 if (csf.srl.isRefreshing()) {
                     csf.srl.setRefreshing(false);
                 }

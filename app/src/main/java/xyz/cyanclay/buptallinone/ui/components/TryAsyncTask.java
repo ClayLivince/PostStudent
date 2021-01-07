@@ -26,21 +26,6 @@ public abstract class TryAsyncTask<Params, Progress, Result> extends AsyncTask<P
     protected abstract void postExecute(Result result) throws Exception;
 
     @Override
-    protected void onCancelled() {
-        super.onCancelled();
-        try {
-            cancelled();
-        } catch (Exception e) {
-            logger.error("Error Happened on Handling Cancelled Progress: ", e);
-        }
-    }
-
-    protected void cancelled() throws Exception {
-    }
-
-    ;
-
-    @Override
     protected void onCancelled(Result result) {
         super.onCancelled();
         try {

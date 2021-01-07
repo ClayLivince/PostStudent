@@ -99,16 +99,13 @@ class VerifyTask {
                         Snackbar.make(udf.root, R.string.timed_out, Snackbar.LENGTH_LONG).show();
                         break;
                     }
+                    case EMPTY_CAPTCHA:
+                    case INCORRECT_CAPTCHA:
                     case CAPTCHA_REQUIRED: {
                         if (exception != null)
                             udf.popupCaptcha(loginStatus.captchaImage
                                     , exception.site);
                         else udf.popupCaptcha(loginStatus.captchaImage, loginStatus.site);
-                        break;
-                    }
-                    case EMPTY_CAPTCHA:
-                    case INCORRECT_CAPTCHA: {
-                        Snackbar.make(udf.root, R.string.incorrect_captcha, Snackbar.LENGTH_LONG).show();
                         break;
                     }
                     case TOO_MANY_ERRORS: {

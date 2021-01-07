@@ -218,12 +218,12 @@ public class VPNManager extends SiteManager {
 
     public Connection.Response get(Connection conn) throws Exception {
         if (checkLogin()) {
+            Log.i("VPNManager", "Trying to connect to " + conn.request().url().toString());
             conn.cookies(cookies);
             String url = conn.request().url().toString();
             if (!url.contains("webvpn.bupt.edu.cn")) conn.url(analyseURL(url));
             Connection.Response res = conn.execute();
             cookies.putAll(res.cookies());
-            Log.i("VPNConnection", "Trying to connect to " + res.url().toString());
             return res;
         }
         throw new IOException("VPN Failed to login.");

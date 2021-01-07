@@ -14,6 +14,7 @@ public class LoginException extends Exception {
     public String toString() {
         return "LoginException : "
                 + "\nSite : " + site.toString()
+                + "\nStatus : " + status.toString()
                 + "\nCause : " + this.getCause();
     }
 

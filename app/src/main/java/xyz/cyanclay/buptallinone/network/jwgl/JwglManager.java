@@ -80,7 +80,9 @@ public class JwglManager extends SiteManager {
             }
         }
 
-        Document trainModeDoc = get(jwglURL + trainModePart).parse();
+        Connection.Response trainModeres = get(jwglURL + trainModePart).bufferUp();
+
+        Document trainModeDoc = trainModeres.parse();
 
         Element courseTable = trainModeDoc.getElementById("mxh").child(0);
         Elements courseEntries = courseTable.children();
@@ -103,6 +105,8 @@ public class JwglManager extends SiteManager {
             boolean head = false;
 
             try {
+                if (courseEntry.children().isEmpty())
+                    continue;
 
                 if (courseEntry.child(0).hasAttr("colspan"))
                     continue;
@@ -120,25 +124,25 @@ public class JwglManager extends SiteManager {
 
                 TrainModeCourse course = new TrainModeCourse();
 
-                course.courseID = courseEntry.child(head ? 2 : 1).ownText().trim();
-                course.courseName = courseEntry.child(head ? 3 : 2).ownText().trim();
+                course.courseID = courseEntry.child(head ? 1 : 0).ownText().trim();
+                course.courseName = courseEntry.child(head ? 2 : 1).ownText().trim();
 
-                String status = courseEntry.child(head ? 4 : 3).ownText().trim();
+                String status = courseEntry.child(head ? 3 : 2).ownText().trim();
                 if (status.contains("不及格"))
                     course.isFailed = true;
                 else if (status.contains("已修"))
                     course.isPassed = true;
 
-                course.courseCategory = courseEntry.child(head ? 5 : 4).ownText().trim();
-                course.courseType = courseEntry.child(head ? 6 : 5).ownText().trim();
-                course.point = Float.parseFloat(courseEntry.child(head ? 7 : 6).ownText().trim());
-                course.courseHour = Integer.parseInt(courseEntry.child(head ? 8 : 7).ownText().trim());
-                course.practiceHour = Integer.parseInt(courseEntry.child(head ? 9 : 8).ownText().trim());
-                course.lectureHour = Integer.parseInt(courseEntry.child(head ? 10 : 9).ownText().trim());
-                course.experimentHour = Integer.parseInt(courseEntry.child(head ? 11 : 10).ownText().trim());
-                course.otherHour = Integer.parseInt(courseEntry.child(head ? 12 : 11).ownText().trim());
-                course.totalHour = Integer.parseInt(courseEntry.child(head ? 13 : 12).ownText().trim());
-                course.term = Integer.parseInt(courseEntry.child(head ? 14 : 13).ownText().trim());
+                course.courseCategory = courseEntry.child(head ? 4 : 3).ownText().trim();
+                course.courseType = courseEntry.child(head ? 5 : 4).ownText().trim();
+                course.point = Float.parseFloat(courseEntry.child(head ? 6 : 5).ownText().trim());
+                course.courseHour = Integer.parseInt(courseEntry.child(head ? 7 : 6).ownText().trim());
+                course.practiceHour = Integer.parseInt(courseEntry.child(head ? 8 : 7).ownText().trim());
+                course.lectureHour = Integer.parseInt(courseEntry.child(head ? 9 : 8).ownText().trim());
+                course.experimentHour = Integer.parseInt(courseEntry.child(head ? 10 : 9).ownText().trim());
+                course.otherHour = Integer.parseInt(courseEntry.child(head ? 11 : 10).ownText().trim());
+                course.totalHour = Integer.parseInt(courseEntry.child(head ? 12 : 11).ownText().trim());
+                course.term = Integer.parseInt(courseEntry.child(head ? 13 : 12).ownText().trim());
 
                 for (Course c : courses) {
                     if (c.courseName.split(" ")[0].equals(course.courseName)) {
@@ -185,8 +189,7 @@ public class JwglManager extends SiteManager {
                 }
 
             } catch (NumberFormatException | IndexOutOfBoundsException | NullPointerException e) {
-                if (!(e instanceof IndexOutOfBoundsException))
-                    e.printStackTrace();
+                e.printStackTrace();
             }
 
         }

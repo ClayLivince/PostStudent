@@ -222,7 +222,7 @@ public class TrainModeFragment extends Fragment implements SwipeRefreshLayout.On
             }
 
             @Override
-            protected void cancelled() throws Exception {
+            protected void cancelled(Map<TrainModeCourseSubGroup, ClayManager.NetCourseGroup> conflictMap) throws Exception {
                 Snackbar.make(fragment.root, R.string.upload_failed, BaseTransientBottomBar.LENGTH_LONG).show();
             }
         }.execute();
@@ -262,8 +262,8 @@ public class TrainModeFragment extends Fragment implements SwipeRefreshLayout.On
             }
 
             @Override
-            protected void cancelled() throws Exception {
-                super.cancelled();
+            protected void cancelled(List<TrainModeCourseGroup> groups) throws Exception {
+
             }
         }.execute();
     }

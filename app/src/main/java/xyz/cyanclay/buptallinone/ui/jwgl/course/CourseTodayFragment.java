@@ -127,7 +127,7 @@ public class CourseTodayFragment extends Fragment {
             }
 
             @Override
-            protected void cancelled() throws Exception {
+            protected void cancelled(List<Course> list) throws Exception {
                 super.onCancelled();
                 fragment.rv.setVisibility(View.GONE);
                 fragment.adapter.setLoading(false);

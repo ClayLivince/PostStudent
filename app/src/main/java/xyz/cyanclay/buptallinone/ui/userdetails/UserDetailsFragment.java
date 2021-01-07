@@ -33,6 +33,7 @@ import java.util.Arrays;
 
 import xyz.cyanclay.buptallinone.MainActivity;
 import xyz.cyanclay.buptallinone.R;
+import xyz.cyanclay.buptallinone.network.AuthManager;
 import xyz.cyanclay.buptallinone.network.JwxtManager;
 import xyz.cyanclay.buptallinone.network.NetworkManager;
 import xyz.cyanclay.buptallinone.network.SiteManager;
@@ -221,7 +222,7 @@ public class UserDetailsFragment extends Fragment implements SwipeRefreshLayout.
     }
      */
 
-    void popupCaptcha(Drawable image, final SiteManager who) {
+    void popupCaptcha(Drawable image, SiteManager who) {
         AlertDialog.Builder captchaDialogBuilder = new AlertDialog.Builder(getContext());
         final View captchaView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_captcha_input_panel, null);
         captchaDialogBuilder.setTitle(R.string.input_captcha);
@@ -229,6 +230,9 @@ public class UserDetailsFragment extends Fragment implements SwipeRefreshLayout.
         String message;
         if (who instanceof VPNManager) {
             message = getString(R.string.vpn_captcha);
+        } else if (who instanceof AuthManager) {
+            who = who.nm.infoManager;
+            message = getString(R.string.info_captcha);
         } else if (who instanceof InfoManager) {
             message = getString(R.string.info_captcha);
         } else if (who instanceof JwxtManager) {
@@ -242,10 +246,12 @@ public class UserDetailsFragment extends Fragment implements SwipeRefreshLayout.
         iv.setImageDrawable(image);
 
         captchaDialogBuilder.setView(captchaView);
+
+        final SiteManager whoF = who;
         captchaDialogBuilder.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                VerifyTask.verify(UserDetailsFragment.this, who, et.getText().toString());
+                VerifyTask.verify(UserDetailsFragment.this, whoF, et.getText().toString());
                 dialog.dismiss();
             }
         });
@@ -312,7 +318,7 @@ public class UserDetailsFragment extends Fragment implements SwipeRefreshLayout.
             }
 
             @Override
-            protected void cancelled() {
+            protected void cancelled(Boolean a) {
                 udf.saveDialog.dismiss();
                 Snackbar.make(udf.root, "保存失败，请重试", Snackbar.LENGTH_LONG).show();
                 if (this.e != null) logger.error("Exception in Saving Password: ", e);

@@ -80,6 +80,7 @@
                 android:focusableInTouchMode="true"
                 android:textIsSelectable="true"
                 android:textColor="#101010"
+                android:minHeight="300dp"
                 android:textSize="14sp" />
 
             <View

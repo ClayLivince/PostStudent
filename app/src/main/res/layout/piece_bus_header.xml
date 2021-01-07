@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="16sp"
+    android:paddingEnd="16sp">
+
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="200dp"
+        android:layout_height="250dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/bus_stop" />
+
+    <TextView
+        android:layout_width="58dp"
+        android:layout_height="16dp"
+        android:layout_marginBottom="4dp"
+        android:text="@string/minute"
+        app:layout_constraintBottom_toBottomOf="@+id/textViewBusHeaderTime"
+        app:layout_constraintStart_toEndOf="@+id/textViewBusHeaderTime"
+        tools:text="分钟" />
+
+    <TextView
+        android:id="@+id/textViewBusDestination"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:textColor="@color/textPrimaryDark"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="@+id/textViewBusTimeCaption"
+        app:layout_constraintTop_toBottomOf="@+id/textView6"
+        tools:text="西土城校区" />
+
+    <TextView
+        android:id="@+id/textViewBusTimeCaption"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="28dp"
+        android:text="@string/school_bus_left_time_caption"
+        app:layout_constraintStart_toEndOf="@+id/imageView3"
+        app:layout_constraintTop_toBottomOf="@+id/textViewBusDestination"
+        tools:text="距离下班车发车" />
+
+    <TextView
+        android:id="@+id/textViewBusHeaderTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:textColor="@color/textPrimaryDark"
+        android:textSize="36sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="@+id/textViewBusTimeCaption"
+        app:layout_constraintTop_toBottomOf="@+id/textViewBusTimeCaption"
+        tools:text="30" />
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="@string/school_bus_drive_to_caption"
+        app:layout_constraintStart_toStartOf="@+id/textViewBusDestination"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

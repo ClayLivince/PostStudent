@@ -87,7 +87,7 @@ public class SettingFragment extends Fragment {
             }
 
             @Override
-            protected void cancelled() throws Exception {
+            protected void cancelled(Boolean result) throws Exception {
                 Snackbar.make(fragment.root, msg[0], Snackbar.LENGTH_LONG).show();
             }
         }.execute();
@@ -137,7 +137,7 @@ public class SettingFragment extends Fragment {
             }
 
             @Override
-            protected void cancelled() {
+            protected void cancelled(String[] infos) {
                 Snackbar.make(fragment.root, msg[0], Snackbar.LENGTH_LONG).show();
             }
         }.execute();

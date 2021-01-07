@@ -158,7 +158,7 @@ public class ItemDetailFragment extends Fragment {
             }
 
             @Override
-            protected void cancelled() throws Exception {
+            protected void cancelled(InfoItem infoItem) throws Exception {
                 super.onCancelled();
                 ((SwipeRefreshLayout) idf.root.findViewById(R.id.srlItemDetail)).setRefreshing(false);
                 if (exception == null)

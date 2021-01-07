@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="20sp">
+
+    <TextView
+        android:id="@+id/textViewBusTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/textPrimaryDark"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        tools:text="14:30" />
+
+    <TextView
+        android:id="@+id/textViewBusType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10sp"
+        android:layout_weight="1"
+        tools:text="大巴" />
+
+    <TextView
+        android:id="@+id/textViewBusLeftTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:maxLines="1"
+        android:textAlignment="viewEnd"
+        tools:text="25分钟后" />
+
+</LinearLayout>

@@ -10,16 +10,6 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/text_tools"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:textAlignment="center"
-            android:textSize="20sp" />
-
         <androidx.gridlayout.widget.GridLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -30,19 +20,21 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:drawableTop="@drawable/icon_compasses"
-                android:lineSpacingExtra="8sp"
+                android:paddingTop="15sp"
+                android:paddingBottom="15sp"
                 android:text="@string/train_mode"
                 android:textAlignment="center"
-                android:textSize="14sp"
                 app:layout_columnWeight="1"
                 app:layout_rowWeight="1" />
 
             <xyz.cyanclay.buptallinone.ui.components.BorderTextView
-                android:id="@+id/borderTextView2"
+                android:id="@+id/imageViewSchoolBus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:drawableTop="@drawable/icon_chair"
-                android:text="@string/developing"
+                android:drawableTop="@drawable/icon_school_bus"
+                android:paddingTop="15sp"
+                android:paddingBottom="15sp"
+                android:text="@string/school_bus"
                 android:textAlignment="center"
                 app:layout_columnWeight="1"
                 app:layout_rowWeight="1" />
@@ -52,6 +44,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:drawableTop="@drawable/icon_food"
+                android:paddingTop="15sp"
+                android:paddingBottom="15sp"
                 android:text="@string/developing"
                 android:textAlignment="center"
                 app:layout_columnWeight="1"
@@ -61,6 +55,9 @@
                 android:id="@+id/borderTextView4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:drawableTop="@drawable/icon_school"
+                android:paddingTop="15sp"
+                android:paddingBottom="15sp"
                 android:text=""
                 app:layout_columnWeight="1"
                 app:layout_rowWeight="1" />
@@ -69,6 +66,18 @@
                 android:id="@+id/borderTextView5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:paddingTop="15sp"
+                android:paddingBottom="15sp"
+                android:text=""
+                app:layout_columnWeight="1"
+                app:layout_rowWeight="1" />
+
+            <xyz.cyanclay.buptallinone.ui.components.BorderTextView
+                android:id="@+id/borderTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="15sp"
+                android:paddingBottom="15sp"
                 android:text=""
                 app:layout_columnWeight="1"
                 app:layout_rowWeight="1" />

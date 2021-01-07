@@ -44,7 +44,7 @@ public class LoginTask {
             }
 
             @Override
-            protected void cancelled() throws Exception {
+            protected void cancelled(LoginStatus status) throws Exception {
                 super.onCancelled();
                 if (exception != null) {
                     handleStatus(activity, root, exception.status);
@@ -68,10 +68,7 @@ public class LoginTask {
                         .setAction(R.string.go_fill_details, listener).show();
                 break;
             }
-            case INCORRECT_CAPTCHA: {
-                makeSnackbar(root, R.string.incorrect_captcha).show();
-                break;
-            }
+            case INCORRECT_CAPTCHA:
             case CAPTCHA_REQUIRED:
             case EMPTY_CAPTCHA: {
                 makeSnackbar(root, R.string.incorrect_captcha).show();

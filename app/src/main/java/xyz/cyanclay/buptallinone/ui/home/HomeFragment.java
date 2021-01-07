@@ -58,7 +58,7 @@ public class HomeFragment extends Fragment {
             SwipeRefreshLayout srl = root.findViewById(R.id.srlHome);
             srl.setEnabled(false);
 
-            //root.findViewById(R.id.menu_calan).setOnClickListener(listener_calan);//校历
+            root.findViewById(R.id.menu_calan).setOnClickListener(listener_calan);//校历
             root.findViewById(R.id.menu_score).setOnClickListener(listener_score);//课表
             root.findViewById(R.id.menu_courseList).setOnClickListener(listener_course);//正方系统
             //root.findViewById(R.id.menu_library).setOnClickListener(listener_library);//图书借阅
@@ -86,6 +86,16 @@ public class HomeFragment extends Fragment {
         courseToday.removeAllViews();
         infoList.removeAllViews();
     }
+
+    private View.OnClickListener listener_calan = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+
+            Navigation.findNavController(activity, R.id.nav_host_fragment)
+                    .navigate(R.id.action_nav_to_Calendar);
+
+        }
+    };
 
     private View.OnClickListener listener_score = new View.OnClickListener() {
         @Override

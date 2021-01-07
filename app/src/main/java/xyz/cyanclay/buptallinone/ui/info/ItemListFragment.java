@@ -82,6 +82,7 @@ public class ItemListFragment extends Fragment {
                         cancel(true);
                         exception = e;
                         e.printStackTrace();
+                        return null;
                     } catch (Exception e) {
                         cancel(true);
                         e.printStackTrace();
@@ -133,7 +134,7 @@ public class ItemListFragment extends Fragment {
             }
 
             @Override
-            protected void cancelled() throws Exception {
+            protected void cancelled(InfoItems[] infoItems) throws Exception {
                 root.findViewById(R.id.layoutItemLists).setVisibility(View.GONE);
                 if (exception == null)
                     Snackbar.make(root, R.string.load_failed, Snackbar.LENGTH_LONG).show();

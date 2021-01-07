@@ -26,6 +26,7 @@ import org.json.JSONException;
 
 import java.io.IOException;
 
+import xyz.cyanclay.buptallinone.network.AuthManager;
 import xyz.cyanclay.buptallinone.network.JwxtManager;
 import xyz.cyanclay.buptallinone.network.NetworkManager;
 import xyz.cyanclay.buptallinone.network.SiteManager;
@@ -99,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
         drawer.closeDrawers();
     }
 
-    public void popupCaptcha(final View from, Drawable image, final SiteManager who) {
+    public void popupCaptcha(final View from, Drawable image, SiteManager who) {
         AlertDialog.Builder captchaDialogBuilder = new AlertDialog.Builder(this);
         final View captchaView = LayoutInflater.from(this).inflate(R.layout.dialog_captcha_input_panel, null);
         captchaDialogBuilder.setTitle(R.string.input_captcha);
@@ -107,6 +108,9 @@ public class MainActivity extends AppCompatActivity {
         String message;
         if (who instanceof VPNManager) {
             message = getString(R.string.vpn_captcha);
+        } else if (who instanceof AuthManager) {
+            who = who.nm.infoManager;
+            message = getString(R.string.info_captcha);
         } else if (who instanceof InfoManager) {
             message = getString(R.string.info_captcha);
         } else if (who instanceof JwxtManager) {
@@ -119,11 +123,12 @@ public class MainActivity extends AppCompatActivity {
         final EditText et = captchaView.findViewById(R.id.inpCaptcha);
         iv.setImageDrawable(image);
 
+        final SiteManager whoF = who;
         captchaDialogBuilder.setView(captchaView);
         captchaDialogBuilder.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                LoginTask.login(MainActivity.this, from, who, et.getText().toString());
+                LoginTask.login(MainActivity.this, from, whoF, et.getText().toString());
                 dialog.dismiss();
             }
         });
@@ -162,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            protected void cancelled() throws Exception {
+            protected void cancelled(Boolean result) throws Exception {
                 Snackbar.make(view, msg[0], Snackbar.LENGTH_LONG).show();
             }
         }.execute();
@@ -212,7 +217,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            protected void cancelled() {
+            protected void cancelled(String[] result) {
                 Snackbar.make(view, msg[0], Snackbar.LENGTH_LONG).show();
             }
         }.execute();

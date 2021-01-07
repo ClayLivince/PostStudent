@@ -56,6 +56,24 @@ public class Utils {
         return dm.density; // 返回屏幕的像素密度数值
     }
 
+    public static int[] calcTimeLapse(String timeEarly, String timeLate) {
+        String[] earlyFrag = timeEarly.split(":");
+        String[] lateFrag = timeLate.split(":");
+
+        int hourLapse = Integer.parseInt(lateFrag[0]) - Integer.parseInt(earlyFrag[0]);
+        int minLapse = Integer.parseInt(lateFrag[1]) - Integer.parseInt(earlyFrag[1]);
+
+        if (minLapse < 0 & hourLapse > 0) {
+            hourLapse -= 1;
+            minLapse += 60;
+        } else if (minLapse > 0 & hourLapse < 0) {
+            hourLapse += 1;
+            minLapse -= 60;
+        }
+
+        return new int[]{hourLapse, minLapse};
+    }
+
     public static Map<String, Object> objectToMap(Object obj) throws IllegalAccessException {
         Map<String, Object> map = new HashMap<>();
         Class<?> clazz = obj.getClass();

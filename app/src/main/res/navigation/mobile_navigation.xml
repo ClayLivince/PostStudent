@@ -62,6 +62,29 @@
     </fragment>
 
     <fragment
+        android:id="@+id/nav_calendar"
+        android:name="xyz.cyanclay.buptallinone.ui.info.SchoolCalendarFragment"
+        android:label="@string/school_calendar"
+        tools:layout="@layout/fragment_school_calendar" />
+    <action
+        android:id="@+id/action_nav_to_Calendar"
+        app:destination="@id/nav_calendar"
+        app:enterAnim="@anim/slide_in_right"
+        app:popExitAnim="@android:anim/slide_out_right" />
+
+    <fragment
+        android:id="@+id/nav_school_bus"
+        android:name="xyz.cyanclay.buptallinone.ui.info.SchoolBusFragment"
+        android:label="@string/school_bus"
+        tools:layout="@layout/fragment_school_bus" />
+    <action
+        android:id="@+id/action_to_nav_school_bus"
+        app:destination="@id/nav_school_bus"
+        app:enterAnim="@anim/slide_in_right"
+        app:popExitAnim="@android:anim/slide_out_right" />
+
+
+    <fragment
         android:id="@+id/nav_about"
         android:name="xyz.cyanclay.buptallinone.ui.setting.AboutFragment"
         android:label="@string/menu_about"

@@ -154,6 +154,14 @@
     <string name="developing">待开发功能</string>
 
     <string name="school_bus">校车</string>
+    <string name="school_bus_drive_to">开往 %s</string>
+    <string name="school_bus_drive_to_caption">开往</string>
+    <string name="school_bus_left_time">%d 分钟</string>
+    <string name="minute">分钟</string>
+    <string name="school_bus_left_time_caption">距离下班车发车</string>
+    <string name="school_bus_empty">今天好像没有校车喔</string>
+    <string name="school_bus_main_campus">西土城校区</string>
+    <string name="school_bus_changping">沙河校区</string>
     <string name="school_calendar">校历</string>
 
     <string name="mark_passed">✔</string>

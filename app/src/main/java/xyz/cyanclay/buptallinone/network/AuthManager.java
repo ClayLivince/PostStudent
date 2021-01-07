@@ -59,18 +59,17 @@ public class AuthManager extends SiteManager {
         if (sCaptcha != null) details.put("captchaResponse", sCaptcha);
         this.cachedDetails = details;
         Element captchaDiv = target.getElementById("casCaptcha");
-        if (!captchaDiv.children().isEmpty()) {
-            Element eCaptchaImg = captchaDiv.getElementById("captchaImg");
-            if (eCaptchaImg != null) {
-                Connection.Response captchaRes = nm.get(Jsoup.connect(eCaptchaImg.absUrl("src"))
-                        .ignoreContentType(true), cookies);
-                Drawable captchaImg = Drawable.createFromStream(captchaRes.bodyStream(), "AuthCaptcha");
-                LoginStatus captcha = LoginStatus.CAPTCHA_REQUIRED;
-                captcha.site = this;
-                captcha.captchaImage = captchaImg;
-                return captcha;
-            }
+        Element eCaptchaImg = captchaDiv.getElementById("captchaImg");
+        if (eCaptchaImg != null) {
+            Connection.Response captchaRes = nm.get(Jsoup.connect(packageURL(eCaptchaImg.attr("src")))
+                    .ignoreContentType(true), cookies);
+            Drawable captchaImg = Drawable.createFromStream(captchaRes.bodyStream(), "AuthCaptcha");
+            LoginStatus captcha = LoginStatus.CAPTCHA_REQUIRED;
+            captcha.site = this;
+            captcha.captchaImage = captchaImg;
+            return captcha;
         }
+
         return null;
     }
 
@@ -102,7 +101,7 @@ public class AuthManager extends SiteManager {
                 } else if (status.equals("The username or password you provided cannot be determined to be authentic.")) {
                     return LoginStatus.INCORRECT_DETAIL;
                 } else if (status.equals("Please enter captcha.")) {
-                    return LoginStatus.EMPTY_CAPTCHA;
+                    return judgeCaptcha(login, null);
                 } else if (status.equals("invalid captcha.")) {
                     LoginStatus challenge = judgeCaptcha(login, null);
                     if (challenge != null) return challenge;
@@ -158,5 +157,9 @@ public class AuthManager extends SiteManager {
     @Deprecated
     protected LoginStatus doCaptchaLogin(String captcha) {
         return null;
+    }
+
+    public static String packageURL(String href) {
+        return loginURL.replace("login", href);
     }
 }

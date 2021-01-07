@@ -5,6 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -17,11 +18,11 @@ import java.util.List;
 import java.util.Map;
 
 import xyz.cyanclay.buptallinone.constant.StatusCode;
+import xyz.cyanclay.buptallinone.network.info.Bus;
 import xyz.cyanclay.buptallinone.network.jwgl.trainmode.TrainModeCourseGroup;
 import xyz.cyanclay.buptallinone.network.jwgl.trainmode.TrainModeCourseSubGroup;
 
 public class ClayManager {
-
     static Gson gson = new Gson();
     static final String baseURL = "https://bupt.cyanclay.xyz/";
 
@@ -120,6 +121,14 @@ public class ClayManager {
         }
 
         return notFoundGroups;
+    }
+
+    public static List<Bus> getBus(NetworkManager nm) throws Exception {
+        Connection.Response res = nm.getNoVPN(Jsoup.connect(baseURL + "bus")
+                .ignoreContentType(true)).bufferUp();
+        //Document dom = res.parse();
+        return gson.fromJson(res.body(), new TypeToken<List<Bus>>() {
+        }.getType());
     }
 
     public static class NetCourseGroup {

@@ -39,6 +39,7 @@ public class NetworkManager {
     public InfoManager infoManager;
     public UpdateManager updateManager;
     public ShareManager shareManager;
+    public WebAppManager webAppManager;
     public PasswordHelper passwordHelper;
 
     private static File cacheDir;
@@ -57,6 +58,7 @@ public class NetworkManager {
         jwglManager = new JwglManager(this, context);
         updateManager = new UpdateManager(this);
         shareManager = new ShareManager(context);
+        webAppManager = new WebAppManager(this, context);
         passwordHelper = new PasswordHelper();
 
         init();
@@ -133,7 +135,7 @@ public class NetworkManager {
 
         conn.userAgent(userAgent)
                 .method(Connection.Method.GET)
-                .timeout(10000);
+                .timeout(30000);
         String url = conn.request().url().toString();
         if (url.contains("&amp;")) {
             conn.url(url.replace("&amp;", "&"));
@@ -163,7 +165,8 @@ public class NetworkManager {
     }
 
     public Connection.Response getNoVPN(Connection conn) throws IOException {
-        return conn.timeout(5000).userAgent(userAgent).method(Connection.Method.GET).execute();
+        Log.i("NetworkManager", "Trying to connect to " + conn.request().url().toString());
+        return conn.timeout(30000).userAgent(userAgent).method(Connection.Method.GET).execute();
     }
 
     /**
