@@ -97,10 +97,13 @@
     <string name="is_latest">已经是最新版本！</string>
     <string name="update_problem">检查更新时遇到了问题。</string>
     <string name="start_update">已开始下载更新</string>
+    <string name="update_downloaded">更新下载完毕。</string>
     <string name="start_download_attachment">开始下载附件%s …</string>
+    <string name="file_name_downloaded">%s 下载完毕。</string>
     <string name="downloaded">下载完毕。</string>
 
-    <string name="share_to">分享到……</string>
+    <string name="share_to">分享</string>
+    <string name="open_in_webview">使用内置浏览器打开</string>
     <string name="welcome">欢迎，%s</string>
 
     <string name="course_name">课程名称</string>
@@ -167,6 +170,12 @@
     <string name="mark_passed">✔</string>
     <string name="mark_failed">✖</string>
     <string name="mark_banned">🚫</string>
+
+    <string name="notifications">通知</string>
+    <string name="dumb">阿巴阿巴</string>
+    <string name="my_course">我的课程</string>
+    <string name="iclass">爱课堂</string>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 

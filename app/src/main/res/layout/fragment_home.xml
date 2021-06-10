@@ -22,7 +22,7 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
-                <xyz.cyanclay.buptallinone.widget.BannerPager
+                <xyz.cyanclay.poststudent.ui.components.BannerPager
                     android:id="@+id/banner_pager"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
@@ -198,7 +198,7 @@
 
                 <androidx.fragment.app.FragmentContainerView
                     android:id="@+id/fragmentCourseToday"
-                    android:name="xyz.cyanclay.buptallinone.ui.jwgl.course.CourseTodayFragment"
+                    android:name="xyz.cyanclay.poststudent.ui.jwgl.course.CourseTodayFragment"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 
@@ -219,7 +219,7 @@
 
                 <androidx.fragment.app.FragmentContainerView
                     android:id="@+id/fragmentSchoolInfo"
-                    android:name="xyz.cyanclay.buptallinone.ui.info.ItemListFragment"
+                    android:name="xyz.cyanclay.poststudent.ui.info.ItemListFragment"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 

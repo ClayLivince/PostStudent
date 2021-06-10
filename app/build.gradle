@@ -9,11 +9,11 @@ android {
         exclude 'META-INF/DEPENDENCIES'
     }
     defaultConfig {
-        applicationId "xyz.cyanclay.buptallinone"
+        applicationId "xyz.cyanclay.poststudent"
         minSdkVersion 21
         targetSdkVersion 29
         versionCode 1
-        versionName '0.3.8a(preview)'
+        versionName '0.4.2'
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -56,6 +56,8 @@ dependencies {
     implementation 'de.mindpipe.android:android-logging-log4j:1.0.3'
     implementation 'org.slf4j:slf4j-api:1.7.30'
     implementation 'org.slf4j:slf4j-log4j12:1.6.4'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.3.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1'
 
     def multidex_version = "2.0.1"
     implementation "androidx.multidex:multidex:$multidex_version"

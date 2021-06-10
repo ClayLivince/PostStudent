@@ -15,7 +15,7 @@
             android:layout_height="match_parent"
             app:columnCount="3">
 
-            <xyz.cyanclay.buptallinone.ui.components.BorderTextView
+            <xyz.cyanclay.poststudent.ui.components.BorderTextView
                 android:id="@+id/imageViewTrainMode"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -27,7 +27,7 @@
                 app:layout_columnWeight="1"
                 app:layout_rowWeight="1" />
 
-            <xyz.cyanclay.buptallinone.ui.components.BorderTextView
+            <xyz.cyanclay.poststudent.ui.components.BorderTextView
                 android:id="@+id/imageViewSchoolBus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -39,7 +39,7 @@
                 app:layout_columnWeight="1"
                 app:layout_rowWeight="1" />
 
-            <xyz.cyanclay.buptallinone.ui.components.BorderTextView
+            <xyz.cyanclay.poststudent.ui.components.BorderTextView
                 android:id="@+id/borderTextView3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -51,18 +51,19 @@
                 app:layout_columnWeight="1"
                 app:layout_rowWeight="1" />
 
-            <xyz.cyanclay.buptallinone.ui.components.BorderTextView
-                android:id="@+id/borderTextView4"
+            <xyz.cyanclay.poststudent.ui.components.BorderTextView
+                android:id="@+id/imageViewIClass"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:drawableTop="@drawable/icon_school"
                 android:paddingTop="15sp"
                 android:paddingBottom="15sp"
-                android:text=""
+                android:text="@string/iclass"
+                android:textAlignment="center"
                 app:layout_columnWeight="1"
                 app:layout_rowWeight="1" />
 
-            <xyz.cyanclay.buptallinone.ui.components.BorderTextView
+            <xyz.cyanclay.poststudent.ui.components.BorderTextView
                 android:id="@+id/borderTextView5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -72,7 +73,7 @@
                 app:layout_columnWeight="1"
                 app:layout_rowWeight="1" />
 
-            <xyz.cyanclay.buptallinone.ui.components.BorderTextView
+            <xyz.cyanclay.poststudent.ui.components.BorderTextView
                 android:id="@+id/borderTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

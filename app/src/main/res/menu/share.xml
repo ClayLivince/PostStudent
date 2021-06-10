@@ -7,4 +7,10 @@
         android:orderInCategory="100"
         android:title="@string/share_to"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_open_in_webview"
+        android:icon="@android:drawable/ic_menu_set_as"
+        android:orderInCategory="100"
+        android:title="@string/open_in_webview"
+        app:showAsAction="never" />
 </menu>

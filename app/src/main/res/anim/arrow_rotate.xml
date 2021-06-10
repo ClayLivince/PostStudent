@@ -6,4 +6,4 @@
     android:pivotY="50%"
     android:duration="1000"
     android:repeatCount="0"
-    android:startOffset="100"></rotate>
+    android:startOffset="100" />

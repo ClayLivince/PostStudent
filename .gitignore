@@ -14,3 +14,4 @@
 .cxx
 *.jks
 app/src/main/java/xyz/cyanclay/buptallinone/network/login/PasswordHelper.java
+/app/release/
